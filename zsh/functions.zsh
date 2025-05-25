@@ -107,22 +107,35 @@ mkhtb() {
 
 # ─── ESTRUCTURA PARA BUG BOUNTY / PENTEST ───
 mkbb() {
-  if [[ -z "$1" ]]; then
-    echo -e "\033[1;91m[-] Uso: mkbb <nombre-objetivo>\033[0m"
+  if [ -z "$1" ]; then
+    echo "Uso: mkbb <nombre_target>"
     return 1
   fi
-  mkdir -p "$1"/{nmap,http,scripts,content,exploits,burp,notes}
-  echo -e "\033[1;92m[+] Estructura para pentest '$1' creada (bug bounty style)\033[0m"
+
+  base_dir=~/Bug\ Bounty/"$1"
+  mkdir -p "$base_dir"/{burp,content,exploits,http,nmap,notes,scripts,recon,js,urls,screenshots}
+  
+  # Crear README base para anotaciones
+  touch "$base_dir/notes/README.md"
+
+  echo -e "\033[1;96m[+] Entorno completo creado para $1 en $base_dir\033[0m"
+  cd "$base_dir" || return
 }
 
 # ─── ESTRUCTURA PARA RETOS CTF ───
 mkctf() {
-  if [[ -z "$1" ]]; then
-    echo -e "\033[1;91m[-] Uso: mkctf <nombre-reto>\033[0m"
+  if [ -z "$1" ]; then
+    echo "Uso: mkctf <nombre_del_reto>"
     return 1
   fi
-  mkdir -p "$1"/{rev,web,pwn,crypto,forensics,misc,notes}
-  echo -e "\033[1;92m[+] Estructura para CTF '$1' creada\033[0m"
+
+  base_dir=~/CTFs/"$1"
+  mkdir -p "$base_dir"/{web,pwn,crypto,reversing,misc,forensics,notes,exploits,scripts,tools,screenshots,writeups}
+
+  touch "$base_dir/notes/README.md"
+
+  echo -e "\033[1;95m[+] Entorno CTF creado para $1 en $base_dir\033[0m"
+  cd "$base_dir" || return
 }
 
 # ─── CONTAR LÍNEAS DE CÓDIGO EN PROYECTO ─────────────────────────────────────────
