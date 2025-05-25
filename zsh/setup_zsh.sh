@@ -10,6 +10,8 @@ declare -a LINES=(
   'source ~/dotfiles/zsh/exports.zsh'
   'source ~/dotfiles/zsh/aliases.zsh'
   'source ~/dotfiles/zsh/functions.zsh'
+  'source ~/dotfiles/zsh/exports.zsh'
+
 )
 
 for line in "${LINES[@]}"; do
