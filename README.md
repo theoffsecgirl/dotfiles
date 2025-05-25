@@ -16,7 +16,7 @@ Este repositorio contiene mi configuración personalizada para el terminal en Li
 Clona el repositorio:
 
 ```bash
-git clone https://github.com/theoffsecgirl/dotfiles-rosepunk.git ~/dotfiles
+git clone https://github.com/theoffsecgirl/dotfiles.git
 ```
 Entra en la carpeta y ejecuta el script de instalación:
 
