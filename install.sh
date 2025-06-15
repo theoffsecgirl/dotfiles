@@ -25,10 +25,7 @@ detect_package_manager() {
         UPDATE_CMD="sudo apt update"
         INSTALL_CMD="sudo apt install -y"
         BAT_PKG="bat"
-        # En Ubuntu/Debian < 22.04, el binario de bat puede ser batcat
-        if ! command_exists bat && command_exists batcat; then
-            BAT_PKG="bat" # El paquete se llama 'bat' pero el binario 'batcat'
-        fi
+        if ! command_exists bat && command_exists batcat; then BAT_PKG="bat"; fi
         LSD_PKG="lsd"
     elif command_exists dnf; then
         PKG_MANAGER="dnf"
@@ -40,10 +37,10 @@ detect_package_manager() {
         PKG_MANAGER="pacman"
         UPDATE_CMD="sudo pacman -Syu"
         INSTALL_CMD="sudo pacman -S --noconfirm"
-        BAT_PKG="bat" # El paquete es 'bat', el binario es 'bat' o 'batcat'
+        BAT_PKG="bat"
         LSD_PKG="lsd"
     else
-        print_warn "Gestor de paquetes no soportado (apt, dnf, pacman). Deberás instalar las dependencias manualmente."
+        print_warn "Gestor de paquetes no soportado. Deberás instalar las dependencias manualmente."
         PKG_MANAGER="unsupported"
     fi
 }
@@ -63,7 +60,7 @@ for dep in "${dependencies[@]}"; do
         if [ "$PKG_MANAGER" != "unsupported" ]; then
             read -p "¿Deseas intentar instalarlo ahora? (s/n): " choice
             if [[ "$choice" == "s" || "$choice" == "S" ]]; then
-                print_msg "info" "Instalando '$dep' con $PKG_MANAGER..."
+                print_msg "info" "Instalando '$dep'..."
                 eval "$INSTALL_CMD $dep"
             else
                 print_error "La instalación no puede continuar sin '$dep'."
@@ -77,13 +74,15 @@ done
 # --- Instalación de Oh My Zsh ---
 
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    print_msg "info" "Oh My Zsh no está instalado. Instalando ahora..."
+    print_msg "info" "Instalando Oh My Zsh..."
+    # Ejecutamos el instalador de Oh My Zsh de forma no interactiva.
+    # Creará un archivo .zshrc por defecto si no existe.
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 else
     print_msg "success" "Oh My Zsh ya está instalado."
 fi
 
-# --- Instalación de Plugins y Herramientas Opcionales ---
+# --- Instalación de Plugins y Herramientas ---
 
 ZSH_CUSTOM="$HOME/.oh-my-zsh/custom"
 # Powerlevel10k
@@ -114,39 +113,31 @@ if [ "$PKG_MANAGER" != "unsupported" ]; then
     eval "$UPDATE_CMD" >/dev/null 2>&1
     eval "$INSTALL_CMD neofetch $BAT_PKG $LSD_PKG"
 else
-    print_warn "No se pudo instalar neofetch, bat, lsd. Por favor, instálalos manualmente si los deseas."
+    print_warn "No se pudo instalar neofetch, bat, lsd. Instálalos manually si los deseas."
 fi
 
 # --- Configuración de Dotfiles ---
 
 print_msg "info" "Configurando dotfiles y enlaces simbólicos..."
 DOTFILES_DIR="$HOME/dotfiles"
-REPO_DIR="$(pwd)" # Se asume que el script se ejecuta desde la raíz del repo
+REPO_DIR="$(pwd)" # Asume que el script se ejecuta desde la raíz del repo
 
-# Crear la estructura de carpetas de destino si no existen
 mkdir -p "$DOTFILES_DIR/zsh"
 mkdir -p "$DOTFILES_DIR/themes"
 
-# Copiar los archivos desde las carpetas correctas del repositorio
-print_msg "info" "Copiando archivos de configuración..."
-
-# Copia todos los archivos .zsh de la carpeta zsh/ del repo a la nueva ubicación
+print_msg "info" "Copiando archivos de configuración a $DOTFILES_DIR..."
 cp "$REPO_DIR"/zsh/*.zsh "$DOTFILES_DIR/zsh/"
-
-# Copia el archivo p10k.zsh de la carpeta themes/ del repo a la nueva ubicación, renombrándolo
 cp "$REPO_DIR"/themes/p10k.zsh "$DOTFILES_DIR/themes/.p10k.zsh"
 
-# Crear enlace simbólico para que p10k encuentre su configuración
 ln -sf "$DOTFILES_DIR/themes/.p10k.zsh" "$HOME/.p10k.zsh"
 
 # --- Modificación Segura de ~/.zshrc ---
 
 ZSHRC_FILE="$HOME/.zshrc"
-print_msg "info" "Actualizando $ZSHRC_FILE de forma segura..."
+print_msg "info" "Verificando y configurando $ZSHRC_FILE..."
 
-# Definir el bloque de configuración a añadir.
-CONFIG_SNIPPET=$(cat <<'EOF'
-
+# Definimos el bloque de configuración PERSONALIZADO
+CUSTOM_SNIPPET=$(cat <<'EOF'
 # --- Rosepunk Dotfiles Configuration ---
 # Carga de la configuración modular de Rosepunk
 if [ -d "$HOME/dotfiles" ]; then
@@ -159,18 +150,39 @@ fi
 EOF
 )
 
-# Configuración de ZSH_THEME y plugins
-sed -i 's/^ZSH_THEME=.*/ZSH_THEME="powerlevel10k\/powerlevel10k"/' "$ZSHRC_FILE"
-sed -i 's/^plugins=.*/plugins=(git zsh-autosuggestions zsh-syntax-highlighting)/' "$ZSHRC_FILE"
-
-# Añadir el bloque de fuentes personalizadas si no existe
-if ! grep -q "# --- Rosepunk Dotfiles Configuration ---" "$ZSHRC_FILE"; then
-    echo "$CONFIG_SNIPPET" >> "$ZSHRC_FILE"
-    print_msg "success" "La configuración de Rosepunk ha sido añadida a $ZSHRC_FILE."
+# Comprobamos si el .zshrc actual ya carga Oh My Zsh
+if [ -f "$ZSHRC_FILE" ] && grep -q "source \$ZSH/oh-my-zsh.sh" "$ZSHRC_FILE"; then
+    # El archivo parece un .zshrc válido. Nos aseguramos de que tenga la config correcta.
+    print_msg "info" "$ZSHRC_FILE es válido. Asegurando configuración..."
+    sed -i 's/^ZSH_THEME=.*/ZSH_THEME="powerlevel10k\/powerlevel10k"/' "$ZSHRC_FILE"
+    sed -i 's/^plugins=.*/plugins=(git zsh-autosuggestions zsh-syntax-highlighting)/' "$ZSHRC_FILE"
+    
+    if ! grep -q "# --- Rosepunk Dotfiles Configuration ---" "$ZSHRC_FILE"; then
+        echo -e "\n$CUSTOM_SNIPPET" >> "$ZSHRC_FILE"
+    fi
 else
-    print_msg "success" "La configuración de Rosepunk ya existe en $ZSHRC_FILE. No se realizaron cambios."
-fi
+    # El archivo no existe o está incompleto. Lo creamos/reemplazamos con una versión ideal.
+    print_warn "$ZSHRC_FILE no existe o está incompleto. Creando uno nuevo y completo..."
+    [ -f "$ZSHRC_FILE" ] && mv "$ZSHRC_FILE" "$ZSHRC_FILE.bak_$(date +%F-%T)"
+    
+    # Creamos el archivo .zshrc completo y correcto
+    cat > "$ZSHRC_FILE" << EOF
+# Path to your Oh My Zsh installation.
+export ZSH="\$HOME/.oh-my-zsh"
 
+# Set the name of the theme to load.
+ZSH_THEME="powerlevel10k/powerlevel10k"
+
+# Set list of plugins.
+plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
+
+# Load Oh My Zsh.
+source \$ZSH/oh-my-zsh.sh
+
+$CUSTOM_SNIPPET
+EOF
+    print_msg "success" "$ZSHRC_FILE ha sido creado con la configuración completa."
+fi
 
 # --- Finalización ---
 
@@ -180,9 +192,9 @@ if [[ "$SHELL" != */zsh ]]; then
     if chsh -s "$(which zsh)"; then
         print_msg "success" "Shell por defecto cambiada a Zsh."
     else
-        print_warn "No se pudo cambiar la shell por defecto. Hazlo manualmente con: chsh -s $(which zsh)"
+        print_warn "No se pudo cambiar la shell. Hazlo manualmente con: chsh -s $(which zsh)"
     fi
 fi
 
-print_msg "warn" "IMPORTANTE: Para que los iconos del prompt se vean bien, necesitas una 'Nerd Font' (ej: Hack Nerd Font) instalada y configurada en tu terminal."
-print_msg "success" "¡Instalación completada! Por favor, reinicia tu terminal para aplicar todos los cambios."
+print_msg "warn" "IMPORTANTE: Para que los iconos se vean bien, necesitas una 'Nerd Font' instalada y configurada en tu terminal."
+print_msg "success" "¡Instalación completada! Cierra sesión y vuelve a entrar para que todos los cambios surtan efecto."
