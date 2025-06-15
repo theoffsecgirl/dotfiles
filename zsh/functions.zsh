@@ -1,4 +1,7 @@
 # ─── EXTRAER ARCHIVOS ───
+# Nota: Esta función usa múltiples herramientas. Se deja como está porque cada caso
+# es independiente. Si no tienes 'unrar', solo fallará al extraer '.rar', pero
+# seguirá funcionando para '.zip', '.tar.gz', etc.
 extract() {
   if [ -f "$1" ]; then
     echo -e "\033[1;96m[+] Extrayendo: $1\033[0m"
@@ -22,21 +25,13 @@ extract() {
   fi
 }
 
-# ─── RECORDATORIO TEMPORAL ───
+# ─── RECORDATORIO TEMPORAL (Depende de notificaciones de escritorio) ───
 if command -v notify-send &> /dev/null; then
   remindme() {
     (sleep "$1" && notify-send "⏰ Recordatorio" "$2") &
   }
 fi
 
-# ─── MOSTRAR INFO DEL SISTEMA BONITO ───
-if command -v neofetch &> /dev/null; then
-  sysinfo() {
-    echo -e "\033[1;96m>>> Sistema:\033[0m"; neofetch
-    echo -e "\033[1;96m>>> Espacio:\033[0m"; df -h /
-    echo -e "\033[1;96m>>> Memoria:\033[0m"; free -h
-  }
-fi
 # ─── SERVIDOR RÁPIDO PARA POCS ───
 pocserver() {
   echo "[*] Iniciando servidor en http://0.0.0.0:8080"
@@ -50,11 +45,13 @@ gclone() {
   git clone "$1" && cd "$(basename "$1" .git)"
 }
 
-# ─── NMAP EXPRESS ───
-quickscan() {
-  [[ -z "$1" ]] && echo "Uso: quickscan <IP>" && return 1
-  nmap -T4 -F "$1"
-}
+# ─── NMAP EXPRESS (Depende de nmap) ───
+if command -v nmap &> /dev/null; then
+  quickscan() {
+    [[ -z "$1" ]] && echo "Uso: quickscan <IP>" && return 1
+    nmap -T4 -F "$1"
+  }
+fi
 
 # ─── LIMPIAR .pyc y __pycache__ ───
 cleanpyc() {
@@ -66,44 +63,57 @@ cleanpyc() {
 b64e() { base64 "$1"; }
 b64d() { base64 -d "$1"; }
 
-# ─── USER-AGENT ALEATORIO ───
-randua() {
-  curl -s https://useragentstring.com/pages/useragentstring.php?name=All | \
-    grep -oP '(?<=<li><a href=".*?">).*?(?=</a>)' | shuf -n 1
-}
+# ─── USER-AGENT ALEATORIO (Depende de curl) ───
+if command -v curl &> /dev/null; then
+  randua() {
+    curl -s https://useragentstring.com/pages/useragentstring.php?name=All | \
+      grep -oP '(?<=<li><a href=".*?">).*?(?=</a>)' | shuf -n 1
+  }
+fi
 
-# ─── RANDOM WORD ───
-randword() {
-  cat /usr/share/dict/words | shuf -n1
-}
+# ─── RANDOM WORD (Depende del diccionario del sistema) ───
+if [ -f "/usr/share/dict/words" ]; then
+  randword() {
+    cat /usr/share/dict/words | shuf -n1
+  }
+fi
 
-# ─── JS BEAUTIFY ───
-jsbeauty() {
-  js-beautify "$1" -o "$1.pretty.js"
-}
+# ─── JS BEAUTIFY (Depende de js-beautify) ───
+if command -v js-beautify &> /dev/null; then
+  jsbeauty() {
+    js-beautify "$1" -o "$1.pretty.js"
+  }
+fi
 
-# ─── EXTRACTORES DE PUERTOS DE NMAP ───
-extractPorts(){
-  ports=$(grep -oP '\d{1,5}/open' "$1" | awk -F/ '{print $1}' | xargs | tr ' ' ',')
-  ip=$(grep -oP '\d{1,3}(\.\d{1,3}){3}' "$1" | sort -u | head -n 1)
-  echo -e "\n[*] IP: $ip\n[*] Ports: $ports" | tee extractPorts.tmp
-  echo $ports | tr -d '\n' | xclip -sel clip
-}
+# ─── EXTRACTORES DE PUERTOS DE NMAP (Depende de xclip para el portapapeles) ───
+if command -v xclip &> /dev/null; then
+  extractPorts(){
+    ports=$(grep -oP '\d{1,5}/open' "$1" | awk -F/ '{print $1}' | xargs | tr ' ' ',')
+    ip=$(grep -oP '\d{1,3}(\.\d{1,3}){3}' "$1" | sort -u | head -n 1)
+    echo -e "\n[*] IP: $ip\n[*] Ports: $ports" | tee extractPorts.tmp
+    echo "$ports" | tr -d '\n' | xclip -sel clip
+    echo "[+] Puertos copiados al portapapeles."
+  }
+fi
 
-# ─── FZF BONITO ───
-fzf-lovely(){
-  fzf --multi --preview '[[ $(file --mime {}) =~ binary ]] &&
-    echo {} is a binary file ||
-    (batcat --style=numbers --color=always {} ||
-    highlight -O ansi -l {} ||
-    cat {}) 2>/dev/null | head -500'
-}
+# ─── FZF BONITO (Depende de fzf y batcat/highlight) ───
+if command -v fzf &> /dev/null; then
+  fzf-lovely(){
+    fzf --multi --preview '[[ $(file --mime {}) =~ binary ]] &&
+      echo {} is a binary file ||
+      (batcat --style=numbers --color=always {} ||
+      highlight -O ansi -l {} ||
+      cat {}) 2>/dev/null | head -500'
+  }
+fi
 
-# ─── BORRADO SEGURO ───
-rmk(){
-  scrub -p dod "$1"
-  shred -zun 10 -v "$1"
-}
+# ─── BORRADO SEGURO (Depende de scrub y shred) ───
+if command -v scrub &> /dev/null && command -v shred &> /dev/null; then
+  rmk(){
+    scrub -p dod "$1"
+    shred -zun 10 -v "$1"
+  }
+fi
 
 # ─── ESTRUCTURA PARA LABS (HTB, TryHackMe...) ───
 mkhtb() {
@@ -124,10 +134,7 @@ mkbb() {
 
   base_dir=~/Bug\ Bounty/"$1"
   mkdir -p "$base_dir"/{burp,content,exploits,http,nmap,notes,scripts,recon,js,urls,screenshots}
-  
-  # Crear README base para anotaciones
   touch "$base_dir/notes/README.md"
-
   echo -e "\033[1;96m[+] Entorno completo creado para $1 en $base_dir\033[0m"
   cd "$base_dir" || return
 }
@@ -141,20 +148,18 @@ mkctf() {
 
   base_dir=~/CTFs/"$1"
   mkdir -p "$base_dir"/{web,pwn,crypto,reversing,misc,forensics,notes,exploits,scripts,tools,screenshots,writeups}
-
   touch "$base_dir/notes/README.md"
-
   echo -e "\033[1;95m[+] Entorno CTF creado para $1 en $base_dir\033[0m"
   cd "$base_dir" || return
 }
 
-# ─── CONTAR LÍNEAS DE CÓDIGO EN PROYECTO ─────────────────────────────────────────
+# ─── CONTAR LÍNEAS DE CÓDIGO EN PROYECTO ───
 countlines() {
   find . -name '*.py' -o -name '*.sh' -o -name '*.js' -o -name '*.html' |
     xargs wc -l | sort -n
 }
 
-# ─── CREAR ARCHIVO TEMPORAL RÁPIDO ───────────────────────────────────────────────
+# ─── CREAR ARCHIVO TEMPORAL RÁPIDO ───
 tmpfile() {
   local file="/tmp/tmp_$(date +%s).txt"
   echo "Creado archivo temporal: $file"
@@ -162,16 +167,27 @@ tmpfile() {
   ${EDITOR:-nano} "$file"
 }
 
-# ─── CONVERTIR TEXTO A QR ────────────────────────────────────────────────────────
-qr() {
-  if [[ -z "$1" ]]; then
-    echo "Uso: qr <texto>"
-  else
-    echo "$1" | qrencode -o - -t UTF8
-  fi
-}
+# ─── MOSTRAR INFO DEL SISTEMA BONITO (Depende de neofetch) ───
+if command -v neofetch &> /dev/null; then
+  sysinfo() {
+    echo -e "\033[1;96m>>> Sistema:\033[0m"; neofetch
+    echo -e "\033[1;96m>>> Espacio:\033[0m"; df -h /
+    echo -e "\033[1;96m>>> Memoria:\033[0m"; free -h
+  }
+fi
 
-# ─── TIMER VISUAL ────────────────────────────────────────────────────────────────
+# ─── CONVERTIR TEXTO A QR (Depende de qrencode) ───
+if command -v qrencode &> /dev/null; then
+  qr() {
+    if [[ -z "$1" ]]; then
+      echo "Uso: qr <texto>"
+    else
+      echo "$1" | qrencode -o - -t UTF8
+    fi
+  }
+fi
+
+# ─── TIMER VISUAL ───
 timer() {
   if [[ -z "$1" ]]; then
     echo "Uso: timer <segundos>"
@@ -181,7 +197,7 @@ timer() {
   fi
 }
 
-# ─── BUSCAR ENTRE COMANDOS CON HISTORIA ──────────────────────────────────────────
+# ─── BUSCAR ENTRE COMANDOS CON HISTORIA ───
 hgrep() {
   history | grep "$1"
 }
