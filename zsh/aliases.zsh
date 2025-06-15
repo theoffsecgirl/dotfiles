@@ -7,12 +7,23 @@ alias wordlists='cd $WORDLISTS'
 alias lsw='lsd -la $WORDLISTS'
 alias fword='find $WORDLISTS -type f -iname "*$1*"'
 
-# ─── CAT Y LS VISUALES ──────────────────────────────────────────────────────────
-alias cat='batcat --paging=always --decorations=always'
+# ─── CAT Y LS VISUALES ───
+if command -v batcat &> /dev/null; then
+    alias cat='batcat --paging=always --decorations=always'
+elif command -v bat &> /dev/null; then
+    alias cat='bat --paging=always --decorations=always'
+fi
 alias rcat='/usr/bin/cat'
-alias ll='lsd -la --group-dirs=first'
-alias l='lsd'
-alias cl='clear && lsd'
+
+if command -v lsd &> /dev/null; then
+    alias ll='lsd -la --group-dirs=first'
+    alias l='lsd'
+    alias cl='clear && lsd'
+else
+    alias ll='ls -alh --group-directories-first'
+    alias l='ls'
+    alias cl='clear && ls'
+fi
 alias c='clear'
 
 # ─── NAVEGACIÓN RÁPIDA ──────────────────────────────────────────────────────────
@@ -45,8 +56,19 @@ alias ports='ss -tulanp'
 alias httproot='python3 -m http.server 8080'
 
 # ─── SISTEMA Y RECURSOS ─────────────────────────────────────────────────────────
-alias update='sudo apt update && sudo apt upgrade -y && sudo apt autoremove && sudo apt autoclean'
-alias diskspace='df -h --total | grep total'
+update_system() {
+    if command -v apt &> /dev/null; then
+        sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y && sudo apt autoclean -y
+    elif command -v dnf &> /dev/null; then
+        sudo dnf upgrade -y && sudo dnf autoremove -y
+    elif command -v pacman &> /dev/null; then
+        sudo pacman -Syu --noconfirm
+    else
+        echo "\033[1;91m[✘] Gestor de paquetes no soportado para el alias 'update'.\033[0m"
+        return 1
+    fi
+}
+alias update='update_system'alias diskspace='df -h --total | grep total'
 alias freespace='du -sh * | sort -h'
 alias mem='free -h --si'
 alias cpuload="uptime | awk '{print \"Carga:\", \$9, \$10, \$11}'"
