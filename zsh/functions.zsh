@@ -23,10 +23,20 @@ extract() {
 }
 
 # ─── RECORDATORIO TEMPORAL ───
-remindme() {
-  sleep "$1" && notify-send "⏰ Recordatorio" "$2"
-}
+if command -v notify-send &> /dev/null; then
+  remindme() {
+    (sleep "$1" && notify-send "⏰ Recordatorio" "$2") &
+  }
+fi
 
+# ─── MOSTRAR INFO DEL SISTEMA BONITO ───
+if command -v neofetch &> /dev/null; then
+  sysinfo() {
+    echo -e "\033[1;96m>>> Sistema:\033[0m"; neofetch
+    echo -e "\033[1;96m>>> Espacio:\033[0m"; df -h /
+    echo -e "\033[1;96m>>> Memoria:\033[0m"; free -h
+  }
+fi
 # ─── SERVIDOR RÁPIDO PARA POCS ───
 pocserver() {
   echo "[*] Iniciando servidor en http://0.0.0.0:8080"
@@ -152,11 +162,18 @@ tmpfile() {
   ${EDITOR:-nano} "$file"
 }
 
-# ─── MOSTRAR INFO DEL SISTEMA BONITO ─────────────────────────────────────────────
-sysinfo() {
-  echo -e "\033[1;96m>>> Sistema:\033[0m"; neofetch
-  echo -e "\033[1;96m>>> Espacio:\033[0m"; df -h /
-  echo -e "\033[1;96m>>> Memoria:\033[0m"; free -h
+# ─── ACTULIZAR SISTEMA ─────────────────────────────────────────────
+update_system() {
+    if command -v apt &> /dev/null; then
+        sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y && sudo apt autoclean -y
+    elif command -v dnf &> /dev/null; then
+        sudo dnf upgrade -y && sudo dnf autoremove -y
+    elif command -v pacman &> /dev/null; then
+        sudo pacman -Syu --noconfirm
+    else
+        echo "\033[1;91m[✘] Gestor de paquetes no soportado para el alias 'update'.\033[0m"
+        return 1
+    fi
 }
 
 # ─── CONVERTIR TEXTO A QR ────────────────────────────────────────────────────────
