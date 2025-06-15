@@ -162,20 +162,6 @@ tmpfile() {
   ${EDITOR:-nano} "$file"
 }
 
-# ─── ACTULIZAR SISTEMA ─────────────────────────────────────────────
-update_system() {
-    if command -v apt &> /dev/null; then
-        sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y && sudo apt autoclean -y
-    elif command -v dnf &> /dev/null; then
-        sudo dnf upgrade -y && sudo dnf autoremove -y
-    elif command -v pacman &> /dev/null; then
-        sudo pacman -Syu --noconfirm
-    else
-        echo "\033[1;91m[✘] Gestor de paquetes no soportado para el alias 'update'.\033[0m"
-        return 1
-    fi
-}
-
 # ─── CONVERTIR TEXTO A QR ────────────────────────────────────────────────────────
 qr() {
   if [[ -z "$1" ]]; then
