@@ -121,21 +121,22 @@ fi
 
 print_msg "info" "Configurando dotfiles y enlaces simbólicos..."
 DOTFILES_DIR="$HOME/dotfiles"
+REPO_DIR="$(pwd)" # Se asume que el script se ejecuta desde la raíz del repo
 
-# Asumimos que el script se ejecuta desde la raíz del repo clonado
-REPO_DIR="$(pwd)"
+# Crear la estructura de carpetas de destino si no existen
 mkdir -p "$DOTFILES_DIR/zsh"
 mkdir -p "$DOTFILES_DIR/themes"
 
-# Copiar archivos a la estructura de dotfiles
-cp "$REPO_DIR"/zsh/*.zsh "$DOTFILES_DIR/zsh/"
-cp "$REPO_DIR"/p10k.zsh "$DOTFILES_DIR/themes/.p10k.zsh"
-cp "$REPO_DIR"/aliases.zsh "$DOTFILES_DIR/zsh/aliases.zsh"
-cp "$REPO_DIR"/functions.zsh "$DOTFILES_DIR/zsh/functions.zsh"
-cp "$REPO_DIR"/exports.zsh "$DOTFILES_DIR/zsh/exports.zsh"
-cp "$REPO_DIR"/prompt.zsh "$DOTFILES_DIR/zsh/prompt.zsh"
+# Copiar los archivos desde las carpetas correctas del repositorio
+print_msg "info" "Copiando archivos de configuración..."
 
-# Crear enlace simbólico para la configuración de p10k
+# Copia todos los archivos .zsh de la carpeta zsh/ del repo a la nueva ubicación
+cp "$REPO_DIR"/zsh/*.zsh "$DOTFILES_DIR/zsh/"
+
+# Copia el archivo p10k.zsh de la carpeta themes/ del repo a la nueva ubicación, renombrándolo
+cp "$REPO_DIR"/themes/p10k.zsh "$DOTFILES_DIR/themes/.p10k.zsh"
+
+# Crear enlace simbólico para que p10k encuentre su configuración
 ln -sf "$DOTFILES_DIR/themes/.p10k.zsh" "$HOME/.p10k.zsh"
 
 # --- Modificación Segura de ~/.zshrc ---
@@ -144,8 +145,6 @@ ZSHRC_FILE="$HOME/.zshrc"
 print_msg "info" "Actualizando $ZSHRC_FILE de forma segura..."
 
 # Definir el bloque de configuración a añadir.
-# Hereda el ZSH_THEME y los plugins del .zshrc por defecto de Oh My Zsh
-# y luego añade las fuentes personalizadas.
 CONFIG_SNIPPET=$(cat <<'EOF'
 
 # --- Rosepunk Dotfiles Configuration ---
