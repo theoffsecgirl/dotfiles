@@ -201,3 +201,54 @@ timer() {
 hgrep() {
   history | grep "$1"
 }
+# ─── SUBDOMAIN TAKEOVER SCANNER (Bug Bounty) ───
+subtake() {
+    if [[ -z "$1" ]]; then
+        echo -e "\033[1;91m[-] Uso: subtake <dominio>\033[0m"
+        return 1
+    fi
+
+    local domain="$1"
+    local timestamp=$(date +"%Y%m%d_%H%M%S")
+    local output_dir="${HOME}/subdomain_takeover_${timestamp}"
+
+    echo -e "\033[1;96m[+] Escaneando subdominios de: ${domain}\033[0m"
+    mkdir -p "${output_dir}"
+
+    # 1. Enumeración silenciosa de subdominios
+    echo -e "\033[1;94m[i] Ejecutando Subfinder...\033[0m"
+    subfinder -d "${domain}" -silent > "${output_dir}/subfinder.txt"
+
+    echo -e "\033[1;94m[i] Ejecutando Amass...\033[0m"
+    amass enum -d "${domain}" -noalts -silent > "${output_dir}/amass.txt"
+
+    echo -e "\033[1;94m[i] Ejecutando Assetfinder...\033[0m"
+    assetfinder --subs-only "${domain}" > "${output_dir}/assetfinder.txt"
+
+    # 2. Combinar y filtrar resultados
+    cat "${output_dir}"/{subfinder,amass,assetfinder}.txt | \
+        sort -u | \
+        grep -E '^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$' > "${output_dir}/subdomains_final.txt"
+
+    # 3. Verificar subdominios activos
+    echo -e "\033[1;96m[+] Filtando subdominios activos (HTTP/HTTPS)\033[0m"
+    httpx -l "${output_dir}/subdomains_final.txt" -silent -status-code -title -o "${output_dir}/active_subdomains.txt"
+
+    # 4. Detección de takeovers
+    echo -e "\033[1;96m[+] Buscando posibles subdomain takeovers...\033[0m"
+    if command -v subjack &>/dev/null; then
+        subjack -w "${output_dir}/active_subdomains.txt" -c ~/tools/subjack/fingerprints.json -o "${output_dir}/subjack_takeovers.txt"
+    fi
+
+    if command -v nuclei &>/dev/null; then
+        nuclei -l "${output_dir}/active_subdomains.txt" -t ~/nuclei-templates/takeovers/ -o "${output_dir}/nuclei_takeovers.txt"
+    fi
+
+    # Resultados
+    echo -e "\n\033[1;92m[+] Resultados guardados en: ${output_dir}\033[0m"
+    echo -e "  \033[1;96m• Subdominios totales:\033[0m $(wc -l < "${output_dir}/subdomains_final.txt")"
+    echo -e "  \033[1;96m• Subdominios activos:\033[0m $(wc -l < "${output_dir}/active_subdomains.txt")"
+    echo -e "  \033[1;96m• Posibles takeovers:\033[0m"
+    [[ -f "${output_dir}/subjack_takeovers.txt" ]] && echo -e "    - Subjack: \033[1;93m${output_dir}/subjack_takeovers.txt\033[0m"
+    [[ -f "${output_dir}/nuclei_takeovers.txt" ]] && echo -e "    - Nuclei: \033[1;93m${output_dir}/nuclei_takeovers.txt\033[0m"
+}
