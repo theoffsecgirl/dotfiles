@@ -16,7 +16,7 @@ Este repositorio contiene mi configuración personalizada para Zsh y Powerlevel1
 
 1.  **Zsh**: Debe estar instalado. El script intentará instalarlo si no lo encuentra.
 2.  **Git**: Necesario para clonar el repositorio.
-3.  **Nerd Font**: **Esencial para que los iconos (como el escorpión 🦂) se muestren correctamente**.
+3.  **Nerd Font**: **Esencial para que los iconos se muestren correctamente**.
     -   Se recomienda [Hack Nerd Font](https://www.nerdfonts.com/font-downloads).
     -   Después de instalar la fuente en tu sistema, **debes configurarla en tu emulador de terminal** (GNOME Terminal, Konsole, Tilix, Alacritty, etc.).
 
@@ -24,8 +24,7 @@ Este repositorio contiene mi configuración personalizada para Zsh y Powerlevel1
 
 ```bash
 # 1. Clona el repositorio
-git clone [https://github.com/theoffsecgirl/dotfiles.git](https://github.com/theoffsecgirl/dotfiles.git)
-Bash
+git clone https://github.com/theoffsecgirl/dotfiles.git
 
 # 2. Ejecuta el instalador
 cd dotfiles
