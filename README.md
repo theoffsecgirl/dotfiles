@@ -1,6 +1,6 @@
 # Rosepunk Zsh - Dotfiles Universales
 
-Este repositorio contiene mi configuración personalizada para Zsh y Powerlevel10k con un estilo Rosepunk 🌹🦂. Está diseñado para ser compatible con la mayoría de las distribuciones de Linux y emuladores de terminal modernos.
+Este repositorio contiene mi configuración personalizada para Zsh y Powerlevel10k con un estilo. Está diseñado para ser compatible con la mayoría de las distribuciones de Linux y emuladores de terminal modernos.
 
 ---
 
@@ -30,8 +30,9 @@ git clone https://github.com/theoffsecgirl/dotfiles.git
 cd dotfiles
 chmod +x install.sh
 ./install.sh
-El script se encargará de:
 ```
+
+El script se encargará de:
 
 Instalar Oh My Zsh.
 - Instalar plugins y herramientas recomendadas.
