@@ -130,6 +130,7 @@ fi
 plugins_to_install=(
     "https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM}/plugins/zsh-autosuggestions"
     "https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM}/plugins/zsh-syntax-highlighting"
+    "https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/sudo ${ZSH_CUSTOM}/plugins/sudo"
 )
 for item in "${plugins_to_install[@]}"; do
     repo=$(echo "$item" | cut -d' ' -f1)
