@@ -70,13 +70,12 @@ install_bb_tools() {
             go install -v "$tool" 2>&1 | while read -r line; do
                 echo -ne "\033[1;94m[i] ${line}\033[0m\r"
             done
-            echo -ne "\033[K"  # Limpiar línea
+            echo -ne "\033[K"
         else
             print_msg "success" "$tool_name ya está instalado."
         fi
     done
 
-    # Instalar templates para Nuclei
     if command -v nuclei &>/dev/null; then
         print_msg "info" "Actualizando templates de Nuclei..."
         nuclei -update-templates 2>/dev/null
@@ -90,7 +89,6 @@ detect_package_manager
 
 # --- Verificación e Instalación de Dependencias ---
 
-print_msg "info" "Verificando dependencias básicas..."
 dependencies=("zsh" "git" "curl" "wget")
 for dep in "${dependencies[@]}"; do
     if ! command_exists "$dep"; then
@@ -121,7 +119,7 @@ fi
 # --- Instalación de Plugins y Herramientas ---
 
 ZSH_CUSTOM="$HOME/.oh-my-zsh/custom"
-# Powerlevel10k
+
 if [ ! -d "${ZSH_CUSTOM}/themes/powerlevel10k" ]; then
     print_msg "info" "Instalando tema Powerlevel10k..."
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "${ZSH_CUSTOM}/themes/powerlevel10k"
@@ -129,7 +127,6 @@ else
     print_msg "success" "Powerlevel10k ya está instalado."
 fi
 
-# Zsh Plugins
 plugins_to_install=(
     "https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM}/plugins/zsh-autosuggestions"
     "https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM}/plugins/zsh-syntax-highlighting"
@@ -143,19 +140,37 @@ for item in "${plugins_to_install[@]}"; do
     fi
 done
 
-# Herramientas recomendadas
+# --- Instalación de herramientas recomendadas ---
+
 if [ "$PKG_MANAGER" != "unsupported" ]; then
     print_msg "info" "Instalando herramientas recomendadas (neofetch, bat, lsd)..."
     eval "$UPDATE_CMD" >/dev/null 2>&1
-    eval "$INSTALL_CMD neofetch $BAT_PKG $LSD_PKG"
+    if ! command_exists neofetch; then
+        eval "$INSTALL_CMD neofetch" || print_msg "warn" "No se pudo instalar 'neofetch'."
+    fi
+    eval "$INSTALL_CMD $BAT_PKG $LSD_PKG"
 else
     print_msg "warn" "No se pudo instalar neofetch, bat, lsd. Instálalos manualmente si los deseas."
 fi
 
-# --- Instalación de Herramientas de Bug Bounty ---
-read -p "¿Instalar herramientas para Bug Bounty (subtake)? [s/N]: " install_bb
-if [[ "$install_bb" =~ [sS] ]]; then
-    install_bb_tools
+# --- Instalación de NvChad ---
+if command_exists git && command_exists curl; then
+    if [ ! -d "$HOME/.config/nvim" ]; then
+        print_msg "info" "Instalando NvChad en ~/.config/nvim..."
+        git clone https://github.com/NvChad/NvChad ~/.config/nvim --depth 1
+    else
+        print_msg "warn" "Ya existe ~/.config/nvim. ¿Quieres sobrescribirlo con NvChad? (esto borrará tu configuración actual)"
+        read -p "¿Sobrescribir configuración actual de Neovim? (s/N): " overwrite
+        if [[ "$overwrite" =~ [sS] ]]; then
+            rm -rf "$HOME/.config/nvim"
+            git clone https://github.com/NvChad/NvChad ~/.config/nvim --depth 1
+            print_msg "success" "NvChad reinstalado correctamente."
+        else
+            print_msg "warn" "NvChad no se ha instalado porque ya existía una configuración previa."
+        fi
+    fi
+else
+    print_msg "warn" "No se pudo instalar NvChad: git o curl no están disponibles."
 fi
 
 # --- Configuración de Dotfiles ---
@@ -194,15 +209,13 @@ EOF
 if [ -f "$ZSHRC_FILE" ] && grep -q "source \$ZSH/oh-my-zsh.sh" "$ZSHRC_FILE"; then
     print_msg "info" "$ZSHRC_FILE es válido. Asegurando configuración..."
     sed -i 's/^ZSH_THEME=.*/ZSH_THEME="powerlevel10k\/powerlevel10k"/' "$ZSHRC_FILE"
-    sed -i 's/^plugins=.*/plugins=(git zsh-autosuggestions zsh-syntax-highlighting)/' "$ZSHRC_FILE"
-    
+    sed -i 's/^plugins=.*/plugins=(git zsh-autosuggestions zsh-syntax-highlighting sudo)/' "$ZSHRC_FILE"
     if ! grep -q "# --- Rosepunk Dotfiles Configuration ---" "$ZSHRC_FILE"; then
         echo -e "\n$CUSTOM_SNIPPET" >> "$ZSHRC_FILE"
     fi
 else
     print_msg "warn" "$ZSHRC_FILE no existe o está incompleto. Creando uno nuevo..."
     [ -f "$ZSHRC_FILE" ] && mv "$ZSHRC_FILE" "$ZSHRC_FILE.bak_$(date +%F-%T)"
-    
     cat > "$ZSHRC_FILE" << EOF
 # Path to your Oh My Zsh installation.
 export ZSH="\$HOME/.oh-my-zsh"
@@ -211,7 +224,7 @@ export ZSH="\$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # Set list of plugins.
-plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
+plugins=(git zsh-autosuggestions zsh-syntax-highlighting sudo)
 
 # Load Oh My Zsh.
 source \$ZSH/oh-my-zsh.sh
