@@ -1,0 +1,53 @@
+* {
+  background:       #1a1b26;
+  background-alt:   #2e2f3a;
+  foreground:       #ffccdd;
+  selected:         #ffb3d6;
+
+  font:             "Hack Nerd Font 10";
+  border-radius:    8px;
+  padding:          5px;
+}
+
+window {
+  transparency: "real";
+  location:         center;
+  anchor:           center;
+  width:            25%;
+  border:           1px;
+  border-color:     #ffb3d6;
+  background-color: @background;
+}
+
+mainbox {
+  background-color: transparent;
+  padding:          5px;
+  children:         [inputbar, listview];
+}
+
+inputbar {
+  background-color: @background-alt;
+  text-color:       @foreground;
+  border-radius:    6px;
+  padding:          6px;
+}
+
+listview {
+  background-color: @background;
+  text-color:       @foreground;
+  selected-color:   #1a1a1a;
+  selected-background: @selected;
+  border-radius:    6px;
+  padding:          5px 0;
+  spacing:          3px;
+}
+
+element {
+  padding:          4px;
+  border-radius:    4px;
+}
+
+element selected {
+  background-color: @selected;
+  text-color:       #1a1a1a;
+}
