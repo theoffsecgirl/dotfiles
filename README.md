@@ -41,7 +41,7 @@
 
     *Función:* Muestra frases motivadoras random.
     *Cambio:* Cada 10 minutos (por defecto).
-    *Estilo:* Letras rosas,.
+    *Estilo:* Letras rosas.
 
 
 ---
