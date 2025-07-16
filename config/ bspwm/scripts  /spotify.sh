@@ -5,7 +5,7 @@ status=$(playerctl status 2>/dev/null)
 if [ "$status" = "Playing" ]; then
     icon="▶"
 elif [ "$status" = "Paused" ]; then
-    icon="⏸"
+    icon="󰏤"
 else
     icon="♪"
 fi
