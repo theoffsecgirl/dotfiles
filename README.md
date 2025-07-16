@@ -30,8 +30,6 @@
   - ✅ Conectada: muestra bandera del país.
   - ❌ Desconectada: aparece “Disconnected”.
 
-    *Click izquierdo:* Abre el cliente de ProtonVPN.
-
 
 ## 📡 Módulo de Red
 
@@ -43,7 +41,7 @@
 
     *Función:* Muestra frases motivadoras random.
     *Cambio:* Cada 10 minutos (por defecto).
-    *Estilo:* Letras rosas, sin emojis gigantes ni fondos.
+    *Estilo:* Letras rosas,.
 
 
 ---
