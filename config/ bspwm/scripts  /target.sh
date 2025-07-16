@@ -10,8 +10,8 @@ if [[ -s "$TARGET_FILE" ]]; then
     read -r domain ip < "$TARGET_FILE"
 
     # Intentar obtener país (rápido y silencioso)
-    country=$(curl -s --max-time 1 https://ipinfo.io/$ip/country | tr -d '\n')
-    [[ -z "$country" ]] && country="VPN"
+   # country=$(curl -s --max-time 1 https://ipinfo.io/$ip/country | tr -d '\n')
+   # [[ -z "$country" ]] && country="VPN"
 
     # Mostrar resultado bonito
     echo "%{F#ffb3d6}%{T0}$icon_target %{F#ffffff}$domain %{F#aaaaaa}($ip · $country)%{F-}"
