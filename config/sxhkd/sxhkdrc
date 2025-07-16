@@ -127,4 +127,10 @@ super + alt + {Left,Down,Up,Right}
 # Open Firefox 
 super + shift + f 
     /usr/bin/firefox
+# screenshot
+super + shift + p
+    flameshot gui
 
+# spotify
+super + shift + s
+    /usr/bin/spotify
