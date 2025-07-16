@@ -52,7 +52,31 @@ extract() {
 if command -v notify-send &> /dev/null; then
   remindme() {
     (sleep "$1" && notify-send "⏰ Recordatorio" "$2") &
-  }
+ function settarget() {
+    local domain="$1"
+    local ip="$2"
+    local target_file="$HOME/.config/bspwm/scripts/target.txt"
+    local log_file="$HOME/.config/bspwm/scripts/targets_history.txt"
+    local target_dir="$HOME/targets/$domain"
+
+    if [[ -z "$domain" ]]; then
+        echo "❌ Uso: settarget dominio.com [IP]"
+        return 1
+    fi
+
+    # Validar IP si está presente
+    if [[ -n "$ip" && ! "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo "⚠️ IP inválida, se ignorará: $ip"
+        ip=""
+    fi
+
+    echo "$domain $ip" > "$target_file"
+    mkdir -p "$target_dir"
+    echo "$domain $ip - $(date +'%F %T')" >> "$log_file"
+
+    echo "🎯 Target seteado: $domain ${ip:+($ip)}"
+    echo "📁 Carpeta creada: $target_dir"
+} }
 fi
 
 # ─── SERVIDOR RÁPIDO PARA POCS ───
@@ -318,29 +342,23 @@ subtake() {
 #  ------------------[ Bug Bounty Target Functions]----------------- #
 
 function settarget() {
-    local domain="$1"
-    local ip="$2"
-    local target_file="$HOME/.config/bspwm/scripts/target.txt"
-    local log_file="$HOME/.config/bspwm/scripts/targets_history.txt"
-    local target_dir="$HOME/targets/$domain"
+  local domain="$1"
+  local ip="$2"
+  local target_file="$HOME/.config/bspwm/scripts/target.txt"
+  local log_file="$HOME/.config/bspwm/scripts/targets_history.txt"
+  local target_dir="$HOME/targets/$domain"
 
-    if [[ -z "$domain" ]]; then
-        echo "❌ Uso: settarget dominio.com [IP]"
-        return 1
-    fi
+  if [[ -z "$domain" ]]; then
+    echo "❌ Uso: settarget dominio.com [ip]"
+    return 1
+  fi
 
-    # Validar IP si está presente
-    if [[ -n "$ip" && ! "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        echo "⚠️ IP inválida, se ignorará: $ip"
-        ip=""
-    fi
+  mkdir -p "$target_dir"
+  echo "$domain $ip" > "$target_file"
+  echo "$domain $ip - $(date +'%F %T')" >> "$log_file"
 
-    echo "$domain $ip" > "$target_file"
-    mkdir -p "$target_dir"
-    echo "$domain $ip - $(date +'%F %T')" >> "$log_file"
-
-    echo "🎯 Target seteado: $domain ${ip:+($ip)}"
-    echo "📁 Carpeta creada: $target_dir"
+  echo "🎯 Target seteado: $domain${ip:+ ($ip)}"
+  echo "📁 Carpeta creada: $target_dir"
 }
 
 function cleartarget() {
