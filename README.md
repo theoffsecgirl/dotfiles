@@ -46,6 +46,24 @@
 
 ---
 
+📡 **Módulo de Red (net_status)**
+
+*Función:* Muestra el estado de la red: si estás conectada y qué interfaz está activa.  
+*Interfaces soportadas:* Detecta automáticamente (wlan0, wlan1, eth0, etc.).  
+*Click izquierdo:* Abre directamente `wpa_gui` para gestionar redes Wi-Fi.
+
+---
+
+🔵 **Módulo de Bluetooth**
+
+*Función:* Muestra si hay algún dispositivo conectado por Bluetooth.  
+*Indicadores:*
+- 🔵 **Conectado**: muestra el texto “BT: Conectado”.
+- ⚪ **Desconectado**: muestra “BT: Desconectado”.
+*Click izquierdo:* Abre `blueman-manager`.
+
+---
+
 ## ⚙️ Detalles Técnicos
 
 Todos los scripts están en ~/.config/bspwm/scripts/ y se invocan desde Polybar mediante módulos de tipo custom/script.
