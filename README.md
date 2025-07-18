@@ -33,8 +33,9 @@
 
 ## 📡 Módulo de Red
 
-    *Función:* Muestra tu IP local si estás conectada.
-    *Interfaces soportadas:* wlan0, wlan1 y detecta automáticamente cuál está activa.
+      *Función:* Muestra el estado de la red: si estás conectada y qué interfaz está activa.  
+      *Interfaces soportadas:* Detecta automáticamente (wlan0, wlan1, eth0, etc.).  
+      *Click izquierdo:* Abre directamente `wpa_gui` para gestionar redes Wi-Fi.
 
 
 ## 🌟 Módulo de Motivación
@@ -44,23 +45,16 @@
     *Estilo:* Letras rosas.
 
 
----
+## 🔵 Módulo de Bluetooth
+   
+      *Función:* Muestra si hay algún dispositivo conectado por Bluetooth.  
+ *Indicadores:*
+  **Conectado**: muestra el texto “BT: Conectado”.
+  **Desconectado**: muestra “BT: Desconectado”.
+      *Click izquierdo:* Abre `blueman-manager`.
 
-📡 **Módulo de Red (net_status)**
 
-*Función:* Muestra el estado de la red: si estás conectada y qué interfaz está activa.  
-*Interfaces soportadas:* Detecta automáticamente (wlan0, wlan1, eth0, etc.).  
-*Click izquierdo:* Abre directamente `wpa_gui` para gestionar redes Wi-Fi.
 
----
-
-🔵 **Módulo de Bluetooth**
-
-*Función:* Muestra si hay algún dispositivo conectado por Bluetooth.  
-*Indicadores:*
-- 🔵 **Conectado**: muestra el texto “BT: Conectado”.
-- ⚪ **Desconectado**: muestra “BT: Desconectado”.
-*Click izquierdo:* Abre `blueman-manager`.
 
 ---
 
