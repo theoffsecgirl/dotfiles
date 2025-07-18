@@ -29,7 +29,7 @@
 
   - ✅ Conectada: muestra bandera del país.
   - ❌ Desconectada: aparece “Disconnected”.
-
+  *Click izquierdo:* Abre directamente proton VPN.
 
 ## 📡 Módulo de Red
 
