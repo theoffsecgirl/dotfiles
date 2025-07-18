@@ -48,9 +48,9 @@
 ## 🔵 Módulo de Bluetooth
    
       *Función:* Muestra si hay algún dispositivo conectado por Bluetooth.  
- *Indicadores:*
-  **Conectado**: muestra el texto “BT: Conectado”.
-  **Desconectado**: muestra “BT: Desconectado”.
+       *Indicadores:*
+      - **Conectado**: muestra el texto “BT: Conectado”.
+      - **Desconectado**: muestra “BT: Desconectado”.
       *Click izquierdo:* Abre `blueman-manager`.
 
 
