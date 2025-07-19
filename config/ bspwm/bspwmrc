@@ -16,6 +16,8 @@ bspc rule -a Chromium desktop='^2'
 bspc rule -a mplayer2 state=floating
 bspc rule -a Kupfer.py focus=on
 bspc rule -a Screenkey manage=off
+# Evita que se apague la pantalla
+xset s off -dpms s noblank &
 /usr/bin/feh --bg-fill /home/theoffsecgirl/wallpapers/fondo.png &
 ~/.config/polybar/./launch.sh &
 picom &
