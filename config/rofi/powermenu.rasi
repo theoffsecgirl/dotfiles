@@ -1,0 +1,31 @@
+* {
+  background: #ffb3d6;
+  foreground: #1a1a1a;
+  font: "Iosevka Nerd Font 12";
+  border: 0;
+  padding: 10;
+}
+
+window {
+  width: 260px;
+  border: 2px;
+  border-color: #f06292;
+  transparency: "real";
+  background-color: #ffb3d6;
+}
+
+listview {
+  lines: 5;
+  spacing: 6px;
+}
+
+element {
+  padding: 5px;
+  border-radius: 10px;
+}
+
+element selected {
+  background-color: #f8a8d0;
+  text-color: #000000;
+}
+
