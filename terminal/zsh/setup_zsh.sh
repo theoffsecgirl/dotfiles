@@ -2,8 +2,13 @@
 
 set -e
 
-REAL_USER=$(logname)
+if [ "$EUID" -eq 0 ]; then
+  REAL_USER=$(getent passwd 1000 | cut -d: -f1)
+else
+  REAL_USER=$(whoami)
+fi
 USER_HOME="/home/$REAL_USER"
+
 ROOT_HOME="/root"
 DOTFILES="$USER_HOME/dotfiles/terminal/zsh"
 ZSH_CUSTOM="$USER_HOME/.zsh"
@@ -79,4 +84,3 @@ chsh -s "$(which zsh)"
 sudo chsh -s "$(which zsh)" root
 
 echo -e "$OK Instalación completada. Reinicia la terminal o ejecuta: exec zsh"
-
