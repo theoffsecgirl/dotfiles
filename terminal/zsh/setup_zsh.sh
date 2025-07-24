@@ -7,10 +7,10 @@ chsh -s "$(which zsh)"
 ZSHRC="$HOME/.zshrc"
 
 declare -a LINES=(
-  'source ~/dotfiles/zsh/exports.zsh'
-  'source ~/dotfiles/zsh/aliases.zsh'
-  'source ~/dotfiles/zsh/functions.zsh'
-  'source ~/dotfiles/zsh/exports.zsh'
+  'source ~/dotfiles/terminal/zsh/exports.zsh'
+  'source ~/dotfiles/zsh//terminal/aliases.zsh'
+  'source ~/dotfiles/zsh/terminal/functions.zsh'
+  'source ~/dotfiles/zsh/terminal/exports.zsh'
 
 )
 
