@@ -132,14 +132,14 @@ if command -v scrub &> /dev/null && command -v shred &> /dev/null; then
   }
 fi
 
-# ─── CREAR ESTRUCTURA HTB ───
+# ─── CREAR ESTRUCTURA MÁQUINAS ───
 mkbox() {
   if [[ -z "$1" ]]; then
     echo -e "\033[1;91m[-] Uso: mkbox <nombre_box>\033[0m"
     return 1
   fi
   local name="$1"
-  local base_dir=~/Machines/"$name"
+  local base_dir=~/machines/"$name"
   mkdir -p "$base_dir"/{recon,exploit,loot,www,notes}
   touch "$base_dir/notes/README.md"
   echo -e "\033[1;92m[+] Máquina creada: $name en $base_dir 💀\033[0m"
@@ -153,7 +153,7 @@ mkbb() {
     return 1
   fi
   local name="$1"
-  local base_dir=~/Bug\ Bounty/"$name"
+  local base_dir=~/bugbounty/"$name"
   mkdir -p "$base_dir"/{burp,content,exploits,http,nmap,notes,scripts,recon,js,urls,screenshots}
   touch "$base_dir/notes/README.md"
   echo -e "\033[1;96m[+] Target BB creado: $name en $base_dir 🎯\033[0m"
@@ -167,7 +167,7 @@ mkctf() {
     return 1
   fi
   local name="$1"
-  local base_dir=~/CTFs/"$name"
+  local base_dir=~/ctf/"$name"
   mkdir -p "$base_dir"/{web,pwn,crypto,reversing,misc,forensics,notes,exploits,scripts,tools,screenshots,writeups}
   touch "$base_dir/notes/README.md"
   echo -e "\033[1;95m[+] Reto CTF creado: $name en $base_dir 🚩\033[0m"
