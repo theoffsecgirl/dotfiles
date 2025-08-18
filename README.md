@@ -18,9 +18,3 @@ git clone https://github.com/theoffsecgirl/dotfiles.git
 cd dotfiles
 ````
 
-Ejemplo: para zsh
-```
-cp -r terminal/zsh ~/.config/
-```
-O crea enlaces simbólicos si prefieres mantenerlos actualizados.
-
