@@ -121,20 +121,46 @@ if command -v scrub &> /dev/null && command -v shred &> /dev/null; then
     shred -zun 10 -v "$1"
   }
 fi
-
-# ─── CREAR ESTRUCTURA PROYECTO ───
 mkproject() {
-  if [[ -z "$1" ]]; then
-    echo -e "\033[1;91m[-] Uso: mkproject <nombre>\033[0m"
+  # Uso: mkproject tipo nombre [carpeta1 carpeta2 ...]
+  if [[ -z "$1" || -z "$2" ]]; then
+    echo "Uso: mkproject tipo nombre [carpetas...]"
+    echo "Tipos: box, bb, ctf"
     return 1
   fi
-  local name="$1"
-  local base_dir=~/projects/"$name"
-  mkdir -p "$base_dir"/{docs,src,tests}
-  touch "$base_dir/README.md"
-  echo -e "\033[1;92m[+] Proyecto creado: $name en $base_dir\033[0m"
+  local tipo="$1"
+  local name="$2"
+  shift 2
+
+  case "$tipo" in
+    box) base_dir=~/machines/"$name" ;;
+    bb)  base_dir=~/bugbounty/"$name" ;;
+    ctf) base_dir=~/ctf/"$name" ;;
+    *) echo "Tipo inválido." ; return 1 ;;
+  esac
+
+  mkdir -p "$base_dir/notes"
+
+  # Si el usuario no pasa carpetas, usa las mínimas
+  if [[ $# -gt 0 ]]; then
+    for f in "$@"; do
+      mkdir -p "$base_dir/$f"
+    done
+  fi
+
+  touch "$base_dir/notes/README.md"
   cd "$base_dir" || return
+  echo "[+] Proyecto $tipo creado: $base_dir"
 }
+
+# Ejemplos rápidos:
+# mkproject box miVM recon exploit loot
+# mkproject bb bugtarget burp nmap scripts
+# mkproject ctf retoTop web pwn crypto reversing
+
+# Si SOLO quieres la carpeta básica:
+# mkproject ctf RetoExpress
+
 
 # ─── TIMER ───
 timer() {
