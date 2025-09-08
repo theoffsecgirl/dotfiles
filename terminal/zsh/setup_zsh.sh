@@ -24,7 +24,7 @@ ERR="\033[1;91m[✘]\033[0m"
 echo -e "$INFO Instalando dependencias..."
 sudo apt update && sudo apt install -y \
   zsh curl git unzip xclip fzf lsd bat \
-  fonts-powerline fonts-firacode fonts-hack-ttf locales
+  fonts-powerline fonts-firacode fonts-hack locales
 
 echo -e "$INFO Instalando Powerlevel10k..."
 if [ ! -d "$ZSH_CUSTOM/powerlevel10k" ]; then
