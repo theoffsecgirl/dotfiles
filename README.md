@@ -1,92 +1,48 @@
-### Dotfiles de theoffsecgirl: Portabilidad y Seguridad con Stow
+# Dotfiles de theoffsecgirl
 
-Configura tu entorno de manera modular y personalizable para macOS y Linux, optimizado para bug bounty, hacking ético y automatización. Estos dotfiles están diseñados pensando en la portabilidad, facilidad de mantenimiento y seguridad.
+Este repositorio contiene mi entorno personal de configuración para macOS y Linux, todo gestionado con [GNU Stow](https://www.gnu.org/software/stow/) para garantizar portabilidad, respaldo y despliegue rápido en cualquier máquina.
 
-#### 🚀 Instalación Rápida en Otro Equipo
+## ¿Qué incluye?
 
-1. **Instala Git y Stow:**
-    - **En macOS:**
+- Configuración avanzada de Zsh con alias y el tema Powerlevel10k.
+- Configuración de Neovim optimizada para desarrollo y hacking, incluyendo el esquema de colores Catppuccin y plugins esenciales.
+- Personalización de Git con alias útiles e integraciones (sin incluir usuario/email).
+- Brewfile para simplificar la instalación de dependencias en macOS con un solo comando.
+- Scripts, atajos y un entorno Python aislado para bug bounty y scripting rápido.
+- Configuraciones para otros programas como GhosTTY, Alacritty, Homebrew, y más.
 
-```Bash
-brew install git stow
-```
+## Instalación rápida
 
-    - **En Linux (Debian/Ubuntu):**
-
-```Bash
-sudo apt install git stow -y
-```
-
-1. **Clona el repositorio en tu `$HOME`:**
-
-```Bash
+```other
 git clone https://github.com/theoffsecgirl/dotfiles.git ~/dotfiles
 cd ~/dotfiles
+bash init.sh
 ```
 
-1. **Instala paquetes (si usas Homebrew):**
+Este proceso:
 
-```Bash
-brew bundle --file=~/dotfiles/Brewfile
-```
+- Instala Homebrew y Stow si no están presentes (en macOS).
+- Aplica cada módulo con copias de seguridad automáticas.
+- Instala las dependencias del Brewfile (opcional).
+- Prepara un entorno virtual de Python.
+- Configura Neovim con el esquema de colores Catppuccin mínimo.
 
-1. **Ejecuta el script de inicio para configurar Git y crear los symlinks:**
+## Seguridad
 
-```Bash
-chmod +x init.sh
-./init.sh
-```
+- Nunca expongo mi información personal como usuarios de Git, claves privadas de SSH, ni datos sensibles.
+- Archivos como `.gitconfig`, `.git-credentials`, `.ssh/`, etc., están en `.gitignore`.
+- Puedes adaptar la configuración global copiando `gitconfig.example`.
 
-El script solicitará tu nombre y correo electrónico para Git y enlazará las configuraciones en tu sistema.
+## ¿Cómo está estructurado cada directorio?
 
-#### 🛠 Limpiar o Rehacer Symlinks
+- `stow/` → Cada directorio representa un módulo (zsh, nvim, git, homebrew…).
+- `venvs/` → Para requisitos de Python, scripts, etc.
+- `init.sh` → Script de bootstrap automatizado.
 
-Si necesitas deshacer los enlaces y volver a crearlos, ejecuta:
+## Personalización
 
-```Bash
-stow -D zsh nvim git ghostty homebrew scripts stow .
-```
+Puedes añadir o modificar módulos en `stow` según tu entorno. Se recomienda hacer un fork y mantener una rama propia si personalizas detalles particulares.
 
-**Nota:** Solo debes versionar carpetas de configuración, nunca archivos sueltos como `Brewfile`.
+---
 
-#### 📁 Estructura del Repositorio
-
-```other
-dotfiles/
-├── zsh/       # Configuración modular de Zsh (.zshrc, .p10k.zsh, etc.)
-├── nvim/      # Configuración de Neovim (~/.config/nvim)
-├── git/       # .gitconfig global, alias y extras
-├── ghostty/   # Configuración del terminal Ghostty
-├── homebrew/  # Scripts y configuraciones de Homebrew
-├── scripts/   # Scripts útiles y de automatización
-└── Brewfile   # Paquetes para instalar con Homebrew
-```
-
-#### 🔒 Seguridad por Defecto
-
-El repositorio incluye un `.gitignore` para evitar subir archivos sensibles:
-
-```other
-*.key
-*.pem
-*.env
-id_*
-.aws/
-.gcloud/
-*.bak
-*.swp
-*.log
-.gitconfig.local
-```
-
-No subas claves, tokens, credenciales ni datos personales. Mantén el bloque `[user]` de tu `.gitconfig` fuera del control de versiones.
-
-#### 🦾 Ventajas
-
-- **Configuración portátil y profesional:** Utiliza symlinks, evitando las copias manuales.
-- **Modularidad:** Fácil de mantener y extender.
-- **Seguridad por diseño:** Sin datos privados versionados.
-- **Óptimo para hacking, bug bounty y automatización.**
-
-Implementa estas configuraciones y mejora tu flujo de trabajo con facilidad y seguridad.
->>>>>>> 67a8048 (Dotfiles portables y seguros con Stow)
+Hecho con ❤️ por @theoffsecgirl. Pull requests y sugerencias son bienvenidas.
