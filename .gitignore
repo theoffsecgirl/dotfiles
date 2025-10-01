@@ -1,0 +1,32 @@
+# secrets & keys
+*.key
+*.pem
+.env
+*.secret
+*.token
+
+# OS junk
+.DS_Store
+.Trashes
+Icon?
+
+# Python envs / caches
+venvs/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Tools & local files
+*.log
+*.bak
+*.swp
+*.orig
+
+# Large / personal repos (no versionar herramientas)
+repos/
+tools/
+node_modules/
+
+# Local git config, credentials
+.gitconfig.local
+secrets/

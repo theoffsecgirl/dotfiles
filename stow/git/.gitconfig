@@ -1,0 +1,13 @@
+[color]
+    ui = auto
+[alias]
+    st = status
+    co = checkout
+    br = branch
+[core]
+    editor = nvim
+[commit]
+    template = ~/.gitmessage
+[user]
+	name = theoffsecgirl
+	email = arianne@theoffsecgirl.com

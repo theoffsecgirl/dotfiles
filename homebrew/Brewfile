@@ -1,0 +1,55 @@
+# ─── Herramientas base ────────────────────────────
+brew "git"
+brew "stow"
+brew "wget"
+brew "curl"
+brew "tree"
+
+# ─── Entorno de desarrollo ───────────────────────
+brew "neovim"
+brew "python"
+brew "node"
+brew "go"
+brew "rust"
+
+# ─── Utilidades de terminal ──────────────────────
+brew "zsh"
+brew "zsh-autosuggestions"
+brew "zsh-syntax-highlighting"
+brew "starship"
+brew "bat"          # reemplazo de cat
+brew "fd"           # find rápido
+brew "ripgrep"      # grep rápido
+brew "fzf"          # fuzzy finder
+brew "lazygit"
+brew "lsd"          # ls mejorado
+brew "eza"          # ls alternativo
+brew "htop"
+brew "tmux"
+
+# ─── Networking & Security ───────────────────────
+brew "nmap"
+brew "masscan"
+brew "httpie"
+brew "sqlmap"
+brew "nikto"
+brew "metasploit"
+brew "wireshark"
+brew "aircrack-ng"
+brew "gping"        # ping gráfico
+
+# ─── Bug Bounty / Recon ──────────────────────────
+brew "amass"
+brew "subfinder"
+brew "httpx"
+brew "naabu"
+brew "nuclei"
+brew "dnsx"
+brew "interactsh-client"
+
+# ─── Extras útiles ──────────────────────────────
+brew "jq"
+brew "yq"
+brew "gh"           # GitHub CLI
+brew "tldr"
+brew "thefuck"      # autocorrección comandos

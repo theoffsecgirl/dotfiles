@@ -1,0 +1,1 @@
+stow/zsh/.p10k.zsh
