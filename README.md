@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# dotfiles
-=======
 ### Dotfiles de theoffsecgirl: Portabilidad y Seguridad con Stow
 
 Configura tu entorno de manera modular y personalizable para macOS y Linux, optimizado para bug bounty, hacking ético y automatización. Estos dotfiles están diseñados pensando en la portabilidad, facilidad de mantenimiento y seguridad.
