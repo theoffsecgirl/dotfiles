@@ -141,4 +141,5 @@ if [[ "$PLATFORM" == "macos" ]]; then
     alias showfiles='defaults write com.apple.finder AppleShowAllFiles YES; killall Finder'
     alias hidefiles='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder'
     alias flushdns='sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder'
+    alias mfconsole='/opt/metasploit-framework/bin/msfconsole'
 fi
