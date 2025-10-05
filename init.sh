@@ -64,7 +64,6 @@ stow_module() {
       if [[ -e "$target" || -L "$target" ]]; then
         echo "  - backup $target -> $BACKUP_DIR/"
         mkdir -p "$BACKUP_DIR/$(dirname "$line")"
-        # Cambiado a cp -a para backup, y luego rm original
         cp -a "$target" "$BACKUP_DIR/$line"
         rm -rf "$target"
       fi
@@ -75,10 +74,11 @@ stow_module() {
   stow -v -d "$DOTFILES_ROOT" -t "$HOME" "$module"
 }
 
-# módulos: puedes auto detectar todos los subdirectorios si quieres
-if [[ -z ${MODULES+x} ]]; then
-  mapfile -t MODULES < <(find "$DOTFILES_ROOT" -maxdepth 1 -mindepth 1 -type d -printf '%f\n')
-fi
+# módulos: auto detectar todos los subdirectorios sin mapfile
+MODULES=()
+while IFS= read -r dir; do
+  MODULES+=("$(basename "$dir")")
+done < <(find "$DOTFILES_ROOT" -maxdepth 1 -mindepth 1 -type d)
 
 for m in "${MODULES[@]}"; do
   stow_module "$m"
