@@ -15,3 +15,8 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup("plugins")
 
+vim.notify = function(msg, level, opts)
+  if type(msg) == "string" and msg:match("framework is deprecated") then return end
+  return require("notify")(msg, level, opts)
+end
+

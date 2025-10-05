@@ -1,4 +1,5 @@
 return {
+  require("plugins.dashboard"),
   require("plugins.colorscheme"),
   require("plugins.lsp"),
   require("plugins.treesitter"),
