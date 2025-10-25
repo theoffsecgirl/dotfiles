@@ -186,37 +186,31 @@ fi
 
 # ---- ATAJOS HACK/BUG/CTF AVANZADOS ----
 
-# 1. FFUF directo sobre un host, resultados limpios a archivo
-alias ffufdirs='ffuf -u https://TARGET/FUZZ -w $WORDLISTS/dirbuster/directory-list-2.3-medium.txt -of md -o ffuf_DIRS_$(date +%F_%H%M).md'
-alias ffufparams='ffuf -u "https://TARGET/page.php?FUZZ=1" -w $WORDLISTS/params.txt -of md -o ffuf_PARAMS_$(date +%F_%H%M).md'
-
-# 2. Subdomain discovery rápido
-alias subfinder='subfinder -d $1 -o subdomains.txt'
-
-# 3. Grep colores para errores, flags y passwords en logs grandes
+# Grep resaltando "error" en logs o outputs
 alias err='grep -i --color error'
+
+# Grep resaltando palabras típicas de credenciales en outputs/logs
 alias creds="grep -Ei --color 'pass|secret|token|key'"
 
-# 4. Crear README markdown con fecha y título (para informes, writeups, docencia)
+# Crear README markdown rápido con fecha/hora (para informes, writeups, docencia)
 alias mdreport="echo \"# Informe (\"$(date +'%F %T')\")\" > README_$(date +%F_%H%M).md"
 
-# 5. Lanzar http.server Python instantáneo en cualquier puerto
+# Levantar un servidor HTTP instantáneo en el puerto 8000
 alias serve="python3 -m http.server 8000"
 
-# 6. Buscar ficheros grandes (útil en loot/post-exploiting)
+# Buscar ficheros grandes en el directorio actual recursivamente
 alias bigfiles='find . -type f -size +100M -exec ls -lh {} \; | awk "{ print \$9 \": \" \$5 }"'
 
-# 7. Limpiar outputs y ficheros basura (útil tras labs/CTF)
+# Borrar outputs y ficheros .log tras labs/CTF
 alias purge_outputs='find . -type d -name output -exec rm -rf {} +; find . -name "*.log" -delete'
 
-# 8. Exporta tus variables proxy sobre la marcha (útil en labs)
+# Exportar proxy con un solo comando (útil para labs/fuzz)
 alias setproxy="export http_proxy='http://127.0.0.1:8080'; export https_proxy='http://127.0.0.1:8080'"
 alias unsetproxy="unset http_proxy; unset https_proxy"
 
-# 9. Buscar rápidamente ficheros .pcap y abrirlos con tcpdump o Wireshark
+# Buscar archivos .pcap rápidamente
 alias findpcap='find . -type f -name "*.pcap"'
-alias wshk="wireshark &"
 
-# 10. Crear carpeta y archivo .md para writeup CTF con el nombre del reto
-alias ctfwriteup='f(){ mkdir -p "$1" && echo "# $1" > "$1"/writeup.md && nvim "$1"/writeup.md; }; f'
+# Abrir Wireshark en background
+alias wshk="wireshark &"
 

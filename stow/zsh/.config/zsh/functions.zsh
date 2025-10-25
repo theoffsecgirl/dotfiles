@@ -341,4 +341,29 @@ updateall() {
     echo "Todo actualizado: sistema, pip y plugins de Neovim (si hay)."
 }
 
+# --- FUNCIONES HACK/CTF AVANZADAS ---
+
+# 1. FFUF directo sobre un host (argumento: dominio/target), resultados limpios
+ffufdirs() {
+  # Uso: ffufdirs target.com
+  ffuf -u "https://$1/FUZZ" -w "$WORDLISTS/dirbuster/directory-list-2.3-medium.txt" -of md -o "ffuf_DIRS_$(date +%F_%H%M).md"
+}
+
+# 2. FFUF sobre parámetros (argumento: dominio)
+ffufparams() {
+  # Uso: ffufparams target.com
+  ffuf -u "https://$1/page.php?FUZZ=1" -w "$WORDLISTS/params.txt" -of md -o "ffuf_PARAMS_$(date +%F_%H%M).md"
+}
+
+# 3. Subdomain discovery optimizado para bug bounty (argumento: dominio)
+subfinderall() {
+  # Uso: subfinderall dominio.com
+  command subfinder -d "$1" -all -t 100 -v -o "subs_${1}.txt"
+}
+
+# 4. Crear carpeta y archivo .md para writeup de CTF (argumento: nombre_reto)
+ctfwriteup() {
+  # Uso: ctfwriteup nombre_reto
+  mkdir -p "$1" && echo "# $1" > "$1/writeup.md" && nvim "$1/writeup.md"
+}
 
