@@ -1,17 +1,25 @@
-#!/usr/bin/env zsh
+# --------------------------------------
+# ALIAS PRINCIPALES Y UTILIDADES AVANZADAS
+# --------------------------------------
 
-# ---- DETECCIÓN DE PLATAFORMA ----
+# --------------------------------------
+# Detección de plataforma (macOS, Linux, otro)
+# --------------------------------------
 case "$(uname)" in
     Darwin) PLATFORM="macos" ;;
     Linux)  PLATFORM="linux" ;;
     *)      PLATFORM="other" ;;
 esac
 
-# ---- HISTORIAL DE COMANDOS ----
+# --------------------------------------
+# Historial de comandos
+# --------------------------------------
 alias clrhist="echo '' > ~/.zsh_history"
 alias rmhist="rm ~/.zsh_history"
 
-# ---- WORDLISTS ----
+# --------------------------------------
+# Wordlists por plataforma
+# --------------------------------------
 if [[ "$PLATFORM" == "linux" && -d "/usr/share/wordlists" ]]; then
     export WORDLISTS="/usr/share/wordlists"
     alias wordlists='cd $WORDLISTS'
@@ -26,7 +34,9 @@ elif [[ "$PLATFORM" == "macos" ]]; then
     [[ -n "$WORDLISTS" ]] && alias wordlists='cd $WORDLISTS'
 fi
 
-# ---- CAT MEJORADO Y ORIGINAL ----
+# --------------------------------------
+# Cat mejorado y original
+# --------------------------------------
 if command -v batcat &> /dev/null; then
     alias cat='batcat --paging=always --decorations=always'
 elif command -v bat &> /dev/null; then
@@ -38,7 +48,9 @@ else
     alias rcat='/usr/bin/cat'
 fi
 
-# ---- LS MEJORADO ----
+# --------------------------------------
+# Listado de archivos (ls mejorado)
+# --------------------------------------
 if command -v lsd &> /dev/null; then
     alias ll='lsd -la --group-dirs=first'
     alias l='lsd'
@@ -59,7 +71,9 @@ else
     fi
 fi
 
-# ---- NAVEGACIÓN RÁPIDA ----
+# --------------------------------------
+# Navegación rápida
+# --------------------------------------
 alias c='clear'
 alias ..='cd ..'
 alias ...='cd ../..'
@@ -71,7 +85,9 @@ alias rmrf='rm -rf'
 alias mv='mv -i'
 alias chmodx='chmod +x'
 
-# ---- LOGS DEL SISTEMA ----
+# --------------------------------------
+# Logs del sistema
+# --------------------------------------
 if [[ "$PLATFORM" == "linux" ]]; then
     alias watchlog='tail -f /var/log/syslog'
     alias logerror='grep -i error /var/log/syslog'
@@ -86,7 +102,9 @@ elif [[ "$PLATFORM" == "macos" ]]; then
     alias viewlog='log show --last 1h'
 fi
 
-# ---- RED Y UTILIDADES ----
+# --------------------------------------
+# Red y utilidades básicas
+# --------------------------------------
 if [[ "$PLATFORM" == "linux" ]]; then
     alias sniff='tcpdump -i eth0 -nn -s0 -w capture.pcap'
     alias ifconfig='ip a'
@@ -104,19 +122,19 @@ else
 fi
 alias httproot='python3 -m http.server 8080'
 
-# ---- ALIAS HACKEO, HERRAMIENTAS Y ADMIN PRO ----
-# Edición y recarga de configs
+# --------------------------------------
+# Alias para hacking, DevOps y administración
+# --------------------------------------
 alias ezsh="nvim ~/.zshrc"
 alias reloadzsh="source ~/.zshrc && echo '[zsh recargado]'"
-alias dalias="nvim ~/dotfiles/aliases.zsh"
+alias dalias="nvim ~/dotfiles/stow/zsh/.config/aliases.zsh"
+alias dfunctions="nvim ~/dotfiles/stow/zsh/.config/functions.zsh"
 
-# Navegación ultra-rápida a carpetas clave
-alias dotfiles="cd ~/dotfiles"
-alias proj="cd ~/proyectos"
-alias bounty="cd ~/bugbounty"
-alias ctf="cd ~/ctf"
+alias dotfiles='cd ~/dotfiles'
+alias proj='cd ~/proyectos'
+alias bounty='cd ~/bugbounty'
+alias ctf='cd ~/ctf'
 
-# Git directo
 alias gst='git status'
 alias gco='git checkout'
 alias gaa='git add .'
@@ -125,26 +143,22 @@ alias gpush='git push'
 alias gpull='git pull'
 alias ghist='git log --oneline --graph --decorate'
 
-# Herramientas hacking/fuzzing (ajusta binarios según tu entorno)
 alias ffuf='ffuf'
 alias nmapl='nmap -sC -sV -p-'
 alias nuclei='nuclei -duc'
 alias gobuster='gobuster'
 
-# Docker: limpieza y gestión veloz
 alias dps="docker ps"
 alias di="docker images"
-alias drm="docker rm \$(docker ps -aq)"
+alias drm="docker rm $(docker ps -aq)"
 alias dclean='docker system prune -af --volumes'
 alias dstopall='docker stop $(docker ps -aq)'
 
-# Búsqueda de scripts y credenciales
 alias findsh='find . -type f -name "*.sh"'
 alias findpy='find . -type f -name "*.py"'
 alias findbin='find . -type f -perm -u=x'
-alias findcreds='grep -Ri --color "pass\|secret\|token\|credential" .'
+alias findcreds='grep -Ri --color "pass|secret|token|credential" .'
 
-# Copiar IP pública y path al portapapeles (según sistema)
 if [[ "$PLATFORM" == "macos" ]]; then
     alias copyip='curl -s ifconfig.me | pbcopy'
     alias wheremi='pwd | pbcopy && pwd'
@@ -153,10 +167,11 @@ else
     alias wheremi='pwd | xclip -selection clipboard && pwd'
 fi
 
-# Búsqueda en wordlists
 alias gword='grep -i $1 $WORDLISTS/*'
 
-# ---- UTILIDADES DE SISTEMA ----
+# --------------------------------------
+# Sistema, rendimiento y limpieza
+# --------------------------------------
 if [[ "$PLATFORM" == "linux" ]]; then
     alias diskspace='df -h --total | grep total'
     alias mem='free -h --si'
@@ -174,7 +189,9 @@ alias untar='tar -xvf'
 alias unzipdir='unzip -d ./extracted/'
 alias wgetr="wget --continue"
 
-# ---- EXTRAS MACOS ----
+# --------------------------------------
+# Exclusivos para macOS
+# --------------------------------------
 if [[ "$PLATFORM" == "macos" ]]; then
     alias finder='open .'
     alias brewup='brew update && brew upgrade'
@@ -184,33 +201,16 @@ if [[ "$PLATFORM" == "macos" ]]; then
     alias mfconsole='/opt/metasploit-framework/bin/msfconsole'
 fi
 
-# ---- ATAJOS HACK/BUG/CTF AVANZADOS ----
-
-# Grep resaltando "error" en logs o outputs
+# --------------------------------------
+# Alias de hacking, bug bounty y CTF
+# --------------------------------------
 alias err='grep -i --color error'
-
-# Grep resaltando palabras típicas de credenciales en outputs/logs
 alias creds="grep -Ei --color 'pass|secret|token|key'"
-
-# Crear README markdown rápido con fecha/hora (para informes, writeups, docencia)
-alias mdreport="echo \"# Informe (\"$(date +'%F %T')\")\" > README_$(date +%F_%H%M).md"
-
-# Levantar un servidor HTTP instantáneo en el puerto 8000
+alias mdreport="echo \"# Informe ($(date +'%F %T'))\" > README_$(date +%F_%H%M).md"
 alias serve="python3 -m http.server 8000"
-
-# Buscar ficheros grandes en el directorio actual recursivamente
 alias bigfiles='find . -type f -size +100M -exec ls -lh {} \; | awk "{ print \$9 \": \" \$5 }"'
-
-# Borrar outputs y ficheros .log tras labs/CTF
 alias purge_outputs='find . -type d -name output -exec rm -rf {} +; find . -name "*.log" -delete'
-
-# Exportar proxy con un solo comando (útil para labs/fuzz)
 alias setproxy="export http_proxy='http://127.0.0.1:8080'; export https_proxy='http://127.0.0.1:8080'"
 alias unsetproxy="unset http_proxy; unset https_proxy"
-
-# Buscar archivos .pcap rápidamente
 alias findpcap='find . -type f -name "*.pcap"'
-
-# Abrir Wireshark en background
 alias wshk="wireshark &"
-
