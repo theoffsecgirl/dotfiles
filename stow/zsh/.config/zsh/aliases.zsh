@@ -2,6 +2,8 @@
 # ALIAS PRINCIPALES Y UTILIDADES AVANZADAS
 # --------------------------------------
 
+alias showaliases='alias | sed "s/alias //" | column -t -s"=" | less'
+
 # --------------------------------------
 # Detección de plataforma (macOS, Linux, otro)
 # --------------------------------------

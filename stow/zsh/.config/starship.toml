@@ -1,0 +1,15 @@
+format = "$time $character $directory"
+add_newline = false
+
+[time]
+disabled = false
+format = "[$time]($style)"
+style = "bold cyan"
+
+[character]
+success_symbol = "[☠️](bold magenta)"
+error_symbol   = "[☠️](bold red)"
+
+[directory]
+style = "bold cyan"
+truncation_length = 2

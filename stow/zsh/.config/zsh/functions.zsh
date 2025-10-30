@@ -503,3 +503,16 @@ ctfwriteup() {
     mkdir -p "$1" && echo "# $1" > "$1/writeup.md" && nvim "$1/writeup.md"
 }
 
+# --------------------------------------
+# Función: aliases
+# Lista y busca alias definidos fácilmente
+# Uso: aliases [filtro]
+# --------------------------------------
+aliases() {
+    if [[ -z "$1" ]]; then
+        alias | sort
+    else
+        alias | grep -i --color "$1"
+    fi
+}
+
