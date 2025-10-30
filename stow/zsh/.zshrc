@@ -1,6 +1,4 @@
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
@@ -19,13 +17,13 @@ esac
 [[ -f "$HOME/.config/zsh/aliases.zsh" ]] && source "$HOME/.config/zsh/aliases.zsh"
 [[ -f "$HOME/.config/zsh/functions.zsh" ]] && source "$HOME/.config/zsh/functions.zsh"
 
-# Powerlevel10k (si está instalado)
+# Powerlevel10k prompt
 [[ -f "$HOME/.p10k.zsh" ]] && source "$HOME/.p10k.zsh"
 [[ -f "$HOME/.zsh/powerlevel10k/powerlevel10k.zsh-theme" ]] && source "$HOME/.zsh/powerlevel10k/powerlevel10k.zsh-theme"
 
-# Starship prompt (opcional, si lo tienes)
-#command -v starship >/dev/null && eval "$(starship init zsh)"
-eval "$(starship init zsh)"
+# Starship prompt DESACTIVADO
+# command -v starship >/dev/null && eval "$(starship init zsh)"
+# eval "$(starship init zsh)"
 
 # Editor por defecto
 if command -v nvim >/dev/null 2>&1; then
@@ -33,15 +31,12 @@ if command -v nvim >/dev/null 2>&1; then
     export VISUAL="nvim"
 fi
 
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-
+# Plugins de Zsh
 source ~/.zsh-alias-tips/alias-tips.plugin.zsh
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
-# The following lines have been added by Docker Desktop to enable Docker CLI completions.
+# Docker CLI completions
 fpath=(/Users/theoffsecgirl/.docker/completions $fpath)
 autoload -Uz compinit
 compinit
-# End of Docker CLI completions
