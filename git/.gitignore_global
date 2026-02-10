@@ -1,0 +1,12 @@
+# Global gitignore
+.DS_Store
+.idea/
+.vscode/
+.env
+.venv/
+node_modules/
+dist/
+build/
+__pycache__/
+*.pyc
+*.log

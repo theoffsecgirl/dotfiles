@@ -1,0 +1,17 @@
+# ~/.gitconfig (gestionado por stow)
+[user]
+  name = theoffsecgirl
+  email = arianne@theoffsecgirl.com
+
+[core]
+  excludesfile = ~/.gitignore_global
+  editor = nvim
+
+[init]
+  defaultBranch = main
+
+[alias]
+  st = status
+  co = checkout
+  br = branch
+  lg = log --oneline --graph --decorate --all
