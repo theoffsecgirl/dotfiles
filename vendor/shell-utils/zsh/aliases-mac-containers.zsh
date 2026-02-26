@@ -1,35 +1,22 @@
-# --------------------------------------
-# Alias para containers en macOS (Apple containerd)
-# Sin network porque la red por defecto ya funciona.
-# --------------------------------------
+if command -v container >/dev/null 2>&1; then
+  _CTR=container
+  _RM_FLAG="--remove"
+elif command -v docker >/dev/null 2>&1; then
+  _CTR=docker
+  _RM_FLAG="--rm"
+else
+  _CTR=""
+fi
 
-# Listar contenedores
-alias container-ls='container list'
+if [[ "${_CTR}" == "container" ]]; then
+  alias container-ls='container list'
+elif [[ "${_CTR}" == "docker" ]]; then
+  alias container-ls='docker ps'
+fi
 
-# Shell persistente (misma instancia, no se borra)
-alias container-shell-persist='container run \
-    --interactive \
-    --tty \
-    --entrypoint=/bin/bash \
-    --volume $(pwd):/mnt \
-    --workdir /mnt \
-    --name "0xETERNAL"'
+alias container-shell-persist="${_CTR} run -it --name 0xETERNAL -v \$(pwd):/mnt -w /mnt --entrypoint=/bin/bash"
+alias container-shell-ephemeral="${_CTR} run ${_RM_FLAG} -it -v \$(pwd):/mnt -w /mnt --entrypoint=/bin/bash"
 
-# Shell efímera (se borra al salir, nombre aleatorio)
-alias container-shell-ephemeral='container run \
-    --remove \
-    --interactive \
-    --tty \
-    --entrypoint=/bin/bash \
-    --volume $(pwd):/mnt \
-    --workdir /mnt \
-    --name "0xEPHEMERAL-$(date +%s)"'
-
-# Kali persistente
 alias kali-eternal='container-shell-persist kalilinux/kali-rolling:latest'
-
-# Kali efímera
 alias kali-ephemeral='container-shell-ephemeral kalilinux/kali-rolling:latest'
-
-# Kali con puerto web expuesto (para labs rápidos)
 alias kali-web='container-shell-ephemeral -p 8080:80 kalilinux/kali-rolling:latest'

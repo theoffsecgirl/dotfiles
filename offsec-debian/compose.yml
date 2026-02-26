@@ -1,0 +1,16 @@
+services:
+  offsec:
+    build: .
+    container_name: offsec-debian
+    tty: true
+    stdin_open: true
+    cap_drop: ["ALL"]
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - ../:/home/offsec/.dotfiles:ro
+      - offsec-home:/home/offsec
+      - ./work:/work
+
+volumes:
+  offsec-home:
