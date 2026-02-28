@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  offsec:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: offsec-toolbox
+    hostname: offsec
+    stdin_open: true
+    tty: true
+    volumes:
+      # Dotfiles desde el host
+      - ~/.dotfiles:/root/.dotfiles:ro
+      # Workspace persistente
+      - ~/hunting:/work:rw
+      # SSH keys (solo lectura)
+      - ~/.ssh:/root/.ssh:ro
+      # Git config
+      - ~/.gitconfig:/root/.gitconfig:ro
+    environment:
+      - TERM=xterm-256color
+      - DOTFILES_DIR=/root/.dotfiles
+    networks:
+      - offsec-net
+    # No exponer puertos por defecto (seguridad)
+    # ports:
+    #   - "8080:8080"
+
+networks:
+  offsec-net:
+    driver: bridge
