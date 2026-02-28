@@ -26,20 +26,22 @@ RUN apt-get update && apt-get install -y \
     tmux \
     neovim \
     build-essential \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
 
-# Instalar Go (necesario para httpx y ffuf)
-RUN wget -q https://go.dev/dl/go1.22.0.linux-amd64.tar.gz && \
-    tar -C /usr/local -xzf go1.22.0.linux-amd64.tar.gz && \
-    rm go1.22.0.linux-amd64.tar.gz
+# Instalar httpx (binario precompilado)
+RUN wget -q https://github.com/projectdiscovery/httpx/releases/download/v1.6.8/httpx_1.6.8_linux_amd64.zip && \
+    unzip -q httpx_1.6.8_linux_amd64.zip && \
+    mv httpx /usr/local/bin/ && \
+    chmod +x /usr/local/bin/httpx && \
+    rm httpx_1.6.8_linux_amd64.zip README.md LICENSE.md
 
-ENV PATH="/usr/local/go/bin:/root/go/bin:${PATH}"
-
-# Instalar httpx (pinneado)
-RUN go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
-
-# Instalar ffuf (pinneado)
-RUN go install github.com/ffuf/ffuf/v2@latest
+# Instalar ffuf (binario precompilado)
+RUN wget -q https://github.com/ffuf/ffuf/releases/download/v2.1.0/ffuf_2.1.0_linux_amd64.tar.gz && \
+    tar -xzf ffuf_2.1.0_linux_amd64.tar.gz && \
+    mv ffuf /usr/local/bin/ && \
+    chmod +x /usr/local/bin/ffuf && \
+    rm ffuf_2.1.0_linux_amd64.tar.gz
 
 # Crear estructura de trabajo
 RUN mkdir -p /work/{targets,notes,scripts,templates}
