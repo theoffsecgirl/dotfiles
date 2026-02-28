@@ -1,148 +1,129 @@
-# theoffsecgirl/dotfiles
+# dotfiles
 
-Dotfiles para macOS pensados para **bug bounty y ofensiva web/API**.
+Mis dotfiles para macOS orientados a bug bounty web/API.
 
-## 🎯 Stack incluido
+## Qué hay aquí
 
-### 🖥️ Host (macOS)
-- **Zsh** modular con aliases ofensivos
-- **Brewfile** reproducible
-- **Git** config + global ignore
-- **tmux** básico
-- **nvim** estructura base
-- **Scripts Raycast** para orquestación
+### En el host (macOS)
+- Zsh con aliases para ofensiva
+- Brewfile para reproducir el setup
+- Configs de Git, tmux, nvim
+- Scripts para Raycast
 
-### 🐳 Contenedores
-- **Debian Toolbox** - entorno diario (httpx, ffuf, curl, jq, Python)
-- Integración con **Exegol** para tooling pesado
-- Soporte **Kali VM** (UTM) para AD/red interna
+### Contenedores
+- **Debian Toolbox** → mi entorno diario (httpx, ffuf, curl, jq, Python)
+- **Exegol** → cuando necesito herramientas más pesadas
+- **Kali VM** → para cosas de AD o red interna
 
-### 📁 Workspace
-- Template `hunting/` con estructura organizada
-- Python venv templates
+### Workspace
+- Template de carpetas para organizar targets
 - Sistema de notas rápidas
+- Templates de Python venv
 
-## 🚀 Instalación rápida
+## Instalación
 
 ```bash
-# Clonar
 git clone https://github.com/theoffsecgirl/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 
-# Bootstrap macOS (Homebrew + configs)
+# Bootstrap (instala Homebrew + paquetes)
 ./macos/bootstrap-macos.sh
 
-# Aplicar dotfiles
+# Aplicar configs
 stow -t "$HOME" zsh git tmux nvim scripts
-
-# Recargar shell
 source ~/.zshrc
 
-# Crear workspace
+# Crear workspace de hunting
 cp -r hunting-template ~/hunting
 
-# Configurar Git (edita con tus datos)
+# Tu nombre y email en Git
 nvim ~/.gitconfig
 
-# Build contenedor toolbox
+# Build del contenedor
 cd containers/debian-toolbox
 docker compose build
 
 # Configurar Raycast
-chmod +x ~/.local/bin/offsec-* ~/.local/bin/exegol-start ~/.local/bin/kali-start
+chmod +x ~/.local/bin/offsec-*
 # Raycast → Settings → Script Commands → Add Directory → ~/.local/bin
 ```
 
-## 💡 Uso diario
+## Uso normal
 
-### Arrancar entorno
+### Arrancar
 ```bash
-# Desde Raycast (Cmd+Space)
-"Start Offsec Toolbox" → "Offsec Shell"
-
-# O desde terminal
+# Desde Raycast: Cmd+Space → "Start Offsec Toolbox"
+# O desde terminal:
 offsec-up && offsec
 ```
 
-### Dentro del contenedor (primera vez)
+### Primera vez dentro del contenedor
 ```bash
 cd /root/.dotfiles
 stow -t "$HOME" zsh git tmux
 source ~/.zshrc
 ```
 
-### Aliases útiles
+### Aliases que uso
 ```bash
-# Navegación
-cdh              # cd ~/hunting
-cdt              # cd ~/hunting/targets
-cdn              # cd ~/hunting/notes
-cds              # cd ~/hunting/scripts
+cdh              # ir a ~/hunting
+cdt              # ir a ~/hunting/targets
+cdn              # ir a ~/hunting/notes
 
-# HTTP/Recon
-h                # httpx silencioso
-hh               # httpx + tech detect
-subenum dom.com  # subdomain enum
-probe urls.txt   # probar lista URLs
+h                # httpx básico
+hh               # httpx con detección de tech
+subenum dom.com  # enum de subdominios
+probe urls.txt   # probar lista de URLs
 
-# Notas
-note "texto"     # nota rápida
+note "texto"     # nota rápida con timestamp
 notes            # ver notas de hoy
 
-# Contenedor
-offsec           # shell directo
-offsec-restart   # restart
-offsec-rebuild   # rebuild
+offsec           # entrar al contenedor
+offsec-restart   # reiniciar contenedor
 ```
 
-## 📚 Documentación completa
+## Docs
 
-Revisa **[SETUP-BUGBOUNTY.md](SETUP-BUGBOUNTY.md)** para:
-- Arquitectura detallada
-- Workflow recomendado
-- Troubleshooting
-- Personalización
+Si quieres ver todo el setup explicado paso a paso, revisa [SETUP-BUGBOUNTY.md](SETUP-BUGBOUNTY.md).
 
-## 🗂️ Estructura
+## Estructura
 
 ```
 ~/.dotfiles/
-├── containers/
-│   └── debian-toolbox/       # Contenedor principal
-├── scripts/.local/bin/       # Scripts Raycast
-├── hunting-template/         # Template workspace
+├── containers/debian-toolbox/    # el contenedor principal
+├── scripts/.local/bin/           # scripts para Raycast
+├── hunting-template/             # template del workspace
 ├── zsh/.config/zsh/
-│   └── bug-bounty.zsh       # Aliases ofensivos
-├── macos/                    # Bootstrap macOS
-├── brew/                     # Brewfile
-├── git/                      # Git config
-├── tmux/                     # tmux config
-├── nvim/                     # nvim estructura
-└── SETUP-BUGBOUNTY.md       # Docs completas
+│   └── bug-bounty.zsh           # aliases ofensivos
+├── macos/                        # bootstrap macOS
+├── brew/                         # Brewfile
+├── git/
+├── tmux/
+├── nvim/
+└── SETUP-BUGBOUNTY.md           # docs completas
 ```
 
-## ⚙️ Aplicar módulos individuales
+## Aplicar solo algunas cosas
 
 ```bash
 cd ~/.dotfiles
-stow -t "$HOME" zsh       # Solo zsh
-stow -t "$HOME" git       # Solo git
-stow -t "$HOME" tmux      # Solo tmux
-stow -t "$HOME" scripts   # Scripts Raycast
+stow -t "$HOME" zsh       # solo zsh
+stow -t "$HOME" git       # solo git
+stow -t "$HOME" scripts   # solo scripts
 ```
 
-## 🔧 Personalización
+## Personalizar
 
-- **Aliases propios**: `~/.config/zsh/local.zsh` (no se versiona)
-- **Git config**: edita `~/.gitconfig` con tu nombre/email
-- **Herramientas extra**: edita `containers/debian-toolbox/Dockerfile`
+- Aliases propios → `~/.config/zsh/local.zsh` (no se sube a git)
+- Git config → edita `~/.gitconfig`
+- Más herramientas → edita `containers/debian-toolbox/Dockerfile` y rebuild
 
-## 🎯 Filosofía
+## Filosofía
 
-**Reducir fricción cognitiva, no acumular herramientas.**
+No acumular herramientas, reducir fricción cognitiva.
 
-- **Web/API** → Debian Toolbox (80% del tiempo)
-- **Recon masivo** → Exegol (puntual)
-- **AD/pivoting** → Kali VM (específico)
+- Web/API → Debian Toolbox (la uso el 80% del tiempo)
+- Recon pesado → Exegol (puntual)
+- AD/pivoting → Kali VM (específico)
 
-Sin mezclar. Sin ruido.
+Cada cosa en su sitio, sin mezclar.
