@@ -64,9 +64,126 @@ require("lazy").setup({
           treesitter = true,
           mason = true,
           cmp = true,
+          dashboard = true,
         },
       })
       vim.cmd.colorscheme("catppuccin")
+    end,
+  },
+
+  -- Dashboard
+  {
+    "nvimdev/dashboard-nvim",
+    event = "VimEnter",
+    config = function()
+      require("dashboard").setup({
+        theme = "doom",
+        config = {
+          header = {
+            "",
+            "",
+            "███╗   ██╗██████╗ ██████╗ ███╗   ██╗█████╗ ██████╗",
+            "████╗  ██║██╔══██╗██╔══██╗████╗  ██║██╔══██╗██╔══██╗",
+            "██╔██╗ ██║██████╔╝██████╔╝██╔██╗ ██║██║  ██║██║  ██║",
+            "██║╚██╗██║██╔══██╗██╔══██╗██║╚██╗██║██║  ██║██║  ██║",
+            "██║ ╚████║██║  ██║██║  ██║██║ ╚████║╚█████╔╝██████╔╝",
+            "╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚════╝ ╚═════╝",
+            "",
+            "🔍  bug bounty // offsec",
+            "",
+          },
+          center = {
+            {
+              icon = "🎯  ",
+              icon_hl = "Title",
+              desc = "Hunting Workspace",
+              desc_hl = "String",
+              key = "h",
+              key_hl = "Number",
+              action = "cd ~/hunting | Oil",
+            },
+            {
+              icon = "📝  ",
+              icon_hl = "Title",
+              desc = "Today's Notes",
+              desc_hl = "String",
+              key = "n",
+              key_hl = "Number",
+              action = function()
+                local notes_path = vim.fn.expand("~/hunting/notes/" .. os.date("%Y-%m-%d") .. "-quick.md")
+                vim.cmd("edit " .. notes_path)
+              end,
+            },
+            {
+              icon = "📁  ",
+              icon_hl = "Title",
+              desc = "Find File",
+              desc_hl = "String",
+              key = "f",
+              key_hl = "Number",
+              action = "Telescope find_files",
+            },
+            {
+              icon = "🔎  ",
+              icon_hl = "Title",
+              desc = "Find Text",
+              desc_hl = "String",
+              key = "g",
+              key_hl = "Number",
+              action = "Telescope live_grep",
+            },
+            {
+              icon = "🛠️  ",
+              icon_hl = "Title",
+              desc = "Dotfiles",
+              desc_hl = "String",
+              key = "d",
+              key_hl = "Number",
+              action = "cd ~/.dotfiles | Oil",
+            },
+            {
+              icon = "📚  ",
+              icon_hl = "Title",
+              desc = "Cheatsheet",
+              desc_hl = "String",
+              key = "c",
+              key_hl = "Number",
+              action = "edit ~/.dotfiles/CHEATSHEET.md",
+            },
+            {
+              icon = "⏳  ",
+              icon_hl = "Title",
+              desc = "Recent Files",
+              desc_hl = "String",
+              key = "r",
+              key_hl = "Number",
+              action = "Telescope oldfiles",
+            },
+            {
+              icon = "⚙️  ",
+              icon_hl = "Title",
+              desc = "Config",
+              desc_hl = "String",
+              key = "v",
+              key_hl = "Number",
+              action = "edit ~/.config/nvim/init.lua",
+            },
+            {
+              icon = "❌  ",
+              icon_hl = "Title",
+              desc = "Quit",
+              desc_hl = "String",
+              key = "q",
+              key_hl = "Number",
+              action = "qa",
+            },
+          },
+          footer = {
+            "",
+            "🐞  theoffsecgirl",
+          },
+        },
+      })
     end,
   },
 
