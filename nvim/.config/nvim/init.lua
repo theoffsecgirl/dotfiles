@@ -48,6 +48,28 @@ vim.opt.rtp:prepend(lazypath)
 
 -- Plugins
 require("lazy").setup({
+  -- Theme (Catppuccin)
+  {
+    "catppuccin/nvim",
+    name = "catppuccin",
+    priority = 1000,
+    config = function()
+      require("catppuccin").setup({
+        flavour = "mocha",
+        transparent_background = true,
+        integrations = {
+          telescope = true,
+          gitsigns = true,
+          nvimtree = false,
+          treesitter = true,
+          mason = true,
+          cmp = true,
+        },
+      })
+      vim.cmd.colorscheme("catppuccin")
+    end,
+  },
+
   -- Telescope (fast nav)
   { "nvim-lua/plenary.nvim" },
   {
@@ -128,6 +150,17 @@ require("lazy").setup({
     build = function() vim.fn["mkdp#util#install"]() end,
     config = function()
       vim.keymap.set("n", "<leader>mp", "<cmd>MarkdownPreviewToggle<cr>", { desc = "Markdown preview" })
+    end,
+  },
+
+  -- Indent lines (visual)
+  {
+    "lukas-reineke/indent-blankline.nvim",
+    main = "ibl",
+    config = function()
+      require("ibl").setup({
+        scope = { enabled = true },
+      })
     end,
   },
 
