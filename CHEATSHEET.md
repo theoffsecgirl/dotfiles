@@ -25,6 +25,119 @@ cdn                    # cd ~/hunting/notes
 cds                    # cd ~/hunting/scripts
 ```
 
+## Neovim
+
+### Básicos
+```
+Space                  # leader key
+:w  o  Space+w         # guardar
+:q  o  Space+q         # salir
+```
+
+### Navegación archivos
+```
+-                      # abrir directorio actual (oil.nvim)
+Space+ff               # buscar archivos (fuzzy)
+Space+fg               # buscar en contenido (grep)
+Space+fb               # ver buffers abiertos
+Space+n                # abrir notas de hoy
+```
+
+### Terminal integrado
+```
+Space+t                # toggle terminal flotante
+Ctrl+x                 # salir de insert mode en terminal
+```
+
+### LSP (autocompletado y navegación)
+```
+gd                     # ir a definición
+gr                     # ver referencias
+K                      # documentación hover
+Space+rn               # renombrar símbolo
+Space+ca               # code actions
+Space+f                # formatear archivo
+[d / ]d                # diagnóstico anterior/siguiente
+Space+e                # mostrar error en float
+```
+
+### Git
+```
+]c / [c                # siguiente/anterior cambio (hunk)
+Space+hp               # preview cambio
+Space+hs               # stage cambio
+Space+hr               # reset cambio
+Space+hb               # blame de línea
+```
+
+### Markdown
+```
+Space+mp               # preview markdown
+```
+
+### Búsqueda avanzada
+```
+:RG texto              # buscar texto en proyecto (ripgrep)
+Space+ss               # símbolos en archivo
+Space+sS               # símbolos en workspace
+```
+
+### Snippets (escribe + Tab)
+
+#### Python
+```
+req        → import requests + GET básico
+reqh       → requests con headers custom
+post       → POST JSON
+httpx      → httpx básico
+httpxa     → httpx async
+xss        → XSS fuzzer con payloads
+sqli       → SQLi tester
+ssrf       → SSRF tester
+argp       → argparse template
+```
+
+#### Bash
+```
+curl       → curl GET con headers
+curlp      → curl POST JSON
+curlc      → curl con cookie
+http       → httpie GET
+httpp      → httpie POST
+ffuf       → ffuf directory fuzzing
+ffufp      → ffuf parameter fuzzing
+subenum    → subdomain enum pipeline
+recon      → one-liner recon completo
+```
+
+#### Payloads (cualquier archivo)
+```
+xss1       → <script>alert(1)</script>
+xss2       → '><script>alert(1)</script>
+xss3       → "<script>alert(1)</script>
+xssimg     → <img src=x onerror=alert(1)>
+sql1       → ' OR 1=1--
+sql2       → ' OR '1'='1
+sql3       → admin'--
+lfi        → ../../../etc/passwd
+lfi2       → ....//....//....//etc/passwd
+ssrf1      → http://169.254.169.254/latest/meta-data/
+ssrf2      → http://localhost:80
+jwt        → decode JWT one-liner
+```
+
+### Ejecutar comandos HTTP
+```
+Space+xh               # ejecutar línea con curl/http bajo cursor
+```
+
+Ejemplo:
+```bash
+# Escribe esto en nvim:
+curl https://example.com
+# Pon cursor en la línea y: Space+xh
+```
+
 ## Recon
 
 ### Subdominios
@@ -192,6 +305,9 @@ notes
 # Archivo de notas
 cat ~/hunting/notes/$(date +%Y-%m-%d)-quick.md
 
+# Desde nvim (abre notas de hoy)
+Space+n
+
 # Notas por target
 cd ~/hunting/targets/example.com
 nvim notes.md
@@ -218,24 +334,25 @@ venv-deactivate                # alias
 venv-auto
 ```
 
-### Script rápido
+### Script rápido con snippet
 ```bash
 cd ~/hunting/scripts
 nvim exploit.py
 ```
 
+En nvim escribe `req` + Tab y te genera:
 ```python
-import httpx
-import sys
+import requests
 
-url = sys.argv[1]
-r = httpx.get(url)
+url = 'https://example.com'
+r = requests.get(url)
 print(r.status_code)
 print(r.text)
 ```
 
+Ejecuta:
 ```bash
-python3 exploit.py https://example.com
+python3 exploit.py
 ```
 
 ## Workflows
@@ -275,6 +392,19 @@ ffuf -u 'https://example.com/api/users?FUZZ=1' -w params.txt -c | tee vulns/para
 # Notas
 note "example.com/api/users - CORS misconfigured, accepts any origin"
 ```
+
+### Workflow con nvim snippets
+```bash
+cd ~/hunting/scripts
+nvim test_ssrf.py
+```
+
+En nvim:
+1. Escribe `ssrf` + Tab
+2. Cambia URL target
+3. `:w` guardar
+4. `Space+t` abrir terminal
+5. `python3 test_ssrf.py`
 
 ### Organizar target
 ```bash
@@ -323,6 +453,18 @@ curl https://example.com -k
 httpx -proxy http://127.0.0.1:8080
 ```
 
+### Nvim para editar responses rápido
+```bash
+# Capturar response y editar
+curl https://example.com/api > response.json
+nvim response.json
+
+# Dentro de nvim:
+# Space+f para formatear JSON
+# /texto para buscar
+# :RG "admin" para buscar en proyecto
+```
+
 ## Troubleshooting
 
 ### Contenedor no arranca
@@ -350,6 +492,17 @@ stow -t "$HOME" zsh tmux
 source ~/.zshrc
 ```
 
+### Nvim snippets no funcionan
+```bash
+# Actualizar dotfiles
+cd ~/.dotfiles
+git pull
+stow -t "$HOME" nvim
+
+# Dentro de nvim, reinstalar plugins
+:Lazy sync
+```
+
 ## Recursos
 
 ### Wordlists
@@ -361,7 +514,32 @@ source ~/.zshrc
 - [httpx](https://github.com/projectdiscovery/httpx)
 - [ffuf](https://github.com/ffuf/ffuf)
 - [jq manual](https://jqlang.github.io/jq/manual/)
+- [Neovim](https://neovim.io/doc/)
 
 ### Payloads
 - [PayloadsAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings)
 - [SecLists](https://github.com/danielmiessler/SecLists)
+
+## Atajos de teclado resumen
+
+### Nvim (más usados)
+```
+Space+ff    → buscar archivo
+Space+fg    → buscar texto
+Space+n     → notas de hoy
+Space+t     → terminal
+-           → file explorer
+gd          → ir a definición
+K           → documentación
+Space+f     → formatear
+```
+
+### Terminal
+```
+cdh         → ~/hunting
+cdt         → ~/hunting/targets
+offsec      → entrar contenedor
+h           → httpx silent
+f           → ffuf
+note        → nota rápida
+```
