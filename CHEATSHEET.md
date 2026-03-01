@@ -25,13 +25,117 @@ cdn                    # cd ~/hunting/notes
 cds                    # cd ~/hunting/scripts
 ```
 
+## Ghostty Terminal
+
+### Tabs
+```
+Cmd+T                  # nueva tab
+Cmd+W                  # cerrar tab
+Cmd+Shift+[/]          # tab anterior/siguiente
+Cmd+1..5               # ir a tab específica
+```
+
+### Splits
+```
+Cmd+D                  # split vertical (derecha)
+Cmd+Shift+D            # split horizontal (abajo)
+Cmd+H/J/K/L            # navegar splits (vim-style)
+Cmd+Ctrl+H/J/K/L       # resize splits
+Cmd+Shift+W            # cerrar split
+```
+
+### Útiles
+```
+Cmd+C/V                # copiar/pegar
+Cmd++/-/0              # aumentar/reducir/reset font
+Cmd+F                  # fullscreen
+Cmd+Shift+H            # nueva tab en ~/hunting
+Cmd+Shift+N            # nueva tab en ~/hunting/notes
+Cmd+Shift+R            # reload config
+```
+
+## Tmux
+
+### Básicos (prefix = Ctrl+a)
+```
+Ctrl+a |               # split vertical
+Ctrl+a -               # split horizontal
+Ctrl+a h/j/k/l         # navegar panes (vim)
+Ctrl+a H/J/K/L         # resize panes
+Ctrl+a c               # nueva ventana
+Ctrl+a x               # matar pane sin confirmación
+Ctrl+a d               # detach (salir)
+```
+
+### Sessionizer
+```
+Ctrl+a f               # buscar y cambiar a proyecto (fzf)
+```
+
+### Popups
+```
+Ctrl+a g               # terminal popup flotante
+Ctrl+a Ctrl+n          # popup con notas de hoy
+```
+
+### Hunting shortcuts
+```
+Ctrl+a H               # split en ~/hunting
+Ctrl+a T               # split en ~/hunting/targets
+Ctrl+a N               # split con nvim en notes
+```
+
+### Windows
+```
+Ctrl+a 0..9            # ir a ventana
+Ctrl+a </>             # mover ventana izq/der
+Ctrl+a n/p             # siguiente/anterior ventana
+```
+
+### Sessions (con resurrect)
+```
+Ctrl+a Ctrl+s          # guardar sesión
+Ctrl+a Ctrl+r          # restaurar sesión
+# Auto-save cada 15 min activo
+```
+
+### Copy mode
+```
+Ctrl+a [               # entrar copy mode
+Space                  # comenzar selección
+y                      # copiar (va a clipboard)
+q                      # salir
+```
+
+### Útiles
+```
+Ctrl+a r               # reload config
+Ctrl+a b               # toggle status bar
+Ctrl+a z               # zoom pane (fullscreen temporal)
+```
+
 ## Neovim
+
+### Dashboard (al abrir)
+```
+h                      # Hunting workspace
+n                      # Notas de hoy
+f                      # Buscar archivo
+g                      # Buscar texto
+d                      # Dotfiles
+c                      # Cheatsheet
+r                      # Archivos recientes
+v                      # Config nvim
+q                      # Salir
+```
 
 ### Básicos
 ```
 Space                  # leader key
 :w  o  Space+w         # guardar
 :q  o  Space+q         # salir
+:wq                    # guardar y salir
+:q!                    # salir sin guardar
 ```
 
 ### Navegación archivos
@@ -129,13 +233,6 @@ jwt        → decode JWT one-liner
 ### Ejecutar comandos HTTP
 ```
 Space+xh               # ejecutar línea con curl/http bajo cursor
-```
-
-Ejemplo:
-```bash
-# Escribe esto en nvim:
-curl https://example.com
-# Pon cursor en la línea y: Space+xh
 ```
 
 ## Recon
@@ -262,17 +359,6 @@ cat urls.txt | httpx -match-string 'admin' -silent
 cat urls.txt | httpx -H 'X-Custom: value' -silent
 ```
 
-## Wordlists comunes
-
-```bash
-# Ver paths
-wl-common              # dirb common.txt
-wl-medium              # seclists medium
-
-# Usar
-ffuf -u https://example.com/FUZZ -w $(wl-common) -c
-```
-
 ## JSON
 
 ### Parsing
@@ -302,11 +388,11 @@ note "found XSS in /search?q="
 # Ver notas de hoy
 notes
 
-# Archivo de notas
-cat ~/hunting/notes/$(date +%Y-%m-%d)-quick.md
+# Desde nvim (dashboard)
+n                      # abre notas de hoy
 
-# Desde nvim (abre notas de hoy)
-Space+n
+# Desde tmux popup
+Ctrl+a Ctrl+n          # popup con notas
 
 # Notas por target
 cd ~/hunting/targets/example.com
@@ -320,40 +406,16 @@ nvim notes.md
 # Crear
 cd ~/hunting/scripts/proyecto
 python3 -m venv venv
-venv-create                    # alias
 
 # Activar
 source venv/bin/activate
-venv-activate                  # alias
 
 # Desactivar
 deactivate
-venv-deactivate                # alias
-
-# Auto-activar si existe
-venv-auto
 ```
 
 ### Script rápido con snippet
-```bash
-cd ~/hunting/scripts
-nvim exploit.py
-```
-
-En nvim escribe `req` + Tab y te genera:
-```python
-import requests
-
-url = 'https://example.com'
-r = requests.get(url)
-print(r.status_code)
-print(r.text)
-```
-
-Ejecuta:
-```bash
-python3 exploit.py
-```
+En nvim: `req` + Tab
 
 ## Workflows
 
@@ -390,21 +452,24 @@ curl -I https://example.com/api/users | grep -i 'cors\|access-control'
 ffuf -u 'https://example.com/api/users?FUZZ=1' -w params.txt -c | tee vulns/params-fuzz.txt
 
 # Notas
-note "example.com/api/users - CORS misconfigured, accepts any origin"
+note "example.com/api/users - CORS misconfigured"
 ```
 
-### Workflow con nvim snippets
+### Workflow con tmux + nvim
 ```bash
-cd ~/hunting/scripts
-nvim test_ssrf.py
-```
+# Abrir proyecto con sessionizer
+Ctrl+a f
+# Seleccionar example.com
 
-En nvim:
-1. Escribe `ssrf` + Tab
-2. Cambia URL target
-3. `:w` guardar
-4. `Space+t` abrir terminal
-5. `python3 test_ssrf.py`
+# Split para testing
+Ctrl+a |
+
+# Popup para notas rápidas
+Ctrl+a Ctrl+n
+
+# Terminal flotante para comandos
+Space+t  # dentro de nvim
+```
 
 ### Organizar target
 ```bash
@@ -453,16 +518,12 @@ curl https://example.com -k
 httpx -proxy http://127.0.0.1:8080
 ```
 
-### Nvim para editar responses rápido
-```bash
-# Capturar response y editar
-curl https://example.com/api > response.json
-nvim response.json
-
-# Dentro de nvim:
-# Space+f para formatear JSON
-# /texto para buscar
-# :RG "admin" para buscar en proyecto
+### Ghostty + Tmux combo
+```
+# Split en Ghostty para tener múltiples proyectos
+Cmd+D              # split ghostty
+# En cada split, tmux con proyecto diferente
+tmux attach
 ```
 
 ## Troubleshooting
@@ -475,31 +536,31 @@ docker compose down
 docker compose up -d
 ```
 
-### Herramienta no encontrada
+### Tmux plugins no instalados
 ```bash
-# Verificar PATH
-echo $PATH | grep go
+# Instalar TPM
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
-# Reinstalar
-offsec-rebuild
+# Dentro de tmux
+Ctrl+a I  # (I mayúscula) instala plugins
 ```
 
-### Dotfiles no se cargan
+### Ghostty font no se ve
 ```bash
-# Dentro del contenedor
-cd /root/.dotfiles
-stow -t "$HOME" zsh tmux
-source ~/.zshrc
+# Instalar Nerd Font
+brew install font-jetbrains-mono-nerd-font
+
+# O cambiar en config a:
+font-family = "SF Mono"
 ```
 
 ### Nvim snippets no funcionan
 ```bash
-# Actualizar dotfiles
 cd ~/.dotfiles
 git pull
 stow -t "$HOME" nvim
 
-# Dentro de nvim, reinstalar plugins
+# Dentro de nvim
 :Lazy sync
 ```
 
@@ -515,12 +576,31 @@ stow -t "$HOME" nvim
 - [ffuf](https://github.com/ffuf/ffuf)
 - [jq manual](https://jqlang.github.io/jq/manual/)
 - [Neovim](https://neovim.io/doc/)
+- [Ghostty](https://ghostty.org/docs)
+- [Tmux](https://github.com/tmux/tmux/wiki)
 
 ### Payloads
 - [PayloadsAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings)
 - [SecLists](https://github.com/danielmiessler/SecLists)
 
 ## Atajos de teclado resumen
+
+### Ghostty (más usados)
+```
+Cmd+T       → nueva tab
+Cmd+D       → split vertical
+Cmd+H/J/K/L → navegar splits
+Cmd+Shift+H → tab en ~/hunting
+```
+
+### Tmux (más usados)
+```
+Ctrl+a |    → split vertical
+Ctrl+a f    → sessionizer
+Ctrl+a g    → popup terminal
+Ctrl+a Ctrl+n → popup notas
+Ctrl+a H/T/N  → hunting shortcuts
+```
 
 ### Nvim (más usados)
 ```
@@ -530,14 +610,11 @@ Space+n     → notas de hoy
 Space+t     → terminal
 -           → file explorer
 gd          → ir a definición
-K           → documentación
-Space+f     → formatear
 ```
 
 ### Terminal
 ```
 cdh         → ~/hunting
-cdt         → ~/hunting/targets
 offsec      → entrar contenedor
 h           → httpx silent
 f           → ffuf
