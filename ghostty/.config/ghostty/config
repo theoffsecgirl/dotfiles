@@ -2,91 +2,46 @@
 # https://ghostty.org/docs
 
 # Font
-font-family = "JetBrainsMono Nerd Font"
+font-family = JetBrainsMono Nerd Font
 font-size = 14
-font-thicken = true
 
-# Theme (Catppuccin Mocha)
-theme = dark:catppuccin-mocha
+# Theme
+theme = dark:catppuccin-mocha,light:catppuccin-latte
 background-opacity = 0.95
-background-blur-radius = 20
 
 # Window
 window-padding-x = 10
 window-padding-y = 10
-window-decoration = true
-window-theme = dark
-window-save-state = always
 
 # Cursor
 cursor-style = block
-cursor-style-blink = false
-cursor-invert-fg-bg = true
 
 # Shell
 shell-integration = detect
-shell-integration-features = cursor,sudo,title
 
 # Clipboard
 clipboard-read = allow
 clipboard-write = allow
-clipboard-paste-protection = false
-clipboard-paste-bracketed-safe = true
 
 # Mouse
 mouse-hide-while-typing = true
 
-# Performance
+# macOS
 macos-non-native-fullscreen = false
 macos-option-as-alt = true
-macos-titlebar-style = tabs
 
-# ============================================
-# KEYBINDS
-# ============================================
-
-# Tabs
-keybind = super+t=new_tab
-keybind = super+w=close_surface
-keybind = super+shift+left_bracket=goto_tab:previous
-keybind = super+shift+right_bracket=goto_tab:next
-keybind = super+1=goto_tab:1
-keybind = super+2=goto_tab:2
-keybind = super+3=goto_tab:3
-keybind = super+4=goto_tab:4
-keybind = super+5=goto_tab:5
-
-# Windows
-keybind = super+n=new_window
-keybind = super+shift+t=new_window
-
-# Splits
-keybind = super+d=new_split:right
-keybind = super+shift+d=new_split:down
-
-# Split navigation (vim-style)
-keybind = super+h=goto_split:left
-keybind = super+j=goto_split:bottom
-keybind = super+k=goto_split:top
-keybind = super+l=goto_split:right
-
-# Split resize
-keybind = super+ctrl+h=resize_split:left,10
-keybind = super+ctrl+j=resize_split:down,10
-keybind = super+ctrl+k=resize_split:up,10
-keybind = super+ctrl+l=resize_split:right,10
-
-# Clipboard
-keybind = super+c=copy_to_clipboard
-keybind = super+v=paste_from_clipboard
-
-# Font size
-keybind = super+equal=increase_font_size:1
-keybind = super+minus=decrease_font_size:1
-keybind = super+0=reset_font_size
-
-# Fullscreen
-keybind = super+f=toggle_fullscreen
-
-# Reload config
-keybind = super+shift+r=reload_config
+# Keybinds (básicos que funcionan)
+keybind = cmd+t=new_tab
+keybind = cmd+w=close_surface
+keybind = cmd+n=new_window
+keybind = cmd+d=new_split:right
+keybind = cmd+shift+d=new_split:down
+keybind = cmd+h=goto_split:left
+keybind = cmd+j=goto_split:bottom
+keybind = cmd+k=goto_split:top
+keybind = cmd+l=goto_split:right
+keybind = cmd+c=copy_to_clipboard
+keybind = cmd+v=paste_from_clipboard
+keybind = cmd+equal=increase_font_size:1
+keybind = cmd+minus=decrease_font_size:1
+keybind = cmd+0=reset_font_size
