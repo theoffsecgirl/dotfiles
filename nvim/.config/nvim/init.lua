@@ -46,7 +46,7 @@ if not uv.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- Plugins (minimal set)
+-- Plugins
 require("lazy").setup({
   -- Telescope (fast nav)
   { "nvim-lua/plenary.nvim" },
@@ -61,6 +61,73 @@ require("lazy").setup({
           layout_config = { prompt_position = "top" },
         },
       })
+    end,
+  },
+
+  -- File explorer (oil.nvim - editas directorios como buffers)
+  {
+    "stevearc/oil.nvim",
+    config = function()
+      require("oil").setup({
+        view_options = {
+          show_hidden = true,
+        },
+        keymaps = {
+          ["<C-h>"] = false,
+          ["<C-l>"] = false,
+        },
+      })
+      vim.keymap.set("n", "-", "<cmd>Oil<cr>", { desc = "Open parent directory" })
+    end,
+  },
+
+  -- Git signs (ver cambios en gutter)
+  {
+    "lewis6991/gitsigns.nvim",
+    config = function()
+      require("gitsigns").setup({
+        signs = {
+          add = { text = "+" },
+          change = { text = "~" },
+          delete = { text = "_" },
+          topdelete = { text = "‾" },
+          changedelete = { text = "~" },
+        },
+        on_attach = function(bufnr)
+          local gs = package.loaded.gitsigns
+          local map = function(mode, l, r, desc)
+            vim.keymap.set(mode, l, r, { buffer = bufnr, desc = desc })
+          end
+
+          map("n", "]c", function()
+            if vim.wo.diff then return "]c" end
+            vim.schedule(function() gs.next_hunk() end)
+            return "<Ignore>"
+          end, "Next hunk")
+
+          map("n", "[c", function()
+            if vim.wo.diff then return "[c" end
+            vim.schedule(function() gs.prev_hunk() end)
+            return "<Ignore>"
+          end, "Prev hunk")
+
+          map("n", "<leader>hs", gs.stage_hunk, "Stage hunk")
+          map("n", "<leader>hr", gs.reset_hunk, "Reset hunk")
+          map("n", "<leader>hp", gs.preview_hunk, "Preview hunk")
+          map("n", "<leader>hb", function() gs.blame_line({ full = true }) end, "Blame line")
+        end,
+      })
+    end,
+  },
+
+  -- Markdown preview
+  {
+    "iamcco/markdown-preview.nvim",
+    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+    ft = { "markdown" },
+    build = function() vim.fn["mkdp#util#install"]() end,
+    config = function()
+      vim.keymap.set("n", "<leader>mp", "<cmd>MarkdownPreviewToggle<cr>", { desc = "Markdown preview" })
     end,
   },
 
@@ -88,6 +155,7 @@ require("lazy").setup({
           "tsx",
           "python",
           "go",
+          "http",
         },
         highlight = { enable = true },
         indent = { enable = true },
@@ -112,7 +180,6 @@ require("lazy").setup({
       })
       local lspconfig = require("lspconfig")
 
-      -- Capabilities for nvim-cmp
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       local ok_cmp, cmp_lsp = pcall(require, "cmp_nvim_lsp")
       if ok_cmp then
@@ -135,7 +202,6 @@ require("lazy").setup({
         map("n", "<leader>e", vim.diagnostic.open_float, "Diagnostic float")
       end
 
-      -- LSP servers
       lspconfig.pyright.setup({ capabilities = capabilities, on_attach = on_attach })
       lspconfig.ts_ls.setup({ capabilities = capabilities, on_attach = on_attach })
       lspconfig.bashls.setup({ capabilities = capabilities, on_attach = on_attach })
@@ -144,7 +210,7 @@ require("lazy").setup({
     end,
   },
 
-  -- Completion (minimal)
+  -- Completion + Snippets
   { "L3MON4D3/LuaSnip" },
   { "saadparwaiz1/cmp_luasnip" },
   { "hrsh7th/cmp-nvim-lsp" },
@@ -156,6 +222,9 @@ require("lazy").setup({
     config = function()
       local cmp = require("cmp")
       local luasnip = require("luasnip")
+
+      -- Cargar snippets custom
+      require("luasnip.loaders.from_lua").lazy_load({ paths = vim.fn.stdpath("config") .. "/snippets" })
 
       cmp.setup({
         snippet = {
@@ -185,20 +254,21 @@ require("lazy").setup({
         }),
         sources = cmp.config.sources({
           { name = "nvim_lsp" },
+          { name = "luasnip" },
           { name = "path" },
           { name = "buffer" },
-          { name = "luasnip" },
         }),
       })
     end,
   },
 })
 
--- Keymaps (Telescope + basic nav)
+-- Keymaps
 local map = function(mode, lhs, rhs, desc)
   vim.keymap.set(mode, lhs, rhs, { desc = desc })
 end
 
+-- Telescope
 map("n", "<leader>ff", function() require("telescope.builtin").find_files() end, "Find files")
 map("n", "<leader>fg", function() require("telescope.builtin").live_grep() end, "Live grep")
 map("n", "<leader>fb", function() require("telescope.builtin").buffers() end, "Buffers")
@@ -208,7 +278,49 @@ map("n", "<leader>fh", function() require("telescope.builtin").help_tags() end, 
 map("n", "<leader>w", "<cmd>w<cr>", "Save")
 map("n", "<leader>q", "<cmd>q<cr>", "Quit")
 
--- Diagnostics: menos spam, más útil
+-- Terminal flotante
+local term_buf = nil
+local term_win = nil
+
+local function toggle_terminal()
+  if term_win and vim.api.nvim_win_is_valid(term_win) then
+    vim.api.nvim_win_hide(term_win)
+    term_win = nil
+  else
+    if not term_buf or not vim.api.nvim_buf_is_valid(term_buf) then
+      term_buf = vim.api.nvim_create_buf(false, true)
+      vim.fn.termopen(vim.o.shell, { buffer = term_buf })
+    end
+
+    local width = math.floor(vim.o.columns * 0.8)
+    local height = math.floor(vim.o.lines * 0.8)
+    local row = math.floor((vim.o.lines - height) / 2)
+    local col = math.floor((vim.o.columns - width) / 2)
+
+    term_win = vim.api.nvim_open_win(term_buf, true, {
+      relative = "editor",
+      width = width,
+      height = height,
+      row = row,
+      col = col,
+      style = "minimal",
+      border = "rounded",
+    })
+
+    vim.cmd("startinsert")
+  end
+end
+
+map("n", "<leader>t", toggle_terminal, "Toggle terminal")
+map("t", "<C-x>", "<C-\\><C-n>", "Exit terminal mode")
+
+-- Abrir notes.md rápido
+map("n", "<leader>n", function()
+  local notes_path = vim.fn.expand("~/hunting/notes/" .. os.date("%Y-%m-%d") .. "-quick.md")
+  vim.cmd("edit " .. notes_path)
+end, "Open today's notes")
+
+-- Diagnostics
 vim.diagnostic.config({
   virtual_text = false,
   signs = true,
@@ -217,19 +329,19 @@ vim.diagnostic.config({
   severity_sort = true,
 })
 
--- Abre diagnóstico en float al parar el cursor
 vim.api.nvim_create_autocmd("CursorHold", {
   callback = function()
     vim.diagnostic.open_float(nil, { focus = false })
   end,
 })
--- Quickfix ergonomics
-vim.keymap.set("n", "<leader>qo", "<cmd>copen<cr>", { desc = "Quickfix open" })
-vim.keymap.set("n", "<leader>qq", "<cmd>cclose<cr>", { desc = "Quickfix close" })
-vim.keymap.set("n", "<leader>qn", "<cmd>cnext<cr>", { desc = "Quickfix next" })
-vim.keymap.set("n", "<leader>qp", "<cmd>cprev<cr>", { desc = "Quickfix prev" })
 
--- Grep rápido (ripgrep) a quickfix: :RG palabra
+-- Quickfix
+map("n", "<leader>qo", "<cmd>copen<cr>", "Quickfix open")
+map("n", "<leader>qq", "<cmd>cclose<cr>", "Quickfix close")
+map("n", "<leader>qn", "<cmd>cnext<cr>", "Quickfix next")
+map("n", "<leader>qp", "<cmd>cprev<cr>", "Quickfix prev")
+
+-- Grep rápido
 vim.api.nvim_create_user_command("RG", function(opts)
   local term = opts.args
   if term == "" then
@@ -240,16 +352,26 @@ vim.api.nvim_create_user_command("RG", function(opts)
   vim.cmd("copen")
 end, { nargs = "+" })
 
--- Usa ripgrep para :grep si está
 if vim.fn.executable("rg") == 1 then
   vim.o.grepprg = "rg --vimgrep --no-heading --smart-case"
   vim.o.grepformat = "%f:%l:%c:%m"
 end
--- Símbolos (LSP) con Telescope
-vim.keymap.set("n", "<leader>ss", function()
-  require("telescope.builtin").lsp_document_symbols()
-end, { desc = "Symbols (document)" })
 
-vim.keymap.set("n", "<leader>sS", function()
+-- Símbolos LSP
+map("n", "<leader>ss", function()
+  require("telescope.builtin").lsp_document_symbols()
+end, "Symbols (document)")
+
+map("n", "<leader>sS", function()
   require("telescope.builtin").lsp_workspace_symbols()
-end, { desc = "Symbols (workspace)" })
+end, "Symbols (workspace)")
+
+-- HTTP: ejecutar request bajo cursor (si tienes httpie/curl)
+map("n", "<leader>xh", function()
+  local line = vim.api.nvim_get_current_line()
+  if line:match("^http") or line:match("^curl") then
+    vim.cmd("!" .. line)
+  else
+    print("No HTTP command found")
+  end
+end, "Execute HTTP line")
