@@ -223,8 +223,11 @@ require("lazy").setup({
       local cmp = require("cmp")
       local luasnip = require("luasnip")
 
-      -- Cargar snippets custom
-      require("luasnip.loaders.from_lua").lazy_load({ paths = vim.fn.stdpath("config") .. "/snippets" })
+      -- Cargar snippets custom (solo si existe la carpeta)
+      local snippets_path = vim.fn.stdpath("config") .. "/snippets"
+      if vim.fn.isdirectory(snippets_path) == 1 then
+        require("luasnip.loaders.from_lua").lazy_load({ paths = snippets_path })
+      end
 
       cmp.setup({
         snippet = {
