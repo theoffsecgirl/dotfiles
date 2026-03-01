@@ -1,17 +1,13 @@
 # Ghostty config - OffSec setup
-# https://ghostty.org/docs
 
 # Font
 font-family = JetBrainsMono Nerd Font
 font-size = 14
 
-# Theme
-theme = dark:catppuccin-mocha,light:catppuccin-latte
-background-opacity = 0.95
-
 # Window
 window-padding-x = 10
 window-padding-y = 10
+background-opacity = 0.95
 
 # Cursor
 cursor-style = block
@@ -30,7 +26,7 @@ mouse-hide-while-typing = true
 macos-non-native-fullscreen = false
 macos-option-as-alt = true
 
-# Keybinds (básicos que funcionan)
+# Keybinds
 keybind = cmd+t=new_tab
 keybind = cmd+w=close_surface
 keybind = cmd+n=new_window
