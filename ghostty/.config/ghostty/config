@@ -41,10 +41,6 @@ macos-non-native-fullscreen = false
 macos-option-as-alt = true
 macos-titlebar-style = tabs
 
-# Tabs
-tab-bar-style = fancy
-tab-bar-position = top
-
 # ============================================
 # KEYBINDS
 # ============================================
@@ -67,7 +63,6 @@ keybind = super+shift+t=new_window
 # Splits
 keybind = super+d=new_split:right
 keybind = super+shift+d=new_split:down
-keybind = super+shift+w=close_surface
 
 # Split navigation (vim-style)
 keybind = super+h=goto_split:left
@@ -92,13 +87,6 @@ keybind = super+0=reset_font_size
 
 # Fullscreen
 keybind = super+f=toggle_fullscreen
-
-# Search
-keybind = super+shift+f=inspector:toggle
-
-# Quick access (custom)
-keybind = super+shift+h=new_tab:~/hunting
-keybind = super+shift+n=new_tab:~/hunting/notes
 
 # Reload config
 keybind = super+shift+r=reload_config
