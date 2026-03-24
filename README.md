@@ -1,24 +1,41 @@
-# dotfiles
+<div align="center">
 
-Mis dotfiles para macOS orientados a bug bounty web/API.
+```
+ ██████╗  ██████╗ ████████╗███████╗██╗██╗     ███████╗███████╗
+ ██╔══██╗██╔═══██╗╚══██╔══╝██╔════╝██║██║     ██╔════╝██╔════╝
+ ██║  ██║██║   ██║   ██║   █████╗  ██║██║     █████╗  ███████╗
+ ██║  ██║██║   ██║   ██║   ██╔══╝  ██║██║     ██╔══╝  ╚════██║
+ ██████╔╝╚██████╔╝   ██║   ██║     ██║███████╗███████╗███████║
+ ╚═════╝  ╚═════╝    ╚═╝   ╚═╝     ╚═╝╚══════╝╚══════╝╚══════╝
+```
 
-## Qué hay aquí
+**Entorno ofensivo para macOS — Bug Bounty & Pentesting**  
+*by [TheOffSecGirl](https://github.com/theoffsecgirl)*
 
-### En el host (macOS)
-- Zsh con aliases para ofensiva
-- Brewfile para reproducir el setup
-- Configs de Git, tmux, nvim
-- Scripts para Raycast
+![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux-lightgrey?style=flat-square)
+![Shell](https://img.shields.io/badge/Shell-zsh-brightgreen?style=flat-square&logo=gnu-bash&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-red?style=flat-square)
+![BugBounty](https://img.shields.io/badge/Bug%20Bounty-Ready-brightgreen?style=flat-square)
 
-### Contenedores
-- **Debian Toolbox** → mi entorno diario (httpx, ffuf, curl, jq, Python)
-- **Exegol** → cuando necesito herramientas más pesadas
-- **Kali VM** → para cosas de AD o red interna
+</div>
 
-### Workspace
-- Template de carpetas para organizar targets
-- Sistema de notas rápidas
-- Templates de Python venv
+---
+
+## ¿Qué hay aquí?
+
+| Módulo | Descripción |
+|--------|-------------|
+| `zsh/` | Aliases ofensivos, prompt y config completa |
+| `nvim/` | Config de Neovim (Lua) para desarrollo y ofensiva |
+| `tmux/` | Layout y keybindings para sesiones de hunting |
+| `ghostty/` | Config del terminal Ghostty |
+| `git/` | Gitconfig y helpers |
+| `macos/` | Bootstrap macOS + Brewfile |
+| `scripts/` | Scripts para Raycast (`.local/bin`) |
+| `containers/` | Debian Toolbox · Exegol · Kali VM |
+| `hunting-template/` | Template de workspace por target |
+
+---
 
 ## Instalación
 
@@ -36,94 +53,84 @@ source ~/.zshrc
 # Crear workspace de hunting
 cp -r hunting-template ~/hunting
 
-# Tu nombre y email en Git
-nvim ~/.gitconfig
-
 # Build del contenedor
 cd containers/debian-toolbox
 docker compose build
-
-# Configurar Raycast
-chmod +x ~/.local/bin/offsec-*
-# Raycast → Settings → Script Commands → Add Directory → ~/.local/bin
 ```
 
-## Uso normal
+> Aplicar solo algunas partes:
+> ```bash
+> stow -t "$HOME" zsh       # solo zsh
+> stow -t "$HOME" git       # solo git
+> stow -t "$HOME" scripts   # solo scripts
+> ```
 
-### Arrancar
+---
+
+## Uso diario
+
 ```bash
-# Desde Raycast: Cmd+Space → "Start Offsec Toolbox"
-# O desde terminal:
+# Arrancar entorno
 offsec-up && offsec
-```
 
-### Primera vez dentro del contenedor
-```bash
-cd /root/.dotfiles
-stow -t "$HOME" zsh git tmux
-source ~/.zshrc
-```
-
-### Aliases que uso
-```bash
-cdh              # ir a ~/hunting
-cdt              # ir a ~/hunting/targets
-cdn              # ir a ~/hunting/notes
-
-h                # httpx básico
-hh               # httpx con detección de tech
-subenum dom.com  # enum de subdominios
-probe urls.txt   # probar lista de URLs
-
-note "texto"     # nota rápida con timestamp
+# Navegación rápida
+cdh              # ~/hunting
+cdt              # ~/hunting/targets
+note "texto"     # nota con timestamp
 notes            # ver notas de hoy
 
-offsec           # entrar al contenedor
-offsec-restart   # reiniciar contenedor
+# Recon
+subenum dom.com  # enum de subdominios
+probe urls.txt   # probar lista de URLs
+h                # httpx básico
+hh               # httpx con detección de tech
 ```
 
-## Docs
+---
 
-Si quieres ver todo el setup explicado paso a paso, revisa [SETUP-BUGBOUNTY.md](SETUP-BUGBOUNTY.md).
+## Stack de contenedores
+
+- **Debian Toolbox** → entorno diario (httpx, ffuf, curl, jq, Python) — 80% del tiempo
+- **Exegol** → recon pesado puntual
+- **Kali VM** → AD, pivoting y red interna
+
+---
 
 ## Estructura
 
 ```
 ~/.dotfiles/
-├── containers/debian-toolbox/    # el contenedor principal
-├── scripts/.local/bin/           # scripts para Raycast
-├── hunting-template/             # template del workspace
+├── containers/debian-toolbox/
+├── scripts/.local/bin/
+├── hunting-template/
 ├── zsh/.config/zsh/
-│   └── bug-bounty.zsh           # aliases ofensivos
-├── macos/                        # bootstrap macOS
-├── brew/                         # Brewfile
+│   └── bug-bounty.zsh
+├── macos/
+├── brew/
 ├── git/
 ├── tmux/
 ├── nvim/
-└── SETUP-BUGBOUNTY.md           # docs completas
+├── ghostty/
+├── CHEATSHEET.md
+└── SETUP-BUGBOUNTY.md
 ```
 
-## Aplicar solo algunas cosas
+📖 Setup completo explicado paso a paso → [SETUP-BUGBOUNTY.md](SETUP-BUGBOUNTY.md)
 
-```bash
-cd ~/.dotfiles
-stow -t "$HOME" zsh       # solo zsh
-stow -t "$HOME" git       # solo git
-stow -t "$HOME" scripts   # solo scripts
-```
-
-## Personalizar
-
-- Aliases propios → `~/.config/zsh/local.zsh` (no se sube a git)
-- Git config → edita `~/.gitconfig`
-- Más herramientas → edita `containers/debian-toolbox/Dockerfile` y rebuild
+---
 
 ## Filosofía
 
-No acumular herramientas, reducir fricción cognitiva.
+No acumular herramientas, reducir fricción cognitiva. Cada cosa en su sitio, sin mezclar.
 
-- Web/API → Debian Toolbox (la uso el 80% del tiempo)
-- Recon pesado → Exegol (puntual)
-- AD/pivoting → Kali VM (específico)
+---
 
-Cada cosa en su sitio, sin mezclar.
+## Uso ético
+
+> Usa este entorno **solo en sistemas propios, laboratorios o programas de bug bounty con autorización explícita.**
+
+---
+
+## Licencia
+
+MIT · [TheOffSecGirl](https://theoffsecgirl.com)
