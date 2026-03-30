@@ -68,10 +68,12 @@ do
 done
 unset _f
 
+# Bug bounty workspace aliases y funciones
+[[ -f "$HOME/.config/zsh/bug-bounty.zsh" ]] && source "$HOME/.config/zsh/bug-bounty.zsh"
+
 # Git aliases (si existe)
-if [[ -f "$SHELL_UTILS_DIR/git/git-aliases.conf" ]]; then
+[[ -f "$SHELL_UTILS_DIR/git/git-aliases.conf" ]] && \
   export GIT_ALIASES_FILE="$SHELL_UTILS_DIR/git/git-aliases.conf"
-fi
 
 # Local overrides (no se versiona)
 [[ -f "$HOME/.config/zsh/local.zsh" ]] && source "$HOME/.config/zsh/local.zsh"
