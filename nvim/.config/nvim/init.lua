@@ -72,17 +72,16 @@ require("lazy").setup({
       require("dashboard").setup({
         theme = "doom",
         config = {
-          -- ASCII puro: compatible con cualquier fuente, sin Nerd Font
           header = {
             "",
-            "  ███╗   ██╗██████╗ ██████╗ ███╗  ██╗ ██████╗ ██████╗  ",
-            "  ████╗  ██║██╔══██╗██╔══██╗████╗ ██║██╔═══██╗██╔══██╗ ",
-            "  ██╔██╗ ██║██████╔╝██████╔╝██╔██╗██║██║   ██║██║  ██║ ",
-            "  ██║╚██╗██║██╔══██╗██╔══██╗██║╚████║██║   ██║██║  ██║ ",
-            "  ██║ ╚████║██████╔╝██║  ██║██║ ╚███║╚██████╔╝██████╔╝ ",
-            "  ╚═╝  ╚═══╝╚═════╝ ╚═╝  ╚═╝╚═╝  ╚══╝ ╚═════╝ ╚═════╝  ",
+            "  ███╗   ██╗ ██╗   ██╗ ██╗ ███╗   ███╗  ",
+            "  ████╗  ██║ ██║   ██║ ██║ ████╗ ████║  ",
+            "  ██╔██╗ ██║ ██║   ██║ ██║ ██╔████╔██║  ",
+            "  ██║╚██╗██║  ██╗ ██╔╝ ██║ ██║╚██╔╝██║  ",
+            "  ██║ ╚████║   ╚███╔╝  ██║ ██║ ╚═╝ ██║  ",
+            "  ╚═╝  ╚═══╝    ╚══╝   ╚═╝ ╚═╝     ╚═╝  ",
             "",
-            "           bug bounty  //  offsec",
+            "        bug bounty  //  offsec",
             "",
           },
           center = {
@@ -218,8 +217,8 @@ require("lazy").setup({
             vim.schedule(function() gs.prev_hunk() end)
             return "<Ignore>"
           end, "Prev hunk")
-          map("n", "<leader>hs", gs.stage_hunk,  "Stage hunk")
-          map("n", "<leader>hr", gs.reset_hunk,  "Reset hunk")
+          map("n", "<leader>hs", gs.stage_hunk,   "Stage hunk")
+          map("n", "<leader>hr", gs.reset_hunk,   "Reset hunk")
           map("n", "<leader>hp", gs.preview_hunk, "Preview hunk")
           map("n", "<leader>hb", function() gs.blame_line({ full = true }) end, "Blame line")
         end,
@@ -272,7 +271,6 @@ require("lazy").setup({
     config = function() require("mason").setup() end,
   },
   {
-    -- mason-lspconfig solo gestiona la instalacion; la config LSP va abajo
     "williamboman/mason-lspconfig.nvim",
     dependencies = { "williamboman/mason.nvim", "neovim/nvim-lspconfig" },
     config = function()
@@ -281,7 +279,6 @@ require("lazy").setup({
       })
     end,
   },
-  -- nvim-lspconfig (requerido por mason-lspconfig; la config real esta abajo)
   { "neovim/nvim-lspconfig" },
 
   -- Completion + Snippets
@@ -328,22 +325,19 @@ require("lazy").setup({
     end,
   },
 }, {
-  -- lazy.nvim options
-  checker = { enabled = false }, -- no auto-check updates
+  checker = { enabled = false },
 })
 
 -- ============================================================
 -- LSP  (API nativa nvim 0.11 — sin require('lspconfig'))
 -- ============================================================
 
--- Capabilities globales: incluye snippets de cmp
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 local ok_cmp, cmp_lsp = pcall(require, "cmp_nvim_lsp")
 if ok_cmp then
   capabilities = cmp_lsp.default_capabilities(capabilities)
 end
 
--- Keymaps LSP: se aplican cuando cualquier servidor se adjunta al buffer
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(ev)
     local map = function(mode, lhs, rhs, desc)
@@ -361,7 +355,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
   end,
 })
 
--- Configurar cada servidor con vim.lsp.config (nvim 0.11+)
 for _, srv in ipairs({ "pyright", "ts_ls", "bashls", "jsonls", "yamlls" }) do
   vim.lsp.config(srv, { capabilities = capabilities })
   vim.lsp.enable(srv)
