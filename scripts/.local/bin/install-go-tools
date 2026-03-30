@@ -1,0 +1,39 @@
+#!/usr/bin/env zsh
+# install-go-tools — instala herramientas Go de ProjectDiscovery y tomnomnom
+# Uso: install-go-tools
+
+set -e
+
+if ! command -v go &>/dev/null; then
+  echo "[!] Go no encontrado. Instala con: brew install go"
+  exit 1
+fi
+
+tools=(
+  "github.com/projectdiscovery/httpx/cmd/httpx@latest"
+  "github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest"
+  "github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest"
+  "github.com/projectdiscovery/katana/cmd/katana@latest"
+  "github.com/projectdiscovery/dnsx/cmd/dnsx@latest"
+  "github.com/projectdiscovery/naabu/v2/cmd/naabu@latest"
+  "github.com/projectdiscovery/interactsh/cmd/interactsh-client@latest"
+  "github.com/tomnomnom/anew@latest"
+  "github.com/tomnomnom/unfurl@latest"
+  "github.com/tomnomnom/assetfinder@latest"
+  "github.com/d3mondev/puredns/v2@latest"
+)
+
+echo "[*] Instalando ${#tools[@]} herramientas Go..."
+for t in "${tools[@]}"; do
+  name=$(basename "${t%@*}")
+  printf "  -> %-30s" "$name"
+  if go install "$t" 2>/dev/null; then
+    echo "OK"
+  else
+    echo "FAIL"
+  fi
+done
+
+echo ""
+echo "[*] Hecho. Asegurate de tener en PATH:"
+echo "    export PATH=\"\$HOME/go/bin:\$PATH\""
