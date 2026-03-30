@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# scope — recon inicial: subdominios + hosts vivos
+# Uso: scope <dominio>
+# Genera: recon/subdomains.txt, http/live.txt
 set -euo pipefail
 
 [[ -z "${1:-}" ]] && { echo "Uso: scope <dominio>"; exit 1; }
@@ -6,7 +9,27 @@ set -euo pipefail
 TARGET="$1"
 BASE="$HOME/hunting/targets/$TARGET"
 
-mkdir -p "$BASE/recon" "$BASE/http"
+# Garantizar estructura completa (idempotente)
+if command -v mktarget >/dev/null 2>&1; then
+  mktarget "$TARGET" >/dev/null 2>&1 || true
+else
+  mkdir -p "$BASE"/{recon,http,fuzz,js,in,out,tmp,burp,notes,reports,loot}
+fi
 
+# Verificar dependencias
+for dep in subfinder httpx anew; do
+  command -v "$dep" >/dev/null 2>&1 || { echo "[!] Falta: $dep"; exit 1; }
+done
+
+echo "[*] Enumerando subdominios para $TARGET..."
 subfinder -d "$TARGET" -silent | anew "$BASE/recon/subdomains.txt"
+
+SUB_COUNT=$(wc -l < "$BASE/recon/subdomains.txt" | tr -d ' ')
+echo "[+] Subdominios: $SUB_COUNT"
+
+echo "[*] Probando hosts HTTP..."
 httpx -silent -l "$BASE/recon/subdomains.txt" | anew "$BASE/http/live.txt"
+
+LIVE_COUNT=$(wc -l < "$BASE/http/live.txt" | tr -d ' ')
+echo "[+] Hosts vivos: $LIVE_COUNT → $BASE/http/live.txt"
+echo "[→] Siguiente paso: webmap $TARGET"
