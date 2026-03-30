@@ -1,0 +1,16 @@
+# Artefactos de migraciones
+.reintegrate-backup/
+
+# Overrides locales (no se versionan)
+zsh/.config/zsh/local.zsh
+**/local.zsh
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
