@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+[[ -z "${1:-}" ]] && { echo "Uso: fuzzdirs <url>"; exit 1; }
+
+ffuf -u "$1/FUZZ" -w "$WORDLISTS/dirsearch.txt" -mc all -fc 404
