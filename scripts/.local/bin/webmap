@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+[[ -z "${1:-}" ]] && { echo "Uso: webmap <dominio>"; exit 1; }
+
+TARGET="$1"
+BASE="$HOME/hunting/targets/$TARGET"
+
+mkdir -p "$BASE/http" "$BASE/js"
+
+katana -list "$BASE/http/live.txt" -silent -jc -kf all | anew "$BASE/http/urls.txt"
+grep -Ei '\.js($|\?)' "$BASE/http/urls.txt" | anew "$BASE/js/files.txt"
