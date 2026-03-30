@@ -15,7 +15,12 @@ Thumbs.db
 .vscode/
 
 # Secretos y datos locales
+# Solo ficheros .local en raiz (gitconfig.local, zsh/local.zsh...)
+# NO ignorar directorios como scripts/.local/
 *.local
+!scripts/.local/
+!scripts/.local/bin/
+
 .env
 .env.*
 secrets/
