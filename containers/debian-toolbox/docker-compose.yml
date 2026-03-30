@@ -5,25 +5,36 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      # Para actualizar versiones sin editar el Dockerfile:
+      # docker compose build --build-arg HTTPX_VERSION=1.6.11
+      args:
+        HTTPX_VERSION: "1.6.10"
+        FFUF_VERSION: "2.1.0"
+        SUBFINDER_VERSION: "2.6.6"
+        NUCLEI_VERSION: "3.2.6"
     container_name: offsec-toolbox
     hostname: offsec
     stdin_open: true
     tty: true
     volumes:
-      # Dotfiles desde el host
+      # Dotfiles (solo lectura)
       - ~/.dotfiles:/root/.dotfiles:ro
       # Workspace persistente
       - ~/hunting:/work:rw
-      # SSH keys (solo lectura)
+      # SSH keys
       - ~/.ssh:/root/.ssh:ro
-      # Git config
+      # Git config global
       - ~/.gitconfig:/root/.gitconfig:ro
+      # Git identity local (name/email, no versionado)
+      - ~/.gitconfig.local:/root/.gitconfig.local:ro
+      # Zsh overrides locales
+      - ~/.config/zsh/local.zsh:/root/.config/zsh/local.zsh:ro
     environment:
       - TERM=xterm-256color
       - DOTFILES_DIR=/root/.dotfiles
     networks:
       - offsec-net
-    # No exponer puertos por defecto (seguridad)
+    # Descomenta para exponer puertos de herramientas (ej: collaborator)
     # ports:
     #   - "8080:8080"
 
