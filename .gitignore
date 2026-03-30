@@ -1,0 +1,41 @@
+# Archivos de sistema
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Secretos y datos locales
+*.local
+.env
+.env.*
+secrets/
+
+# Directorios temporales de trabajo / migración
+.reintegrate-backup/
+*.backup/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Node
+node_modules/
+
+# Logs
+*.log
+
+# Test artifacts
+tests/tmp/

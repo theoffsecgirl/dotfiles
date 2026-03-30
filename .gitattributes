@@ -1,0 +1,25 @@
+# Fuerza bit de ejecución en todos los scripts de ~/.local/bin
+scripts/.local/bin/* text eol=lf
+scripts/.local/bin/exegol-start eol=lf
+scripts/.local/bin/fuzzdirs     eol=lf
+scripts/.local/bin/idor-hints   eol=lf
+scripts/.local/bin/jwt-decode   eol=lf
+scripts/.local/bin/kali-start   eol=lf
+scripts/.local/bin/mktarget     eol=lf
+scripts/.local/bin/offsec-shell eol=lf
+scripts/.local/bin/offsec-up    eol=lf
+scripts/.local/bin/paramhunt    eol=lf
+scripts/.local/bin/race-run     eol=lf
+scripts/.local/bin/scope        eol=lf
+scripts/.local/bin/tmux-popup   eol=lf
+scripts/.local/bin/tmux-recon   eol=lf
+scripts/.local/bin/tmux-sessionizer eol=lf
+scripts/.local/bin/webmap       eol=lf
+
+# Zsh
+*.zsh text eol=lf
+*.zshrc text eol=lf
+*.zprofile text eol=lf
+
+# Shell
+*.sh text eol=lf

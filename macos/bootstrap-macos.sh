@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# bootstrap-macos.sh — instala dependencias y aplica dotfiles en macOS
 set -euo pipefail
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
@@ -32,7 +33,23 @@ fi
 
 echo "[*] Aplicando stow..."
 cd "$DOTFILES_DIR"
+stow -v -t "$HOME" zsh git tmux brew scripts nvim ghostty containers
 
-stow -v -t "$HOME" zsh git tmux brew scripts nvim
+# 4) Permisos de ejecución en scripts
+echo "[*] Aplicando chmod +x en ~/.local/bin..."
+chmod +x "$HOME/.local/bin/"* 2>/dev/null || true
 
-echo "[*] Listo. Abre una nueva terminal o ejecuta: source ~/.zshrc"
+# 5) Estructura de workspace hunting
+echo "[*] Creando workspace ~/hunting..."
+mkdir -p "$HOME/hunting"/{targets,notes,scripts}
+
+# 6) Git identity local (si no existe)
+if [[ ! -f "$HOME/.gitconfig.local" ]]; then
+  echo "[!] ~/.gitconfig.local no existe."
+  echo "    Créalo con:"
+  echo "      git config -f ~/.gitconfig.local user.name  'Tu Nombre'"
+  echo "      git config -f ~/.gitconfig.local user.email 'tu@email.com'"
+fi
+
+echo ""
+echo "[✓] Listo. Abre una nueva terminal o ejecuta: source ~/.zshrc"

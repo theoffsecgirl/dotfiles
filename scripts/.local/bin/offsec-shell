@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Raycast Script para entrar al shell de offsec-toolbox
 # Required parameters:
 # @raycast.schemaVersion 1
@@ -6,15 +6,13 @@
 # @raycast.mode fullOutput
 # @raycast.packageName Bug Bounty
 # @raycast.icon 🐚
-
-set -e
+set -euo pipefail
 
 CONTAINER_NAME="offsec-toolbox"
 
-# Verificar si está corriendo
 if ! docker ps --format '{{.Names}}' | grep -q "$CONTAINER_NAME"; then
-    echo "❌ Container not running. Start it first with 'offsec-up'."
-    exit 1
+  echo "❌ Container not running. Start it first with 'offsec-up'."
+  exit 1
 fi
 
 echo "🔌 Connecting to $CONTAINER_NAME..."

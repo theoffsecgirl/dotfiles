@@ -1,14 +1,29 @@
 #!/usr/bin/env bash
+# jwt-decode — decodifica header y payload de un JWT
+# Uso: jwt-decode <token>
 set -euo pipefail
 
 [[ -z "${1:-}" ]] && { echo "Uso: jwt-decode <token>"; exit 1; }
 
 TOKEN="$1"
-IFS='.' read -r HEADER PAYLOAD SIGN <<< "$TOKEN"
+IFS='.' read -r HEADER PAYLOAD _SIGN <<< "$TOKEN"
 
-decode() {
-  echo "$1" | base64 -d 2>/dev/null | jq .
+# base64url → base64 estándar (rellena padding y sustituye chars)
+b64url_decode() {
+  local s="$1"
+  # sustituir - por + y _ por /
+  s="${s//-/+}"
+  s="${s//_//}"
+  # añadir padding
+  case $(( ${#s} % 4 )) in
+    2) s="${s}==" ;;
+    3) s="${s}=" ;;
+  esac
+  printf '%s' "$s" | base64 -d 2>/dev/null
 }
 
-echo "[HEADER]"; decode "$HEADER" || echo "$HEADER"
-echo "\n[PAYLOAD]"; decode "$PAYLOAD" || echo "$PAYLOAD"
+printf '[HEADER]\n'
+b64url_decode "$HEADER" | jq . 2>/dev/null || printf '%s\n' "$HEADER"
+
+printf '\n[PAYLOAD]\n'
+b64url_decode "$PAYLOAD" | jq . 2>/dev/null || printf '%s\n' "$PAYLOAD"

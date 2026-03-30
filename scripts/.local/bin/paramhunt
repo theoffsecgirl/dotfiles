@@ -1,11 +1,30 @@
 #!/usr/bin/env bash
+# paramhunt — extrae parámetros únicos de URLs recolectadas
+# Uso: paramhunt <dominio>
+# Depende de: webmap (genera http/urls.txt), unfurl
 set -euo pipefail
 
 [[ -z "${1:-}" ]] && { echo "Uso: paramhunt <dominio>"; exit 1; }
 
 TARGET="$1"
 BASE="$HOME/hunting/targets/$TARGET"
+URLFILE="$BASE/http/urls.txt"
+
+if [[ ! -f "$URLFILE" ]]; then
+  echo "[!] No se encontró $URLFILE"
+  echo "    Ejecuta primero: scope $TARGET && webmap $TARGET"
+  exit 1
+fi
+
+if ! command -v unfurl >/dev/null 2>&1; then
+  echo "[!] unfurl no está instalado. Instala con: go install github.com/tomnomnom/unfurl@latest"
+  exit 1
+fi
 
 mkdir -p "$BASE/fuzz"
 
-cat "$BASE/http/urls.txt" | unfurl keys | sort -u > "$BASE/fuzz/params.txt"
+UNIQUE=$(unfurl keys < "$URLFILE" | sort -u)
+COUNT=$(echo "$UNIQUE" | grep -c . || true)
+
+echo "$UNIQUE" > "$BASE/fuzz/params.txt"
+echo "[+] $COUNT parámetros únicos → $BASE/fuzz/params.txt"

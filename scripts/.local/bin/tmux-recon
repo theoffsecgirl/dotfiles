@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# tmux-recon — abre sesión tmux de 4 panes para recon
+# Uso: tmux-recon [nombre-sesión] [workdir]
 set -euo pipefail
 
 SESSION="${1:-recon}"
@@ -20,26 +22,29 @@ fi
 
 tmux select-window -t "$SESSION:recon"
 
+# Advertir si hay más de 1 pane antes de limpiar
+PANE_COUNT=$(tmux list-panes -t "$SESSION:recon" | wc -l | tr -d ' ')
+if [[ "$PANE_COUNT" -gt 1 ]]; then
+  echo "[!] La ventana 'recon' ya tiene $PANE_COUNT panes. Se van a cerrar y recrear."
+  read -r -p "    ¿Continuar? [s/N] " confirm
+  [[ "${confirm,,}" != "s" ]] && { echo "Cancelado."; exit 0; }
+fi
+
 # Dejar 1 pane
 tmux select-pane -t "$SESSION:recon"
 tmux kill-pane -a -t "$SESSION:recon" 2>/dev/null || true
 
-# Capturar pane inicial (control)
+# Capturar pane inicial
 p1="$(tmux display-message -p -t "$SESSION:recon" '#{pane_id}')"
-
-# Crear panes y capturar IDs
 p2="$(tmux split-window -h -t "$p1" -c "$WORKDIR" -P -F '#{pane_id}')"
 p3="$(tmux split-window -v -t "$p1" -c "$WORKDIR" -P -F '#{pane_id}')"
 p4="$(tmux split-window -v -t "$p2" -c "$WORKDIR" -P -F '#{pane_id}')"
 
 tmux select-layout -t "$SESSION:recon" tiled
 
-# Commands por pane (por ID, no por número)
 tmux send-keys -t "$p1" "cd \"$WORKDIR\" && clear && echo '[control]'" C-m
-tmux send-keys -t "$p2" "cd \"$WORKDIR\" && clear && echo '[logs] tail -f .recon/output.log' && tail -f .recon/output.log" C-m
-tmux send-keys -t "$p3" "cd \"$WORKDIR\" && clear && echo '[notes] nvim .recon/notes.md' && nvim .recon/notes.md" C-m
-tmux send-keys -t "$p4" "cd \"$WORKDIR\" && clear && echo '[runner] output -> .recon/output.log'" C-m
-tmux send-keys -t "$p4" "echo 'Ejemplo: subfinder -d example.com | httpx -silent | tee -a .recon/output.log'" C-m
+tmux send-keys -t "$p2" "cd \"$WORKDIR\" && clear && tail -f .recon/output.log" C-m
+tmux send-keys -t "$p3" "cd \"$WORKDIR\" && clear && nvim .recon/notes.md" C-m
+tmux send-keys -t "$p4" "cd \"$WORKDIR\" && clear && echo '[runner] output → .recon/output.log'" C-m
 
 tmux attach -t "$SESSION"
-

@@ -9,7 +9,7 @@
  ╚═════╝  ╚═════╝    ╚═╝   ╚═╝     ╚═╝╚══════╝╚══════╝╚══════╝
 ```
 
-**Entorno ofensivo para macOS — Bug Bounty & Pentesting**  
+**Entorno ofensivo para macOS y Linux — Bug Bounty & Pentesting**  
 *by [TheOffSecGirl](https://github.com/theoffsecgirl)*
 
 ![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux-lightgrey?style=flat-square)
@@ -25,53 +25,63 @@
 
 | Módulo | Descripción |
 |--------|-------------|
-| `zsh/` | Aliases ofensivos, prompt y config completa |
-| `nvim/` | Config de Neovim (Lua) para desarrollo y ofensiva |
+| `zsh/` | Aliases ofensivos, funciones de bug bounty, prompt y config completa |
+| `nvim/` | Config de Neovim (Lua) — LSP, Telescope, dashboard, snippets |
 | `tmux/` | Layout y keybindings para sesiones de hunting |
-| `ghostty/` | Config del terminal Ghostty |
-| `git/` | Gitconfig y helpers |
-| `macos/` | Bootstrap macOS + Brewfile |
-| `scripts/` | Scripts para Raycast (`.local/bin`) |
-| `containers/` | Debian Toolbox · Exegol · Kali VM |
+| `ghostty/` | Config del terminal Ghostty (macOS) |
+| `git/` | Gitconfig base + helpers (identidad en `~/.gitconfig.local`) |
+| `brew/` | Brewfile completo (base + ProjectDiscovery + containers + Go) |
+| `scripts/` | Scripts ejecutables en `~/.local/bin/` |
+| `containers/` | Debian Toolbox con httpx, ffuf, subfinder, nuclei, anew |
 | `hunting-template/` | Template de workspace por target |
+| `tests/` | Suite bats para scripts y zsh |
+| `CHEATSHEET.md` | Referencia rápida de todos los comandos |
 
 ---
 
-## Instalación
+## Instalación rápida
 
 ```bash
 git clone https://github.com/theoffsecgirl/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
-
-# Bootstrap (instala Homebrew + paquetes)
-./macos/bootstrap-macos.sh
-
-# Aplicar configs
-stow -t "$HOME" zsh git tmux nvim scripts
-source ~/.zshrc
-
-# Crear workspace de hunting
-cp -r hunting-template ~/hunting
-
-# Build del contenedor
-cd containers/debian-toolbox
-docker compose build
+./install.sh
 ```
 
-> Aplicar solo algunas partes:
+`install.sh` detecta macOS o Linux y hace todo automáticamente:
+- macOS: instala Homebrew → `brew bundle` → stow
+- Linux (apt/dnf/pacman): instala dependencias base → stow
+- Aplica todos los paquetes con stow
+- Crea `~/hunting/{targets,notes,scripts}`
+- Avisa si falta `~/.gitconfig.local` (identidad git)
+
+> Aplicar solo partes:
 > ```bash
 > stow -t "$HOME" zsh       # solo zsh
-> stow -t "$HOME" git       # solo git
-> stow -t "$HOME" scripts   # solo scripts
+> stow -t "$HOME" tmux      # solo tmux
+> stow -t "$HOME" nvim      # solo nvim
 > ```
+
+---
+
+## Configuración de identidad Git
+
+La identidad (nombre y email) **no se versiona**. Créala una sola vez:
+
+```bash
+cat > ~/.gitconfig.local << 'EOF'
+[user]
+    name  = Tu Nombre
+    email = tu@email.com
+EOF
+```
 
 ---
 
 ## Uso diario
 
 ```bash
-# Arrancar entorno
-offsec-up && offsec
+# Arrancar contenedor
+offsec-up && offsec-shell
 
 # Navegación rápida
 cdh              # ~/hunting
@@ -80,19 +90,38 @@ note "texto"     # nota con timestamp
 notes            # ver notas de hoy
 
 # Recon
-subenum dom.com  # enum de subdominios
-probe urls.txt   # probar lista de URLs
-h                # httpx básico
-hh               # httpx con detección de tech
+mktarget dom.com     # crea estructura completa del target
+scope dom.com        # subdominios + hosts vivos
+webmap dom.com       # crawl katana → urls.txt + js
+paramhunt dom.com    # parámetros únicos
+subscan dom.com      # tabla httpx con status + título
 ```
+
+📖 Referencia completa → [CHEATSHEET.md](CHEATSHEET.md)
 
 ---
 
 ## Stack de contenedores
 
-- **Debian Toolbox** → entorno diario (httpx, ffuf, curl, jq, Python) — 80% del tiempo
+- **Debian Toolbox** → entorno diario (httpx, ffuf, subfinder, nuclei, anew…) — 80% del tiempo
 - **Exegol** → recon pesado puntual
 - **Kali VM** → AD, pivoting y red interna
+
+Actualizar versiones de herramientas sin tocar el Dockerfile:
+```bash
+cd ~/.dotfiles/containers/debian-toolbox
+docker compose build --build-arg HTTPX_VERSION=1.6.11
+```
+
+---
+
+## Tests
+
+```bash
+brew install bats-core   # macOS
+bats tests/              # todos los tests
+bats --verbose-run tests/ # con detalle
+```
 
 ---
 
@@ -100,22 +129,22 @@ hh               # httpx con detección de tech
 
 ```
 ~/.dotfiles/
+├── install.sh              ← bootstrap universal (macOS + Linux)
+├── CHEATSHEET.md           ← referencia rápida de comandos
+├── SETUP-BUGBOUNTY.md      ← guía de instalación detallada
+├── brew/Brewfile
 ├── containers/debian-toolbox/
-├── scripts/.local/bin/
-├── hunting-template/
-├── zsh/.config/zsh/
-│   └── bug-bounty.zsh
-├── macos/
-├── brew/
 ├── git/
-├── tmux/
-├── nvim/
 ├── ghostty/
-├── CHEATSHEET.md
-└── SETUP-BUGBOUNTY.md
+├── hunting-template/
+├── macos/
+├── nvim/.config/nvim/
+├── scripts/.local/bin/
+├── tests/
+├── tmux/
+├── vendor/
+└── zsh/.config/zsh/
 ```
-
-📖 Setup completo explicado paso a paso → [SETUP-BUGBOUNTY.md](SETUP-BUGBOUNTY.md)
 
 ---
 

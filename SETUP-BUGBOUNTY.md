@@ -1,54 +1,40 @@
 # Bug Bounty Operational Stack Setup
 
-Guía completa para montar tu entorno de bug bounty con los dotfiles.
+Guía detallada para montar el entorno completo desde cero.
+
+---
 
 ## 🎯 Arquitectura
 
 ```
-macOS Host
-├── OrbStack / Docker Desktop
-├── Raycast (orquestación)
-├── Ghostty (terminal)
-└── dotfiles
+macOS / Linux Host
+├── Ghostty (terminal) o cualquier terminal
+├── tmux (sesiones)
+├── zsh + dotfiles
+└── Docker / Colima
     |
     ├── Debian Toolbox (80% trabajo diario)
-    │   └── httpx, ffuf, curl, jq, python
+    │   └── httpx, ffuf, subfinder, nuclei, anew, starship
     |
     ├── Exegol (tooling pesado puntual)
-    │   └── nuclei, subfinder, masivo
-    |
-    └── UTM Kali VM (AD, pivoting, exploit dev)
+    └── Kali VM (AD, pivoting, exploit dev)
 ```
 
-## 📦 Prerequisitos
+---
 
-### macOS Host
+## 📦 Instalación automática (recomendado)
+
 ```bash
-# Instalar Homebrew si no lo tienes
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# Instalar dependencias base
-brew install git stow
-
-# Docker (elige uno)
-brew install orbstack     # Recomendado (más ligero)
-# O Docker Desktop
-brew install --cask docker
-
-# Raycast
-brew install --cask raycast
-
-# Ghostty (opcional, pero recomendado)
-brew install --cask ghostty
+git clone https://github.com/theoffsecgirl/dotfiles.git ~/.dotfiles
+cd ~/.dotfiles
+./install.sh
 ```
 
-### Python tools (opcional)
-```bash
-# Exegol (para tooling pesado)
-pipx install exegol
-```
+`install.sh` detecta el sistema y hace todo: instala dependencias, aplica stow, crea workspace.
 
-## 🚀 Instalación
+---
+
+## 🔧 Instalación manual paso a paso
 
 ### 1. Clonar dotfiles
 ```bash
@@ -56,207 +42,114 @@ git clone https://github.com/theoffsecgirl/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ```
 
-### 2. Aplicar dotfiles base
+### 2. macOS: Homebrew + Brewfile
 ```bash
-# Bootstrap macOS (instala Brewfile, configura sistema)
-./macos/bootstrap-macos.sh
+# Instalar Homebrew si no lo tienes
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-# Aplicar configs
-stow -t "$HOME" zsh
-stow -t "$HOME" git
-stow -t "$HOME" tmux
-stow -t "$HOME" nvim
-stow -t "$HOME" scripts
+# Instalar todo el stack (base + ProjectDiscovery + containers + Go)
+brew bundle --file=brew/Brewfile
+```
 
-# Recargar shell
+### 3. Linux: dependencias base
+```bash
+# Debian/Ubuntu
+sudo apt install -y stow zsh tmux neovim fzf bat ripgrep fd-find
+
+# Arch
+sudo pacman -S --noconfirm stow zsh tmux neovim fzf bat ripgrep fd
+```
+
+### 4. Aplicar dotfiles con stow
+```bash
+stow -t "$HOME" zsh git tmux nvim scripts
 source ~/.zshrc
 ```
 
-### 3. Configurar Git
-Edita `~/.gitconfig` con tu nombre y email:
+### 5. Configurar identidad Git
+
+La identidad personal **no se versiona**. Créala en `~/.gitconfig.local`:
+
 ```bash
-nvim ~/.gitconfig
+cat > ~/.gitconfig.local << 'EOF'
+[user]
+    name  = Tu Nombre
+    email = tu@email.com
+EOF
 ```
 
-### 4. Crear estructura de hunting
+> `~/.gitconfig` incluye automáticamente `~/.gitconfig.local` si existe.
+
+### 6. Crear workspace de hunting
 ```bash
 cp -r ~/.dotfiles/hunting-template ~/hunting
+# o deja que install.sh lo cree: ~/hunting/{targets,notes,scripts}
 ```
 
-### 5. Build contenedor Debian Toolbox
+### 7. Build contenedor Debian Toolbox
 ```bash
 cd ~/.dotfiles/containers/debian-toolbox
 docker compose build
 ```
 
-### 6. Configurar Raycast scripts
-```bash
-# Dar permisos de ejecución
-chmod +x ~/.local/bin/offsec-*
-chmod +x ~/.local/bin/exegol-start
-chmod +x ~/.local/bin/kali-start
+El container incluye por defecto: `httpx`, `ffuf`, `subfinder`, `nuclei`, `anew`, `starship`, `zsh`, `tmux`, `nvim`, `jq`, `python3`.
 
-# En Raycast:
-# Settings → Extensions → Script Commands → Add Directory
-# Añadir: ~/.local/bin
+Actualizar una herramienta sin editar el Dockerfile:
+```bash
+docker compose build --build-arg HTTPX_VERSION=1.6.11
 ```
+
+### 8. Raycast (macOS, opcional)
+```bash
+brew install --cask raycast
+
+# Los scripts de ~/.local/bin/ ya tienen permiso de ejecución
+# En Raycast: Settings → Extensions → Script Commands → Add Directory → ~/.local/bin
+```
+
+---
 
 ## 🎮 Uso diario
 
-### Flujo normal (80% del tiempo)
+### Flujo normal
 
-#### Opción 1: Raycast (recomendado)
-1. `Cmd + Space` → "Start Offsec Toolbox"
-2. `Cmd + Space` → "Offsec Shell"
-
-#### Opción 2: Terminal directo
 ```bash
 # Arrancar contenedor
-offsec-up
+offsec-up        # o: docker compose -f ~/.dotfiles/containers/debian-toolbox/docker-compose.yml up -d
+offsec-shell     # shell dentro del container
 
-# Entrar al shell
-offsec
-
-# Dentro del contenedor, aplicar dotfiles la primera vez
-cd /root/.dotfiles
-stow -t "$HOME" zsh git tmux
-source ~/.zshrc
+# Dentro del container (workspace en /work)
+cdh              # cd ~/hunting
+cdt              # cd ~/hunting/targets
+note "hallazgo"  # nota con timestamp
+notes            # últimas 20 notas de hoy
 ```
 
-### Workspace dentro del contenedor
+### Flujo de recon completo
+
 ```bash
-# Estructura montada en /work
-cd /work
+# 1. Crear estructura del target
+mktarget example.com
 
-# Navegar rápido (aliases)
-cdh    # ~/hunting
-cdt    # ~/hunting/targets
-cdn    # ~/hunting/notes
-cds    # ~/hunting/scripts
+# 2. Subdominios + hosts vivos
+scope example.com
 
-# Trabajo en un target
-cd /work/targets/example.com
-mkdir recon vulns
+# 3. Crawl URLs y JS
+webmap example.com
 
-# Enumeración
-echo "example.com" | httpx -silent -tech-detect -status-code
+# 4. Extraer parámetros únicos
+paramhunt example.com
 
-# Fuzzing
-ffuf -u https://example.com/FUZZ -w /usr/share/wordlists/common.txt -c -mc all -fc 404
+# 5. Fuzz de directorios
+fuzzdirs https://example.com
 
-# Scripts Python
-cd /work/scripts
-python3 -m venv venv
-source venv/bin/activate
-pip install httpx requests
+# 6. Tabla de endpoints vivos
+subscan example.com
 ```
 
-### Aliases útiles (ya incluidos)
-```bash
-# HTTP
-h        # httpx silencioso
-hh       # httpx con tech detect
-hhh      # httpx full info
+📖 Referencia completa de comandos → [CHEATSHEET.md](CHEATSHEET.md)
 
-# Fuzzing
-f        # ffuf con colores
-
-# Recon
-subenum domain.com    # Subdomain enum rápido
-probe urls.txt        # Probar lista de URLs
-
-# Notas
-note "found XSS in /search"   # Nota rápida
-notes                         # Ver notas de hoy
-
-# Contenedor
-offsec              # Shell directo
-offsec-restart      # Restart
-offsec-rebuild      # Rebuild completo
-```
-
-### Tooling pesado (Exegol)
-```bash
-# Desde Raycast
-Cmd + Space → "Start Exegol"
-
-# O desde terminal
-exegol-start
-
-# Uso puntual, no vivas aquí
-exegol start web
-nuclei -l targets.txt -t ~/nuclei-templates/
-exegol stop web
-```
-
-### VM Kali (red interna, AD, exploit dev)
-```bash
-# Desde Raycast
-Cmd + Space → "Start Kali VM"
-
-# O desde terminal
-kali-start
-```
-
-## 🔧 Personalización
-
-### Añadir herramientas al toolbox
-Edita `~/.dotfiles/containers/debian-toolbox/Dockerfile`:
-```dockerfile
-# Ejemplo: añadir nuclei
-RUN go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
-```
-
-Rebuild:
-```bash
-offsec-rebuild
-```
-
-### Aliases personalizados
-Edita `~/.config/zsh/local.zsh` (no se versiona):
-```bash
-alias myalias='my command'
-```
-
-### Python tools globales en toolbox
-Dentro del contenedor:
-```bash
-pip3 install --user tool-name
-```
-
-## 📚 Estructura de archivos
-
-```
-~/.dotfiles/
-├── containers/
-│   └── debian-toolbox/        # Contenedor principal
-│       ├── Dockerfile
-│       ├── docker-compose.yml
-│       └── README.md
-├── scripts/.local/bin/
-│   ├── offsec-up              # Raycast: arrancar
-│   ├── offsec-shell           # Raycast: shell
-│   ├── exegol-start           # Raycast: Exegol
-│   └── kali-start             # Raycast: Kali VM
-├── hunting-template/          # Template workspace
-│   ├── targets/
-│   ├── notes/
-│   ├── scripts/
-│   └── templates/
-├── zsh/.config/zsh/
-│   └── bug-bounty.zsh         # Aliases ofensivos
-└── SETUP-BUGBOUNTY.md         # Esta guía
-
-~/hunting/                     # Tu workspace real
-├── targets/
-│   └── example.com/
-│       ├── recon/
-│       ├── vulns/
-│       └── notes.md
-├── notes/
-├── scripts/
-└── templates/
-```
+---
 
 ## 🐛 Troubleshooting
 
@@ -264,68 +157,74 @@ pip3 install --user tool-name
 ```bash
 cd ~/.dotfiles/containers/debian-toolbox
 docker compose logs
+docker compose down && docker compose up -d
 ```
 
-### Dotfiles no se aplican en contenedor
+### Dotfiles no se aplican en el container
+El container monta `~/.dotfiles` en `/root/.dotfiles:ro`.
+Dentro del container:
 ```bash
-# Dentro del contenedor
-cd /root/.dotfiles
-stow -t "$HOME" zsh git tmux
-source ~/.zshrc
+cd /root/.dotfiles && stow -t "$HOME" zsh git tmux && source ~/.zshrc
 ```
 
-### Raycast no encuentra scripts
+### Git no tiene identidad dentro del container
+El container monta `~/.gitconfig.local`. Si no existe en el host:
 ```bash
-# Verificar permisos
-ls -la ~/.local/bin/offsec-*
-
-# Si no son ejecutables
-chmod +x ~/.local/bin/offsec-*
-
-# Raycast: Settings → Extensions → Script Commands → Reload
+# En el host
+cat > ~/.gitconfig.local << 'EOF'
+[user]
+    name  = Tu Nombre
+    email = tu@email.com
+EOF
+# Reiniciar el container para que monte el fichero
+docker compose restart
 ```
 
-### httpx/ffuf no encontrados en contenedor
+### Herramienta no encontrada en el container
+Las herramientas están en `/usr/local/bin/`. Verifica:
 ```bash
-# Verificar PATH
-echo $PATH | grep go
-
-# Si no está, añadir a ~/.zshrc:
-export PATH="/usr/local/go/bin:/root/go/bin:$PATH"
+which httpx subfinder nuclei ffuf anew
+```
+Si falta alguna, rebuild con la versión deseada:
+```bash
+docker compose build --build-arg SUBFINDER_VERSION=2.6.7
 ```
 
-## 🎓 Workflow recomendado
+### stow da conflictos
+```bash
+# Ver qué conflictos hay sin aplicar
+stow -nv -t "$HOME" zsh
 
-### Día típico
-1. **Mañana**: `Cmd+Space` → "Start Offsec Toolbox"
-2. **Recon**: dentro del contenedor, `cdh && cd targets/newdomain.com`
-3. **Enum**: `subenum newdomain.com | tee subs.txt`
-4. **Probe**: `probe subs.txt`
-5. **Notas**: `note "found interesting endpoint /api/v2/admin"`
-6. **Testing**: scripts Python en `/work/scripts` con venv
-7. **Tarde**: si necesitas tooling pesado → Exegol
+# Forzar (sobreescribe symlinks existentes)
+stow --adopt -t "$HOME" zsh && git checkout zsh/
+```
 
-### No mezclar entornos
-- **Web/API** → Debian toolbox
-- **Recon masivo** → Exegol
-- **Red interna/AD** → Kali VM
-
-## 🔐 Seguridad
-
-- SSH keys montadas read-only
-- No puertos expuestos por defecto
-- Contenedor efímero (rebuild fácil)
-- Workspace separado del contenedor
-- No root en host
-
-## 📖 Recursos
-
-- [Exegol Docs](https://exegol.readthedocs.io/)
-- [OrbStack](https://orbstack.dev/)
-- [Raycast Script Commands](https://github.com/raycast/script-commands)
-- [httpx](https://github.com/projectdiscovery/httpx)
-- [ffuf](https://github.com/ffuf/ffuf)
+### bats no disponible
+```bash
+brew install bats-core          # macOS
+sudo apt install bats           # Debian/Ubuntu
+```
 
 ---
 
-**¿Dudas?** Abre un issue en el repo o revisa la documentación de cada herramienta.
+## 🔐 Seguridad del entorno
+
+- SSH keys montadas **read-only** en el container
+- Identidad git en `~/.gitconfig.local` — no versionada
+- `tmux-resurrect` sin captura de contenido de panes (evita persistir tokens)
+- No puertos expuestos por defecto en docker-compose
+- Workspace separado del filesystem del container (`~/hunting` → `/work`)
+
+---
+
+## 📚 Recursos
+
+- [ProjectDiscovery tools](https://github.com/projectdiscovery)
+- [Exegol Docs](https://exegol.readthedocs.io/)
+- [OrbStack](https://orbstack.dev/) (alternativa ligera a Docker Desktop)
+- [bats-core](https://github.com/bats-core/bats-core)
+- [tmux Plugin Manager](https://github.com/tmux-plugins/tpm)
+
+---
+
+**¿Dudas?** Abre un issue en el repo.

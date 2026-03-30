@@ -13,21 +13,37 @@ brew "bat"
 brew "eza"
 brew "tmux"
 brew "neovim"
+brew "stow"
 
 # Zsh extras
 brew "zsh-autosuggestions"
 brew "zsh-syntax-highlighting"
 brew "starship"
 
-# Web / bug bounty
+# Web / bug bounty (herramientas de sistema)
 brew "nmap"
 brew "masscan"
 brew "ffuf"
-brew "nuclei"
 brew "gobuster"
 brew "wget"
 brew "curl"
 brew "openssl@3"
+
+# ProjectDiscovery tools (Go-based)
+tap "projectdiscovery/tap"
+brew "projectdiscovery/tap/httpx"
+brew "projectdiscovery/tap/subfinder"
+brew "projectdiscovery/tap/nuclei"
+brew "projectdiscovery/tap/katana"
+brew "projectdiscovery/tap/dnsx"
+brew "projectdiscovery/tap/naabu"
+brew "projectdiscovery/tap/interactsh-client"
+
+# Herramientas tomnomnom y afines (instalar via go install si no están en brew)
+# go install github.com/tomnomnom/anew@latest
+# go install github.com/tomnomnom/unfurl@latest
+# go install github.com/tomnomnom/assetfinder@latest
+# go install github.com/d3mondev/puredns/v2@latest
 
 # Containers (alternativa a Docker Desktop)
 brew "colima"
@@ -36,6 +52,11 @@ brew "docker-compose"
 
 # Python tooling
 brew "pipx"
+brew "python@3.12"
+
+# Go (para herramientas que no tienen tap)
+brew "go"
 
 # Opcional (descomenta si lo usas)
 # brew "wireshark"
+# brew "burp-suite"
