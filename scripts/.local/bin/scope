@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+[[ -z "${1:-}" ]] && { echo "Uso: scope <dominio>"; exit 1; }
+
+TARGET="$1"
+BASE="$HOME/hunting/targets/$TARGET"
+
+mkdir -p "$BASE/recon" "$BASE/http"
+
+subfinder -d "$TARGET" -silent | anew "$BASE/recon/subdomains.txt"
+httpx -silent -l "$BASE/recon/subdomains.txt" | anew "$BASE/http/live.txt"
