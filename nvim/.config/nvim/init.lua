@@ -1,5 +1,5 @@
 -- OffSec Neovim (minimal, fast, bug-bounty oriented)
--- macOS/Linux compatible
+-- macOS/Linux compatible — nvim 0.11+
 
 local fn = vim.fn
 local uv = vim.uv or vim.loop
@@ -8,29 +8,27 @@ local uv = vim.uv or vim.loop
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
--- Basic opts
-vim.o.number = true
+-- Options
+vim.o.number         = true
 vim.o.relativenumber = true
-vim.o.termguicolors = true
-vim.o.mouse = "a"
-vim.o.clipboard = "unnamedplus"
-vim.o.updatetime = 250
-vim.o.timeoutlen = 350
-vim.o.ignorecase = true
-vim.o.smartcase = true
-vim.o.signcolumn = "yes"
-vim.o.splitright = true
-vim.o.splitbelow = true
-vim.o.cursorline = true
-vim.o.scrolloff = 6
-vim.o.sidescrolloff = 6
-vim.o.wrap = false
-vim.o.undofile = true
-
--- Indent
-vim.o.expandtab = true
-vim.o.shiftwidth = 2
-vim.o.tabstop = 2
+vim.o.termguicolors  = true
+vim.o.mouse          = "a"
+vim.o.clipboard      = "unnamedplus"
+vim.o.updatetime     = 250
+vim.o.timeoutlen     = 350
+vim.o.ignorecase     = true
+vim.o.smartcase      = true
+vim.o.signcolumn     = "yes"
+vim.o.splitright     = true
+vim.o.splitbelow     = true
+vim.o.cursorline     = true
+vim.o.scrolloff      = 6
+vim.o.sidescrolloff  = 6
+vim.o.wrap           = false
+vim.o.undofile       = true
+vim.o.expandtab      = true
+vim.o.shiftwidth     = 2
+vim.o.tabstop        = 2
 
 -- lazy.nvim bootstrap
 local lazypath = fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -43,10 +41,12 @@ if not uv.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- Plugins
+-- ============================================================
+-- PLUGINS
+-- ============================================================
 require("lazy").setup({
 
-  -- Theme
+  -- Theme: Catppuccin
   {
     "catppuccin/nvim",
     name = "catppuccin",
@@ -72,30 +72,32 @@ require("lazy").setup({
       require("dashboard").setup({
         theme = "doom",
         config = {
+          -- ASCII puro: compatible con cualquier fuente, sin Nerd Font
           header = {
-            "", "",
-            "███╗   ██╗██████╗ ██████╗ ███╗   ██╗█████╗ ██████╗",
-            "████╗  ██║██╔══██╗██╔══██╗████╗  ██║██╔══██╗██╔══██╗",
-            "██╔██╗ ██║██████╔╝██████╔╝██╔██╗ ██║██║  ██║██║  ██║",
-            "██║╚██╗██║██╔══██╗██╔══██╗██║╚██╗██║██║  ██║██║  ██║",
-            "██║ ╚████║██║  ██║██║  ██║██║ ╚████║╚█████╔╝██████╔╝",
-            "╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚════╝ ╚═════╝",
-            "", "🔍  bug bounty // offsec", "",
+            "",
+            "  ███╗   ██╗██████╗ ██████╗ ███╗  ██╗ ██████╗ ██████╗  ",
+            "  ████╗  ██║██╔══██╗██╔══██╗████╗ ██║██╔═══██╗██╔══██╗ ",
+            "  ██╔██╗ ██║██████╔╝██████╔╝██╔██╗██║██║   ██║██║  ██║ ",
+            "  ██║╚██╗██║██╔══██╗██╔══██╗██║╚████║██║   ██║██║  ██║ ",
+            "  ██║ ╚████║██████╔╝██║  ██║██║ ╚███║╚██████╔╝██████╔╝ ",
+            "  ╚═╝  ╚═══╝╚═════╝ ╚═╝  ╚═╝╚═╝  ╚══╝ ╚═════╝ ╚═════╝  ",
+            "",
+            "           bug bounty  //  offsec",
+            "",
           },
           center = {
             {
-              icon = "🎯  ", icon_hl = "Title",
-              desc = "Hunting Workspace", desc_hl = "String",
+              icon = "  ", icon_hl = "Title",
+              desc = "Hunting Workspace",   desc_hl = "String",
               key = "h", key_hl = "Number",
-              -- fix: usar lua para cambiar dir Y abrir Oil correctamente
               action = function()
                 vim.cmd("cd " .. vim.fn.expand("~/hunting"))
                 require("oil").open(vim.fn.expand("~/hunting"))
               end,
             },
             {
-              icon = "📝  ", icon_hl = "Title",
-              desc = "Today's Notes", desc_hl = "String",
+              icon = "  ", icon_hl = "Title",
+              desc = "Today's Notes",       desc_hl = "String",
               key = "n", key_hl = "Number",
               action = function()
                 local p = vim.fn.expand("~/hunting/notes/" .. os.date("%Y-%m-%d") .. "-quick.md")
@@ -104,20 +106,20 @@ require("lazy").setup({
               end,
             },
             {
-              icon = "📁  ", icon_hl = "Title",
-              desc = "Find File", desc_hl = "String",
+              icon = "  ", icon_hl = "Title",
+              desc = "Find File",           desc_hl = "String",
               key = "f", key_hl = "Number",
               action = "Telescope find_files",
             },
             {
-              icon = "🔎  ", icon_hl = "Title",
-              desc = "Find Text", desc_hl = "String",
+              icon = "  ", icon_hl = "Title",
+              desc = "Find Text",           desc_hl = "String",
               key = "g", key_hl = "Number",
               action = "Telescope live_grep",
             },
             {
-              icon = "🛠️  ", icon_hl = "Title",
-              desc = "Dotfiles", desc_hl = "String",
+              icon = "  ", icon_hl = "Title",
+              desc = "Dotfiles",            desc_hl = "String",
               key = "d", key_hl = "Number",
               action = function()
                 vim.cmd("cd " .. vim.fn.expand("~/.dotfiles"))
@@ -125,39 +127,38 @@ require("lazy").setup({
               end,
             },
             {
-              icon = "📚  ", icon_hl = "Title",
-              desc = "Cheatsheet", desc_hl = "String",
+              icon = "  ", icon_hl = "Title",
+              desc = "Cheatsheet",          desc_hl = "String",
               key = "c", key_hl = "Number",
-              -- fix: ruta correcta al CHEATSHEET.md del repo
               action = function()
                 local p = vim.fn.expand("~/.dotfiles/CHEATSHEET.md")
                 if vim.fn.filereadable(p) == 1 then
                   vim.cmd("edit " .. p)
                 else
-                  vim.notify("CHEATSHEET.md no encontrado en " .. p, vim.log.levels.WARN)
+                  vim.notify("CHEATSHEET.md no encontrado: " .. p, vim.log.levels.WARN)
                 end
               end,
             },
             {
-              icon = "⏳  ", icon_hl = "Title",
-              desc = "Recent Files", desc_hl = "String",
+              icon = "  ", icon_hl = "Title",
+              desc = "Recent Files",        desc_hl = "String",
               key = "r", key_hl = "Number",
               action = "Telescope oldfiles",
             },
             {
-              icon = "⚙️  ", icon_hl = "Title",
-              desc = "Config", desc_hl = "String",
+              icon = "  ", icon_hl = "Title",
+              desc = "Config",              desc_hl = "String",
               key = "v", key_hl = "Number",
               action = "edit ~/.config/nvim/init.lua",
             },
             {
-              icon = "❌  ", icon_hl = "Title",
-              desc = "Quit", desc_hl = "String",
+              icon = "  ", icon_hl = "Title",
+              desc = "Quit",                desc_hl = "String",
               key = "q", key_hl = "Number",
               action = "qa",
             },
           },
-          footer = { "", "🐞  theoffsecgirl" },
+          footer = { "", "  theoffsecgirl" },
         },
       })
     end,
@@ -172,7 +173,7 @@ require("lazy").setup({
       require("telescope").setup({
         defaults = {
           sorting_strategy = "ascending",
-          layout_config = { prompt_position = "top" },
+          layout_config    = { prompt_position = "top" },
         },
       })
     end,
@@ -184,7 +185,7 @@ require("lazy").setup({
     config = function()
       require("oil").setup({
         view_options = { show_hidden = true },
-        keymaps = { ["<C-h>"] = false, ["<C-l>"] = false },
+        keymaps      = { ["<C-h>"] = false, ["<C-l>"] = false },
       })
       vim.keymap.set("n", "-", "<cmd>Oil<cr>", { desc = "Open parent directory" })
     end,
@@ -199,11 +200,11 @@ require("lazy").setup({
           add          = { text = "+" },
           change       = { text = "~" },
           delete       = { text = "_" },
-          topdelete    = { text = "‾" },
+          topdelete    = { text = "^" },
           changedelete = { text = "~" },
         },
         on_attach = function(bufnr)
-          local gs = package.loaded.gitsigns
+          local gs  = package.loaded.gitsigns
           local map = function(mode, l, r, desc)
             vim.keymap.set(mode, l, r, { buffer = bufnr, desc = desc })
           end
@@ -217,8 +218,8 @@ require("lazy").setup({
             vim.schedule(function() gs.prev_hunk() end)
             return "<Ignore>"
           end, "Prev hunk")
-          map("n", "<leader>hs", gs.stage_hunk, "Stage hunk")
-          map("n", "<leader>hr", gs.reset_hunk, "Reset hunk")
+          map("n", "<leader>hs", gs.stage_hunk,  "Stage hunk")
+          map("n", "<leader>hr", gs.reset_hunk,  "Reset hunk")
           map("n", "<leader>hp", gs.preview_hunk, "Preview hunk")
           map("n", "<leader>hb", function() gs.blame_line({ full = true }) end, "Blame line")
         end,
@@ -229,8 +230,8 @@ require("lazy").setup({
   -- Markdown preview
   {
     "iamcco/markdown-preview.nvim",
-    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
-    ft = { "markdown" },
+    cmd   = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+    ft    = { "markdown" },
     build = function() vim.fn["mkdp#util#install"]() end,
     config = function()
       vim.keymap.set("n", "<leader>mp", "<cmd>MarkdownPreviewToggle<cr>", { desc = "Markdown preview" })
@@ -240,7 +241,7 @@ require("lazy").setup({
   -- Indent lines
   {
     "lukas-reineke/indent-blankline.nvim",
-    main = "ibl",
+    main   = "ibl",
     config = function()
       require("ibl").setup({ scope = { enabled = true } })
     end,
@@ -249,7 +250,7 @@ require("lazy").setup({
   -- Treesitter
   {
     "nvim-treesitter/nvim-treesitter",
-    build = ":TSUpdate",
+    build  = ":TSUpdate",
     config = function()
       require("nvim-treesitter.configs").setup({
         ensure_installed = {
@@ -265,41 +266,23 @@ require("lazy").setup({
     end,
   },
 
-  -- LSP + Mason
-  { "neovim/nvim-lspconfig" },
-  { "williamboman/mason.nvim", config = function() require("mason").setup() end },
+  -- Mason (instalador de LSP servers)
   {
+    "williamboman/mason.nvim",
+    config = function() require("mason").setup() end,
+  },
+  {
+    -- mason-lspconfig solo gestiona la instalacion; la config LSP va abajo
     "williamboman/mason-lspconfig.nvim",
     dependencies = { "williamboman/mason.nvim", "neovim/nvim-lspconfig" },
     config = function()
       require("mason-lspconfig").setup({
         ensure_installed = { "pyright", "ts_ls", "bashls", "jsonls", "yamlls" },
       })
-      local lspconfig = require("lspconfig")
-      local capabilities = vim.lsp.protocol.make_client_capabilities()
-      local ok_cmp, cmp_lsp = pcall(require, "cmp_nvim_lsp")
-      if ok_cmp then capabilities = cmp_lsp.default_capabilities(capabilities) end
-
-      local function on_attach(_, bufnr)
-        local map = function(mode, lhs, rhs, desc)
-          vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
-        end
-        map("n", "gd",         vim.lsp.buf.definition,                        "Go to definition")
-        map("n", "gr",         vim.lsp.buf.references,                        "References")
-        map("n", "K",          vim.lsp.buf.hover,                             "Hover")
-        map("n", "<leader>rn", vim.lsp.buf.rename,                            "Rename")
-        map("n", "<leader>ca", vim.lsp.buf.code_action,                       "Code action")
-        map("n", "<leader>f",  function() vim.lsp.buf.format({ async = true }) end, "Format")
-        map("n", "[d",         vim.diagnostic.goto_prev,                      "Prev diagnostic")
-        map("n", "]d",         vim.diagnostic.goto_next,                      "Next diagnostic")
-        map("n", "<leader>e",  vim.diagnostic.open_float,                     "Diagnostic float")
-      end
-
-      for _, srv in ipairs({ "pyright", "ts_ls", "bashls", "jsonls", "yamlls" }) do
-        lspconfig[srv].setup({ capabilities = capabilities, on_attach = on_attach })
-      end
     end,
   },
+  -- nvim-lspconfig (requerido por mason-lspconfig; la config real esta abajo)
+  { "neovim/nvim-lspconfig" },
 
   -- Completion + Snippets
   { "L3MON4D3/LuaSnip" },
@@ -324,12 +307,12 @@ require("lazy").setup({
         mapping = cmp.mapping.preset.insert({
           ["<C-Space>"] = cmp.mapping.complete(),
           ["<CR>"]      = cmp.mapping.confirm({ select = true }),
-          ["<Tab>"]     = cmp.mapping(function(fallback)
+          ["<Tab>"] = cmp.mapping(function(fallback)
             if cmp.visible() then cmp.select_next_item()
             elseif luasnip.expand_or_jumpable() then luasnip.expand_or_jump()
             else fallback() end
           end, { "i", "s" }),
-          ["<S-Tab>"]   = cmp.mapping(function(fallback)
+          ["<S-Tab>"] = cmp.mapping(function(fallback)
             if cmp.visible() then cmp.select_prev_item()
             elseif luasnip.jumpable(-1) then luasnip.jump(-1)
             else fallback() end
@@ -344,11 +327,49 @@ require("lazy").setup({
       })
     end,
   },
+}, {
+  -- lazy.nvim options
+  checker = { enabled = false }, -- no auto-check updates
 })
 
--- ----------------------------------------
--- Keymaps
--- ----------------------------------------
+-- ============================================================
+-- LSP  (API nativa nvim 0.11 — sin require('lspconfig'))
+-- ============================================================
+
+-- Capabilities globales: incluye snippets de cmp
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+local ok_cmp, cmp_lsp = pcall(require, "cmp_nvim_lsp")
+if ok_cmp then
+  capabilities = cmp_lsp.default_capabilities(capabilities)
+end
+
+-- Keymaps LSP: se aplican cuando cualquier servidor se adjunta al buffer
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function(ev)
+    local map = function(mode, lhs, rhs, desc)
+      vim.keymap.set(mode, lhs, rhs, { buffer = ev.buf, desc = desc })
+    end
+    map("n", "gd",         vim.lsp.buf.definition,                         "Go to definition")
+    map("n", "gr",         vim.lsp.buf.references,                         "References")
+    map("n", "K",          vim.lsp.buf.hover,                              "Hover")
+    map("n", "<leader>rn", vim.lsp.buf.rename,                             "Rename")
+    map("n", "<leader>ca", vim.lsp.buf.code_action,                        "Code action")
+    map("n", "<leader>f",  function() vim.lsp.buf.format({ async = true }) end, "Format")
+    map("n", "[d",         vim.diagnostic.goto_prev,                       "Prev diagnostic")
+    map("n", "]d",         vim.diagnostic.goto_next,                       "Next diagnostic")
+    map("n", "<leader>e",  vim.diagnostic.open_float,                      "Diagnostic float")
+  end,
+})
+
+-- Configurar cada servidor con vim.lsp.config (nvim 0.11+)
+for _, srv in ipairs({ "pyright", "ts_ls", "bashls", "jsonls", "yamlls" }) do
+  vim.lsp.config(srv, { capabilities = capabilities })
+  vim.lsp.enable(srv)
+end
+
+-- ============================================================
+-- KEYMAPS
+-- ============================================================
 local map = function(mode, lhs, rhs, desc)
   vim.keymap.set(mode, lhs, rhs, { desc = desc })
 end
@@ -386,10 +407,10 @@ local function toggle_terminal()
     vim.cmd("startinsert")
   end
 end
-map("n", "<leader>t",  toggle_terminal,       "Toggle terminal")
-map("t", "<C-x>",      "<C-\\><C-n>",         "Exit terminal mode")
+map("n", "<leader>t", toggle_terminal, "Toggle terminal")
+map("t", "<C-x>",     "<C-\\><C-n>",   "Exit terminal mode")
 
--- Notes rápidas
+-- Notes rapidas
 map("n", "<leader>n", function()
   local p = fn.expand("~/hunting/notes/" .. os.date("%Y-%m-%d") .. "-quick.md")
   fn.mkdir(fn.fnamemodify(p, ":h"), "p")
@@ -398,11 +419,11 @@ end, "Open today's notes")
 
 -- Diagnostics
 vim.diagnostic.config({
-  virtual_text    = false,
-  signs           = true,
-  underline       = true,
+  virtual_text     = false,
+  signs            = true,
+  underline        = true,
   update_in_insert = false,
-  severity_sort   = true,
+  severity_sort    = true,
 })
 vim.api.nvim_create_autocmd("CursorHold", {
   callback = function() vim.diagnostic.open_float(nil, { focus = false }) end,
@@ -414,7 +435,7 @@ map("n", "<leader>qq", "<cmd>cclose<cr>", "Quickfix close")
 map("n", "<leader>qn", "<cmd>cnext<cr>",  "Quickfix next")
 map("n", "<leader>qp", "<cmd>cprev<cr>",  "Quickfix prev")
 
--- Grep rápido
+-- Grep rapido con ripgrep
 vim.api.nvim_create_user_command("RG", function(opts)
   if opts.args == "" then print("Uso: :RG <texto>"); return end
   vim.cmd("silent grep! " .. fn.shellescape(opts.args))
@@ -426,11 +447,11 @@ if fn.executable("rg") == 1 then
   vim.o.grepformat = "%f:%l:%c:%m"
 end
 
--- Símbolos LSP
+-- Simbolos LSP
 map("n", "<leader>ss", function() require("telescope.builtin").lsp_document_symbols()  end, "Symbols (doc)")
 map("n", "<leader>sS", function() require("telescope.builtin").lsp_workspace_symbols() end, "Symbols (ws)")
 
--- Ejecutar línea HTTP
+-- Ejecutar linea HTTP/curl bajo el cursor
 map("n", "<leader>xh", function()
   local line = vim.api.nvim_get_current_line()
   if line:match("^http") or line:match("^curl") then
