@@ -4,7 +4,7 @@
 # Path base
 export PATH="$HOME/.local/bin:$PATH"
 
-# Homebrew (Apple Silicon / Intel) — se cachea para no pagar el coste en cada bloque
+# Homebrew (Apple Silicon / Intel) — se cachea para evitar subshells repetidas
 if [[ -x /opt/homebrew/bin/brew ]]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
   BREW_PREFIX="/opt/homebrew"
@@ -31,7 +31,7 @@ setopt HIST_IGNORE_DUPS HIST_REDUCE_BLANKS SHARE_HISTORY INC_APPEND_HISTORY
 # Opciones de calidad de vida
 setopt AUTO_CD CORRECT NO_BEEP
 
-# FZF (si está instalado)
+# FZF
 if command -v fzf >/dev/null 2>&1 && [[ -n "$BREW_PREFIX" ]]; then
   [[ -f "$BREW_PREFIX/opt/fzf/shell/key-bindings.zsh" ]] && \
     source "$BREW_PREFIX/opt/fzf/shell/key-bindings.zsh"
@@ -39,20 +39,20 @@ if command -v fzf >/dev/null 2>&1 && [[ -n "$BREW_PREFIX" ]]; then
     source "$BREW_PREFIX/opt/fzf/shell/completion.zsh"
 fi
 
-# Syntax highlighting + autosuggestions (opcionales)
+# Syntax highlighting + autosuggestions
 [[ -n "$BREW_PREFIX" && -f "$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]] && \
   source "$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 
 [[ -n "$BREW_PREFIX" && -f "$BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]] && \
   source "$BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 
-# Prompt (starship opcional)
+# Prompt
 if command -v starship >/dev/null 2>&1; then
   eval "$(starship init zsh)"
 fi
 
 # -------------------------
-# Tu núcleo: shell-utils
+# shell-utils
 # -------------------------
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 SHELL_UTILS_DIR="$DOTFILES_DIR/vendor/shell-utils"
@@ -68,12 +68,8 @@ do
 done
 unset _f
 
-# Bug bounty workspace aliases y funciones
+# Bug bounty workspace
 [[ -f "$HOME/.config/zsh/bug-bounty.zsh" ]] && source "$HOME/.config/zsh/bug-bounty.zsh"
-
-# Git aliases (si existe)
-[[ -f "$SHELL_UTILS_DIR/git/git-aliases.conf" ]] && \
-  export GIT_ALIASES_FILE="$SHELL_UTILS_DIR/git/git-aliases.conf"
 
 # Local overrides (no se versiona)
 [[ -f "$HOME/.config/zsh/local.zsh" ]] && source "$HOME/.config/zsh/local.zsh"

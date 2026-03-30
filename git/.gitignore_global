@@ -1,12 +1,43 @@
 # Global gitignore
+
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+
+# Editors
 .idea/
 .vscode/
+*.swp
+*.swo
+*~
+
+# Env / secretos
 .env
+.env.*
+!.env.example
+secrets/
+*.pem
+*.key
+*.p12
+
+# Python
 .venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Node
 node_modules/
 dist/
 build/
-__pycache__/
-*.pyc
+
+# Logs
 *.log
+
+# Local git identity (no versionar)
+.gitconfig.local
+
+# Local zsh overrides
+local.zsh

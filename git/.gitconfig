@@ -1,17 +1,42 @@
-# ~/.gitconfig (gestionado por stow)
-[user]
-  name = theoffsecgirl
-  email = arianne@theoffsecgirl.com
+# ~/.gitconfig (gestionado por stow desde theoffsecgirl/dotfiles)
+# Los datos personales (name, email) van en ~/.gitconfig.local (NO versionado)
 
 [core]
   excludesfile = ~/.gitignore_global
-  editor = nvim
+  editor       = nvim
+  autocrlf     = input
+  whitespace   = fix,trailing-space
 
 [init]
   defaultBranch = main
 
+[pull]
+  rebase = true
+
+[push]
+  autoSetupRemote = true
+
+[merge]
+  conflictstyle = diff3
+
+[diff]
+  algorithm = histogram
+  colorMoved = default
+
+[color]
+  ui = auto
+
 [alias]
-  st = status
-  co = checkout
-  br = branch
-  lg = log --oneline --graph --decorate --all
+  st  = status
+  co  = checkout
+  br  = branch
+  lg  = log --oneline --graph --decorate --all
+  undo = reset --soft HEAD~1
+  wip  = !git add -A && git commit -m 'wip'
+  pushf = push --force-with-lease
+
+# Incluye config local con name/email (no se versiona)
+# Crea con: git config -f ~/.gitconfig.local user.name "Tu Nombre"
+#           git config -f ~/.gitconfig.local user.email "tu@email.com"
+[includeIf "gitdir:~/"]
+  path = ~/.gitconfig.local
