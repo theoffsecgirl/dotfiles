@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+[[ -z "${1:-}" ]] && { echo "Uso: jwt-decode <token>"; exit 1; }
+
+TOKEN="$1"
+IFS='.' read -r HEADER PAYLOAD SIGN <<< "$TOKEN"
+
+decode() {
+  echo "$1" | base64 -d 2>/dev/null | jq .
+}
+
+echo "[HEADER]"; decode "$HEADER" || echo "$HEADER"
+echo "\n[PAYLOAD]"; decode "$PAYLOAD" || echo "$PAYLOAD"

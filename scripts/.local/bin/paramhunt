@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+[[ -z "${1:-}" ]] && { echo "Uso: paramhunt <dominio>"; exit 1; }
+
+TARGET="$1"
+BASE="$HOME/hunting/targets/$TARGET"
+
+mkdir -p "$BASE/fuzz"
+
+cat "$BASE/http/urls.txt" | unfurl keys | sort -u > "$BASE/fuzz/params.txt"

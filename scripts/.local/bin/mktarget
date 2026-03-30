@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+[[ -z "${1:-}" ]] && { echo "Uso: mktarget <dominio>"; exit 1; }
+
+TARGET="$1"
+BASE="$HOME/hunting/targets/$TARGET"
+
+mkdir -p "$BASE"/{recon,http,fuzz,js,burp,notes,reports,loot}
+touch "$BASE/notes/summary.md"
+
+echo "$BASE"
