@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+[[ -z "${1:-}" ]] && { echo "Uso: race-run <request.txt> [n=20]"; exit 1; }
+
+REQ_FILE="$1"
+N="${2:-20}"
+
+URL=$(grep -i '^POST\|^GET\|^PUT\|^PATCH\|^DELETE' "$REQ_FILE" | awk '{print $2}')
+METHOD=$(grep -i '^POST\|^GET\|^PUT\|^PATCH\|^DELETE' "$REQ_FILE" | awk '{print $1}')
+BODY=$(sed -n '/^$/,$p' "$REQ_FILE" | tail -n +2)
+
+run() {
+  curl -s -X "$METHOD" "$URL" -d "$BODY" &
+}
+
+for i in $(seq 1 "$N"); do
+  run
+done
+
+wait
+
+echo "[+] Done $N requests"
