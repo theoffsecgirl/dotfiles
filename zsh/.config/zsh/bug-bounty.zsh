@@ -4,10 +4,12 @@
 # ==========================================
 # Navegación rápida workspace
 # ==========================================
-alias cdh='cd ~/hunting'
-alias cdt='cd ~/hunting/targets'
-alias cdn='cd ~/hunting/notes'
-alias cds='cd ~/hunting/scripts'
+export HUNTING_HOME="${HUNTING_HOME:-$([[ -d /work ]] && echo /work || echo $HOME/hunting)}"
+
+cdh() { cd "$HUNTING_HOME"; }
+cdt() { cd "$HUNTING_HOME/targets"; }
+cdn() { cd "$HUNTING_HOME/notes"; }
+cds() { cd "$HUNTING_HOME/scripts"; }
 
 
 # ==========================================
