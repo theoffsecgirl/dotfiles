@@ -64,4 +64,4 @@ WORKDIR /work
 HEALTHCHECK --interval=60s --timeout=5s --retries=2 \
     CMD [ -x /usr/bin/zsh ] || exit 1
 
-CMD ["/usr/bin/zsh"]
+CMD ["/root/.dotfiles/containers/debian-toolbox/bootstrap-zsh.sh"]
