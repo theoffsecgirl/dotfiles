@@ -1,3 +1,10 @@
+if [[ -n "${OFFSEC_CONTAINER:-}" ]]; then
+  unsetopt CORRECT
+  export HUNTING_HOME="/work"
+else
+  export HUNTING_HOME="${HUNTING_HOME:-$HOME/hunting}"
+fi
+
 # Bug Bounty aliases y funciones
 # Se carga automáticamente desde load.zsh
 

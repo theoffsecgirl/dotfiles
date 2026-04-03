@@ -49,6 +49,7 @@ install_tools() {
     local name
     name="$(basename "$(dirname "${t%@*}")")"
     [[ "$name" == "v2" ]] && name="puredns"
+    [[ "$name" == "cmd" ]] && name="$(basename "${t%@*}")"
 
     printf "  -> %-30s" "$name"
     if go install "$t" >/dev/null 2>&1; then
