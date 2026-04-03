@@ -1,13 +1,17 @@
 # Bug Bounty aliases y funciones
 # Se carga automáticamente desde load.zsh
 
+# Workspace base portable: prioriza HUNTING_HOME si existe,
+# luego /work (contenedor), y como fallback ~/hunting (host/local).
+export HUNTING_HOME="${HUNTING_HOME:-$([[ -d /work ]] && echo /work || echo $HOME/hunting)}"
+
 # ==========================================
 # Navegación rápida workspace
 # ==========================================
-alias cdh='cd ~/hunting'
-alias cdt='cd ~/hunting/targets'
-alias cdn='cd ~/hunting/notes'
-alias cds='cd ~/hunting/scripts'
+cdh() { cd "$HUNTING_HOME"; }
+cdt() { cd "$HUNTING_HOME/targets"; }
+cdn() { cd "$HUNTING_HOME/notes"; }
+cds() { cd "$HUNTING_HOME/scripts"; }
 
 
 # ==========================================
@@ -86,14 +90,14 @@ probe() {
 # ==========================================
 note() {
   [[ -z "${*:-}" ]] && { echo "Uso: note 'tu nota aquí'"; return 1; }
-  local note_file="$HOME/hunting/notes/$(date +%Y-%m-%d)-quick.md"
+  local note_file="$HUNTING_HOME/notes/$(date +%Y-%m-%d)-quick.md"
   mkdir -p "$(dirname "$note_file")"
   printf '[%s] %s\n' "$(date +%H:%M:%S)" "$*" >> "$note_file"
   echo "✅ Nota añadida → $note_file"
 }
 
 notes() {
-  local note_file="$HOME/hunting/notes/$(date +%Y-%m-%d)-quick.md"
+  local note_file="$HUNTING_HOME/notes/$(date +%Y-%m-%d)-quick.md"
   if [[ -f "$note_file" ]]; then
     tail -20 "$note_file"
   else
