@@ -19,7 +19,7 @@ set -euo pipefail
 [[ -z "${1:-}" ]] && { echo "Uso: mktarget <dominio>"; exit 1; }
 
 TARGET="$1"
-BASE="$HOME/hunting/targets/$TARGET"
+BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
 
 mkdir -p "$BASE"/{recon,http,fuzz,js,in,out,tmp,burp,notes,reports,loot}
 

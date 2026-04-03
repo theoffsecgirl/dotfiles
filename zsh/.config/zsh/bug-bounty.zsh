@@ -4,7 +4,7 @@
 # ==========================================
 # Navegación rápida workspace
 # ==========================================
-export HUNTING_HOME="${HUNTING_HOME:-$([[ -d /work ]] && echo /work || echo $HOME/hunting)}"
+export HUNTING_HOME="${HUNTING_HOME:-$([[ -d /work ]] && echo /work || echo ${HUNTING_HOME:-$HOME/hunting})}"
 
 cdh() { cd "$HUNTING_HOME"; }
 cdt() { cd "$HUNTING_HOME/targets"; }
@@ -88,14 +88,14 @@ probe() {
 # ==========================================
 note() {
   [[ -z "${*:-}" ]] && { echo "Uso: note 'tu nota aquí'"; return 1; }
-  local note_file="$HOME/hunting/notes/$(date +%Y-%m-%d)-quick.md"
+  local note_file="${HUNTING_HOME:-$HOME/hunting}/notes/$(date +%Y-%m-%d)-quick.md"
   mkdir -p "$(dirname "$note_file")"
   printf '[%s] %s\n' "$(date +%H:%M:%S)" "$*" >> "$note_file"
   echo "✅ Nota añadida → $note_file"
 }
 
 notes() {
-  local note_file="$HOME/hunting/notes/$(date +%Y-%m-%d)-quick.md"
+  local note_file="${HUNTING_HOME:-$HOME/hunting}/notes/$(date +%Y-%m-%d)-quick.md"
   if [[ -f "$note_file" ]]; then
     tail -20 "$note_file"
   else

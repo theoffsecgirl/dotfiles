@@ -7,7 +7,7 @@ set -euo pipefail
 [[ -z "${1:-}" ]] && { echo "Uso: webmap <dominio>"; exit 1; }
 
 TARGET="$1"
-BASE="$HOME/hunting/targets/$TARGET"
+BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
 LIVEFILE="$BASE/http/live.txt"
 
 if [[ ! -f "$LIVEFILE" ]]; then
