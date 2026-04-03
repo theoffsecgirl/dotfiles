@@ -1,39 +1,82 @@
-#!/usr/bin/env zsh
-# install-go-tools — instala herramientas Go de ProjectDiscovery y tomnomnom
-# Uso: install-go-tools
+cat > ~/.dotfiles/scripts/.local/bin/install-go-tools <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
 
-set -e
+MIN_GO_MAJOR=1
+MIN_GO_MINOR=24
 
-if ! command -v go &>/dev/null; then
-  echo "[!] Go no encontrado. Instala con: brew install go"
-  exit 1
-fi
-
-tools=(
-  "github.com/projectdiscovery/httpx/cmd/httpx@latest"
-  "github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest"
-  "github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest"
-  "github.com/projectdiscovery/katana/cmd/katana@latest"
-  "github.com/projectdiscovery/dnsx/cmd/dnsx@latest"
-  "github.com/projectdiscovery/naabu/v2/cmd/naabu@latest"
-  "github.com/projectdiscovery/interactsh/cmd/interactsh-client@latest"
-  "github.com/tomnomnom/anew@latest"
-  "github.com/tomnomnom/unfurl@latest"
-  "github.com/tomnomnom/assetfinder@latest"
-  "github.com/d3mondev/puredns/v2@latest"
-)
-
-echo "[*] Instalando ${#tools[@]} herramientas Go..."
-for t in "${tools[@]}"; do
-  name=$(basename "${t%@*}")
-  printf "  -> %-30s" "$name"
-  if go install "$t" 2>/dev/null; then
-    echo "OK"
-  else
-    echo "FAIL"
+need_go() {
+  if ! command -v go >/dev/null 2>&1; then
+    echo "[!] Go no encontrado en PATH."
+    echo "    Instálalo en el runtime base del contenedor o en el host."
+    exit 1
   fi
-done
+}
 
-echo ""
-echo "[*] Hecho. Asegurate de tener en PATH:"
-echo "    export PATH=\"\$HOME/go/bin:\$PATH\""
+check_go_version() {
+  local raw major minor
+  raw="$(go version | awk '{print $3}' | sed 's/^go//')"
+  major="${raw%%.*}"
+  minor="$(echo "$raw" | cut -d. -f2)"
+
+  if [[ "$major" -lt "$MIN_GO_MAJOR" ]] || { [[ "$major" -eq "$MIN_GO_MAJOR" ]] && [[ "$minor" -lt "$MIN_GO_MINOR" ]]; }; then
+    echo "[!] Go demasiado antiguo: $raw"
+    echo "    Requiere >= ${MIN_GO_MAJOR}.${MIN_GO_MINOR}"
+    exit 1
+  fi
+}
+
+ensure_go_path() {
+  export PATH="/usr/local/go/bin:$PATH:$HOME/go/bin"
+}
+
+install_tools() {
+  local tools=(
+    "github.com/projectdiscovery/httpx/cmd/httpx@latest"
+    "github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest"
+    "github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest"
+    "github.com/projectdiscovery/katana/cmd/katana@latest"
+    "github.com/projectdiscovery/dnsx/cmd/dnsx@latest"
+    "github.com/projectdiscovery/naabu/v2/cmd/naabu@latest"
+    "github.com/projectdiscovery/interactsh/cmd/interactsh-client@latest"
+    "github.com/tomnomnom/anew@latest"
+    "github.com/tomnomnom/unfurl@latest"
+    "github.com/tomnomnom/assetfinder@latest"
+    "github.com/d3mondev/puredns/v2@latest"
+  )
+
+  echo "[*] Instalando ${#tools[@]} herramientas Go..."
+  for t in "${tools[@]}"; do
+    local name
+    name="$(basename "$(dirname "${t%@*}")")"
+    [[ "$name" == "v2" ]] && name="puredns"
+
+    printf "  -> %-30s" "$name"
+    if go install "$t" >/dev/null 2>&1; then
+      echo "OK"
+    else
+      echo "FAIL"
+    fi
+  done
+}
+
+verify_tools() {
+  echo
+  echo "[*] Verificando bins clave..."
+  for bin in subfinder httpx nuclei katana dnsx naabu interactsh-client anew unfurl assetfinder puredns; do
+    if command -v "$bin" >/dev/null 2>&1; then
+      echo "  [+] $bin"
+    else
+      echo "  [!] $bin no encontrado"
+    fi
+  done
+}
+
+ensure_go_path
+need_go
+check_go_version
+install_tools
+verify_tools
+EOF
+
+chmod +x ~/.dotfiles/scripts/.local/bin/install-go-tools
