@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(jq:*)",
+      "Bash(sed:*)",
+      "Bash(awk:*)",
+      "Bash(sort:*)",
+      "Bash(uniq:*)",
+      "Bash(cut:*)",
+      "Bash(tr:*)",
+      "Bash(wc:*)",
+      "Bash(httpx:*)",
+      "Bash(katana:*)",
+      "Bash(unfurl:*)",
+      "Bash(ffuf:*)",
+      "Bash(python3:*)"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(sudo:*)",
+      "Bash(curl *|sh:*)",
+      "Bash(wget *|sh:*)",
+      "Read(~/.ssh/**)",
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(**/*secret*)",
+      "Read(**/*token*)",
+      "Read(**/loot/**)",
+      "Read(**/secrets/**)",
+      "Write(~/.ssh/**)",
+      "Write(**/.env)",
+      "Write(**/.env.*)",
+      "Write(**/loot/**)",
+      "Write(**/secrets/**)"
+    ]
+  }
+}
