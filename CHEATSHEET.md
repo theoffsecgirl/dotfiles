@@ -1,10 +1,10 @@
 # 🔍 theoffsecgirl — Cheatsheet
 
-Referencia rápida de todos los comandos disponibles tras instalar los dotfiles.
+Referencia rápida de los comandos principales del entorno.
 
 ---
 
-## 📁 Navegación workspace
+## Navegación workspace
 
 | Alias | Acción |
 |-------|--------|
@@ -15,70 +15,99 @@ Referencia rápida de todos los comandos disponibles tras instalar los dotfiles.
 
 ---
 
-## 🎯 Flujo de trabajo (orden recomendado)
+## Bootstrap y validación
 
 ```bash
-# 1. Crear estructura del target
+offsec-bootstrap
+hunt-doctor
+```
+
+- `offsec-bootstrap` → enlaza scripts de `~/.dotfiles/scripts/.local/bin/` a `~/.local/bin/`
+- `hunt-doctor` → valida entorno, scripts y tooling
+
+---
+
+## Modelo operativo
+
+### Host
+- Git
+- dotfiles
+- Claude Code
+- edición y documentación
+
+### Contenedor
+- `subfinder`
+- `httpx`
+- `katana`
+- `unfurl`
+- `ffuf`
+- `jq`
+- `python3`
+- `scope-v2`
+- `webmap-v2`
+- `paramhunt-v2`
+
+---
+
+## Flujo recomendado
+
+### Contenedor
+```bash
 mktarget example.com
+scope-v2 example.com
+webmap-v2 example.com
+paramhunt-v2 example.com
+```
 
-# 2. Recon inicial: subdominios + hosts vivos
-scope example.com
-
-# 3. Crawl de URLs y JS
-webmap example.com
-
-# 4. Extraer parámetros únicos
-paramhunt example.com
-
-# 5. Fuzz de directorios
-fuzzdirs https://example.com
-
-# 6. Tabla de endpoints vivos
-subscan example.com
-
-# 7. Abrir sesión tmux de 4 panes
-tmux-recon recon-example ~/hunting/targets/example.com
+### Host
+```bash
+claude-recon example.com
+claude-hypotheses example.com
 ```
 
 ---
 
-## 🔧 Scripts en `~/.local/bin/`
+## Scripts en `~/.local/bin/`
 
 | Comando | Uso | Descripción |
 |---------|-----|-------------|
 | `mktarget` | `mktarget domain.com` | Crea estructura completa del target |
-| `scope` | `scope domain.com` | Subdominios + hosts vivos |
-| `webmap` | `webmap domain.com` | Crawl katana → urls.txt + js/files.txt |
-| `paramhunt` | `paramhunt domain.com` | Extrae parámetros únicos de urls.txt |
+| `scope` | `scope domain.com` | Recon básico legacy |
+| `webmap` | `webmap domain.com` | Crawl básico legacy |
+| `paramhunt` | `paramhunt domain.com` | Extracción básica legacy |
+| `scope-v2` | `scope-v2 domain.com` | Subdominios + hosts vivos + `httpx.jsonl` |
+| `webmap-v2` | `webmap-v2 domain.com` | Crawl + separación de URLs, JS, API y GraphQL |
+| `paramhunt-v2` | `paramhunt-v2 domain.com` | Params por URL, sensibles y JSONL por host |
+| `claude-recon` | `claude-recon domain.com` | Análisis IA de recon |
+| `claude-hypotheses` | `claude-hypotheses domain.com` | Hipótesis estructuradas de ataque |
 | `fuzzdirs` | `fuzzdirs https://url` | Fuzz de directorios con ffuf |
-| `subscan` | `subscan domain.com` | Tabla httpx con status, IP, título |
-| `jwt-decode` | `jwt-decode <token>` | Decodifica header+payload de JWT |
-| `race-run` | `race-run req.txt [n]` | Race condition: N requests en paralelo |
-| `idor-hints` | `idor-hints` | Checklist IDOR en terminal |
+| `subscan` | `subscan domain.com` | Tabla rápida httpx con status, IP y título |
 | `offsec-up` | `offsec-up` | Arranca contenedor offsec-toolbox |
 | `offsec-shell` | `offsec-shell` | Shell dentro del contenedor |
-| `tmux-recon` | `tmux-recon [sesión] [dir]` | 4 panes: control, logs, nvim, runner |
-| `tmux-sessionizer` | `C-a f` o directamente | Switch de proyecto con fzf |
+| `offsec-bootstrap` | `offsec-bootstrap` | Enlaza scripts de forma idempotente |
+| `hunt-doctor` | `hunt-doctor` | Valida entorno y tooling |
 
 ---
 
-## 🐳 Contenedor offsec-toolbox
+## Contenedor offsec-toolbox
 
 ```bash
-# Arrancar
-offsec-up          # o: offsec-restart / offsec-rebuild
+offsec-up
+offsec-shell
+offsec-bootstrap
+hunt-doctor
+```
 
-# Conectar
-offsec-shell       # o: docker exec -it offsec-toolbox zsh
+Actualizar tooling:
 
-# Actualizar versiones de herramientas
+```bash
 cd ~/.dotfiles/containers/debian-toolbox
 docker compose build --build-arg HTTPX_VERSION=1.6.11
 ```
 
 ---
 
-## 🌐 HTTP shortcuts
+## Shortcuts HTTP
 
 | Alias | Comando equivalente |
 |-------|--------------------|
@@ -90,55 +119,7 @@ docker compose build --build-arg HTTPX_VERSION=1.6.11
 
 ---
 
-## ⌨️ tmux (prefix: `C-a`)
+## Regla clave
 
-| Binding | Acción |
-|---------|--------|
-| `C-a \|` | Split horizontal |
-| `C-a -` | Split vertical |
-| `C-a h/j/k/l` | Navegar panes |
-| `C-a f` | tmux-sessionizer (fzf) |
-| `C-a g` | Popup terminal |
-| `C-a C-n` | Popup notas de hoy |
-| `C-a H` | Split a ~/hunting |
-| `C-a r` | Reload config |
-| `C-a b` | Toggle status bar |
-
----
-
-## 📝 Neovim (leader: `Space`)
-
-| Binding | Acción |
-|---------|--------|
-| `<leader>ff` | Buscar fichero (Telescope) |
-| `<leader>fg` | Grep en proyecto |
-| `<leader>n` | Notas de hoy |
-| `<leader>t` | Terminal flotante |
-| `<leader>mp` | Markdown preview |
-| `<leader>w/q` | Guardar / Salir |
-| `-` | Oil (explorador) |
-| `gd / gr / K` | LSP: definición, refs, hover |
-| `<leader>f` | Format LSP |
-| `[d / ]d` | Diagnóstico prev/next |
-
----
-
-## 🔑 Funciones zsh útiles
-
-```bash
-subenum domain.com       # subfinder + crt.sh deduplicados
-probe urls.txt           # httpx sobre lista de URLs
-note 'hallazgo XSS'      # añade nota con timestamp
-notes                    # últimas 20 notas de hoy
-venv-auto                # activa venv o .venv automáticamente
-mkproject domain.com     # proyecto con dns-pipeline completo
-```
-
----
-
-## 🐧 Exegol
-
-```bash
-ex nmap -sV target       # ejecuta en contenedor Exegol (filtra banner)
-exv nmap -sV target      # modo debug (sin filtrar)
-```
+- Contenedor = tooling ofensivo
+- Host = Claude / Git / docs
