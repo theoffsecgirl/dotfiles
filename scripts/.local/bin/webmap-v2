@@ -22,13 +22,11 @@ katana \
   -silent \
   -jc \
   -kf all \
-  -json \
   2>/dev/null \
   | tee "$BASE/http/katana.raw" \
-  | grep -E '^[[:space:]]*\{' \
-  | tee "$BASE/http/katana.jsonl" \
-  | jq -r '.url // empty' \
-  | anew "$BASE/http/urls.txt" >/dev/null
+  | anew "$BASE/http/urls.txt" >/dev/null || true
+
+: > "$BASE/http/katana.jsonl"
 
 # JS files
 grep -Ei '\.js($|\?)' "$BASE/http/urls.txt" | anew "$BASE/js/files.txt" >/dev/null || true
@@ -37,12 +35,7 @@ grep -Ei '\.js($|\?)' "$BASE/http/urls.txt" | anew "$BASE/js/files.txt" >/dev/nu
 grep -Ei '/api/|/v1/|/v2/|/graphql|/rest' "$BASE/http/urls.txt" | anew "$BASE/http/api_candidates.txt" >/dev/null || true
 
 # GraphQL
-if [[ -s "$BASE/http/katana.jsonl" ]]; then
-  jq -r 'select(.url | test("graphql")) | .url' "$BASE/http/katana.jsonl" | anew "$BASE/http/graphql.txt" >/dev/null || true
-else
-  : > "$BASE/http/graphql.txt"
-fi
-
+grep -Ei 'graphql' "$BASE/http/urls.txt" | anew "$BASE/http/graphql.txt" >/dev/null || true
 # Static noise filtering
 grep -Evi '\.(png|jpg|jpeg|gif|svg|css|woff|woff2|ttf|ico)($|\?)' "$BASE/http/urls.txt" > "$BASE/http/urls_clean.txt" || true
 
