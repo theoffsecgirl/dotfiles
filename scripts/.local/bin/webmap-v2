@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# webmap-v2 — crawling enriquecido + separación de endpoints
+# Uso: webmap-v2 <dominio>
+set -euo pipefail
+
+[[ -z "${1:-}" ]] && { echo "Uso: webmap-v2 <dominio>"; exit 1; }
+
+TARGET="$1"
+BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
+LIVEFILE="$BASE/http/live.txt"
+
+[[ -f "$LIVEFILE" ]] || { echo "[!] Ejecuta primero scope-v2 $TARGET"; exit 1; }
+
+for dep in katana anew grep; do
+  command -v "$dep" >/dev/null 2>&1 || { echo "[!] Falta: $dep"; exit 1; }
+done
+
+mkdir -p "$BASE/http" "$BASE/js" "$BASE/meta"
+
+katana \
+  -list "$LIVEFILE" \
+  -silent \
+  -jc \
+  -kf all \
+  -json \
+  | tee "$BASE/http/katana.jsonl" \
+  | jq -r '.url' \
+  | anew "$BASE/http/urls.txt" >/dev/null
+
+# JS files
+grep -Ei '\.js($|\?)' "$BASE/http/urls.txt" | anew "$BASE/js/files.txt" >/dev/null
+
+# API candidates
+grep -Ei '/api/|/v1/|/v2/|/graphql|/rest' "$BASE/http/urls.txt" | anew "$BASE/http/api_candidates.txt" >/dev/null
+
+# GraphQL
+jq -r 'select(.url | test("graphql")) | .url' "$BASE/http/katana.jsonl" | anew "$BASE/http/graphql.txt" >/dev/null
+
+# Static noise filtering
+grep -Evi '\.(png|jpg|jpeg|gif|svg|css|woff|woff2|ttf|ico)($|\?)' "$BASE/http/urls.txt" > "$BASE/http/urls_clean.txt"
+
+jq -n \
+  --arg urls "$(wc -l < "$BASE/http/urls.txt" | tr -d ' ')" \
+  --arg js "$(wc -l < "$BASE/js/files.txt" | tr -d ' ')" \
+  --arg api "$(wc -l < "$BASE/http/api_candidates.txt" | tr -d ' ')" \
+  '{urls:($urls|tonumber), js:($js|tonumber), api_candidates:($api|tonumber)}' \
+  > "$BASE/meta/webmap.json"
+
+echo "[+] URLs totales: $(wc -l < "$BASE/http/urls.txt")"
+echo "[+] JS: $(wc -l < "$BASE/js/files.txt")"
+echo "[+] API candidates: $(wc -l < "$BASE/http/api_candidates.txt")"
+echo "[+] JSONL → $BASE/http/katana.jsonl"
