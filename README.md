@@ -21,21 +21,21 @@
 
 ---
 
-## ¿Qué hay aquí?
+## Qué hay aquí
 
 | Módulo | Descripción |
 |--------|-------------|
-| `zsh/` | Aliases ofensivos, funciones de bug bounty, prompt y config completa |
-| `nvim/` | Config de Neovim (Lua) — LSP, Telescope, dashboard, snippets |
+| `zsh/` | Aliases ofensivos, funciones de bug bounty, prompt y config |
+| `nvim/` | Config de Neovim |
 | `tmux/` | Layout y keybindings para sesiones de hunting |
-| `ghostty/` | Config del terminal Ghostty (macOS) |
-| `git/` | Gitconfig base + helpers (identidad en `~/.gitconfig.local`) |
-| `brew/` | Brewfile completo (base + ProjectDiscovery + containers + Go) |
-| `scripts/` | Scripts ejecutables en `~/.local/bin/` |
-| `containers/` | Debian Toolbox con httpx, ffuf, subfinder, nuclei, anew |
-| `hunting-template/` | Template de workspace por target |
-| `tests/` | Suite bats para scripts y zsh |
-| `CHEATSHEET.md` | Referencia rápida de todos los comandos |
+| `git/` | Gitconfig base + helpers |
+| `brew/` | Brewfile completo |
+| `scripts/` | Scripts en `~/.local/bin/` |
+| `containers/` | Debian Toolbox con tooling ofensivo |
+| `tests/` | Tests |
+| `CHEATSHEET.md` | Referencia rápida |
+| `SETUP-BUGBOUNTY.md` | Setup detallado |
+| `AI-WORKFLOW.md` | Flujo IA para recon e hipótesis |
 
 ---
 
@@ -45,35 +45,33 @@
 git clone https://github.com/theoffsecgirl/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ./install.sh
+offsec-bootstrap
+hunt-doctor
 ```
-
-`install.sh` detecta macOS o Linux y hace todo automáticamente:
-- macOS: instala Homebrew → `brew bundle` → stow
-- Linux (apt/dnf/pacman): instala dependencias base → stow
-- Aplica todos los paquetes con stow
-- Crea `~/hunting/{targets,notes,scripts}`
-- Avisa si falta `~/.gitconfig.local` (identidad git)
-
-> Aplicar solo partes:
-> ```bash
-> stow -t "$HOME" zsh       # solo zsh
-> stow -t "$HOME" tmux      # solo tmux
-> stow -t "$HOME" nvim      # solo nvim
-> ```
 
 ---
 
-## Configuración de identidad Git
+## Modelo operativo
 
-La identidad (nombre y email) **no se versiona**. Créala una sola vez:
+### Host
+Úsalo para:
+- Git
+- dotfiles
+- Claude Code
+- edición y documentación
 
-```bash
-cat > ~/.gitconfig.local << 'EOF'
-[user]
-    name  = Tu Nombre
-    email = tu@email.com
-EOF
-```
+### Contenedor (`offsec-toolbox`)
+Úsalo para:
+- `subfinder`
+- `httpx`
+- `katana`
+- `unfurl`
+- `ffuf`
+- `jq`
+- `python3`
+- `scope-v2`
+- `webmap-v2`
+- `paramhunt-v2`
 
 ---
 
@@ -83,31 +81,68 @@ EOF
 # Arrancar contenedor
 offsec-up && offsec-shell
 
-# Navegación rápida
-cdh              # ~/hunting
-cdt              # ~/hunting/targets
-note "texto"     # nota con timestamp
-notes            # ver notas de hoy
+# Bootstrap dentro del contenedor
+offsec-bootstrap
+hunt-doctor
 
-# Recon
-mktarget dom.com     # crea estructura completa del target
-scope dom.com        # subdominios + hosts vivos
-webmap dom.com       # crawl katana → urls.txt + js
-paramhunt dom.com    # parámetros únicos
-subscan dom.com      # tabla httpx con status + título
+# Navegación rápida
+cdh
+cdt
+note "texto"
+notes
 ```
 
-📖 Referencia completa → [CHEATSHEET.md](CHEATSHEET.md)
+---
+
+## Pipeline recomendado
+
+### En el contenedor
+```bash
+mktarget example.com
+scope-v2 example.com
+webmap-v2 example.com
+paramhunt-v2 example.com
+```
+
+### En el host
+```bash
+claude-recon example.com
+claude-hypotheses example.com
+```
+
+---
+
+## Bootstrap
+
+```bash
+offsec-bootstrap
+```
+
+Enlaza scripts de `~/.dotfiles/scripts/.local/bin/` a `~/.local/bin/` de forma idempotente y hace backup si encuentra conflictos.
+
+---
+
+## Doctor
+
+```bash
+hunt-doctor
+```
+
+Valida:
+- tooling ofensivo
+- scripts enlazados
+- disponibilidad de Claude Code
 
 ---
 
 ## Stack de contenedores
 
-- **Debian Toolbox** → entorno diario (httpx, ffuf, subfinder, nuclei, anew…) — 80% del tiempo
+- **Debian Toolbox** → entorno diario
 - **Exegol** → recon pesado puntual
 - **Kali VM** → AD, pivoting y red interna
 
-Actualizar versiones de herramientas sin tocar el Dockerfile:
+Actualizar versiones de herramientas:
+
 ```bash
 cd ~/.dotfiles/containers/debian-toolbox
 docker compose build --build-arg HTTPX_VERSION=1.6.11
@@ -115,48 +150,15 @@ docker compose build --build-arg HTTPX_VERSION=1.6.11
 
 ---
 
-## Tests
-
-```bash
-brew install bats-core   # macOS
-bats tests/              # todos los tests
-bats --verbose-run tests/ # con detalle
-```
-
----
-
-## Estructura
-
-```
-~/.dotfiles/
-├── install.sh              ← bootstrap universal (macOS + Linux)
-├── CHEATSHEET.md           ← referencia rápida de comandos
-├── SETUP-BUGBOUNTY.md      ← guía de instalación detallada
-├── brew/Brewfile
-├── containers/debian-toolbox/
-├── git/
-├── ghostty/
-├── hunting-template/
-├── macos/
-├── nvim/.config/nvim/
-├── scripts/.local/bin/
-├── tests/
-├── tmux/
-├── vendor/
-└── zsh/.config/zsh/
-```
-
----
-
 ## Filosofía
 
-No acumular herramientas, reducir fricción cognitiva. Cada cosa en su sitio, sin mezclar.
+Reducir fricción cognitiva y convertir recon en pipeline reproducible.
 
 ---
 
 ## Uso ético
 
-> Usa este entorno **solo en sistemas propios, laboratorios o programas de bug bounty con autorización explícita.**
+> Usa este entorno solo en sistemas propios, laboratorios o programas con autorización explícita.
 
 ---
 
