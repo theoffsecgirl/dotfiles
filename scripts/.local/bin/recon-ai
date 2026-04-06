@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
-# claude-recon — analiza outputs de recon con Claude Code y guarda prompt reutilizable
-# Uso: claude-recon <dominio>
 set -euo pipefail
 
-[[ -z "${1:-}" ]] && { echo "Uso: claude-recon <dominio>"; exit 1; }
+[[ -z "${1:-}" ]] && { echo "Uso: recon-ai <dominio>"; exit 1; }
 
 TARGET="$1"
 BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
@@ -30,42 +28,76 @@ section() {
 
 {
   cat <<EOF
-Analiza este dataset de recon de bug bounty para el target: $TARGET
+Analiza este dataset de recon para bug bounty del target: $TARGET
 
-Objetivo:
-- identificar activos interesantes
-- detectar superficies sensibles
-- priorizar hosts
-- sugerir vectores de ataque
+NO expliques teoría.
+NO propongas payloads.
+NO hagas explotación.
+
+Tu trabajo es FILTRAR y PRIORIZAR.
 
 Devuelve SOLO JSON válido con este esquema:
 {
-  "priority_hosts": [],
-  "sensitive_flows": [],
-  "attack_vectors": [],
-  "notes": []
+  "top_hosts": [
+    {
+      "host": "",
+      "score": 0,
+      "why": [],
+      "focus": []
+    }
+  ],
+  "top_endpoints": [
+    {
+      "url": "",
+      "score": 0,
+      "why": [],
+      "focus": []
+    }
+  ],
+  "top_params": [
+    {
+      "name": "",
+      "score": 0,
+      "why": [],
+      "focus": []
+    }
+  ],
+  "discard": [
+    {
+      "item": "",
+      "reason": ""
+    }
+  ]
 }
+
+Criterios de scoring:
+- más score si hay auth, registration, session, redirects, business logic, partner/admin/seller flows
+- menos score si son assets estáticos, documentación, bundles repetidos, image optimizers o ruido de frontend
+- prioriza señales reales de bug bounty sobre volumen bruto
 
 Dataset:
 EOF
   section "http/live.txt" 200
-  section "http/urls.txt" 200
+  section "http/urls.txt" 250
   section "http/api_candidates.txt" 200
   section "js/files.txt" 200
   section "fuzz/params.txt" 200
   section "fuzz/sensitive_params.txt" 200
+  section "fuzz/params_by_host.jsonl" 120
 } > "$PROMPTFILE"
 
 if ! command -v claude >/dev/null 2>&1; then
   echo "[WARN] claude no disponible. Prompt guardado en $PROMPTFILE"
+  echo "[→] Pega el prompt en ChatGPT"
   exit 0
 fi
 
 if claude -p "$(cat "$PROMPTFILE")" > "$OUTFILE" 2>"$ERRFILE"; then
-  echo "[+] Claude recon analysis guardado en $OUTFILE"
+  echo "[+] Priorización guardada en $OUTFILE"
   echo "[+] Prompt reutilizable → $PROMPTFILE"
 else
   rm -f "$OUTFILE"
   echo "[WARN] Claude no devolvió resultado usable. Revisa $ERRFILE"
   echo "[+] Prompt reutilizable → $PROMPTFILE"
+  echo "[→] Pega el prompt en ChatGPT"
 fi
