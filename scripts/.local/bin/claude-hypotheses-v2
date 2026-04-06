@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# claude-hypotheses-v2 — genera hipótesis y guarda prompt reutilizable
+# Uso: claude-hypotheses-v2 <dominio>
+set -euo pipefail
+
+[[ -z "${1:-}" ]] && { echo "Uso: claude-hypotheses-v2 <dominio>"; exit 1; }
+
+TARGET="$1"
+BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
+OUTDIR="$BASE/ai"
+PROMPTFILE="$OUTDIR/hypotheses.prompt.txt"
+OUTFILE="$OUTDIR/hypotheses.json"
+ERRFILE="$OUTDIR/hypotheses.claude.stderr.log"
+
+[[ -d "$BASE" ]] || { echo "[ERR] Target no encontrado: $BASE"; exit 1; }
+mkdir -p "$OUTDIR"
+
+section() {
+  local rel="$1"
+  local lines="${2:-200}"
+  local abs="$BASE/$rel"
+  echo "===== FILE: $rel ====="
+  if [[ -f "$abs" ]]; then
+    sed -n "1,${lines}p" "$abs"
+  else
+    echo "[missing] $rel"
+  fi
+  echo
+}
+
+{
+  cat <<EOF
+Genera hipótesis de bug bounty para el target: $TARGET
+
+Objetivo:
+- priorizar por impacto y probabilidad
+- evitar ruido
+- proponer tests claros
+
+Devuelve SOLO JSON con este esquema:
+{
+  "hypotheses": [
+    {
+      "title": "",
+      "type": "IDOR | Auth Bypass | Business Logic | SSRF | Open Redirect | File Read | Race Condition",
+      "endpoint": "",
+      "params": [],
+      "why": "",
+      "preconditions": "",
+      "test": "",
+      "expected_signal": "",
+      "impact": "",
+      "confidence": "high|medium|low"
+    }
+  ]
+}
+
+Dataset:
+EOF
+  section "http/httpx.jsonl" 200
+  section "http/api_candidates.txt" 200
+  section "http/graphql.txt" 200
+  section "js/files.txt" 200
+  section "fuzz/params_by_host.jsonl" 200
+  section "fuzz/sensitive_params.txt" 200
+} > "$PROMPTFILE"
+
+if ! command -v claude >/dev/null 2>&1; then
+  echo "[WARN] claude no disponible. Prompt guardado en $PROMPTFILE"
+  exit 0
+fi
+
+if claude -p "$(cat "$PROMPTFILE")" > "$OUTFILE" 2>"$ERRFILE"; then
+  echo "[+] Hipótesis guardadas en $OUTFILE"
+  echo "[+] Prompt reutilizable → $PROMPTFILE"
+else
+  rm -f "$OUTFILE"
+  echo "[WARN] Claude no devolvió resultado usable. Revisa $ERRFILE"
+  echo "[+] Prompt reutilizable → $PROMPTFILE"
+fi
