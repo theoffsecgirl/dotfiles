@@ -34,6 +34,7 @@ Analiza este dataset de recon para bug bounty del target: $TARGET
 NO expliques teoría.
 NO propongas payloads.
 NO hagas explotación.
+No uses markdown. No uses bloques \`\`\`json. No añadas texto antes ni después del JSON.
 
 Tu trabajo es FILTRAR, PRIORIZAR y REDUCIR RUIDO.
 
@@ -125,12 +126,21 @@ fi
 
 echo "$OUTPUT" > "$RAWFILE"
 
-if ! echo "$OUTPUT" | jq . >/dev/null 2>&1; then
-  echo "[ERR] Claude devolvió salida no JSON"
+JSON_EXTRACT="$(printf '%s\n' "$OUTPUT" | sed -n '/^{/,$p')"
+
+if [[ -z "$JSON_EXTRACT" ]]; then
+  echo "[ERR] No se pudo extraer JSON de la salida de Claude"
   echo "[+] Raw output → $RAWFILE"
   echo "[→] Revisa $ERRFILE"
   exit 1
 fi
 
-echo "$OUTPUT" | jq . > "$OUTFILE"
+if ! printf '%s\n' "$JSON_EXTRACT" | jq . >/dev/null 2>&1; then
+  echo "[ERR] Claude devolvió salida no JSON válida"
+  echo "[+] Raw output → $RAWFILE"
+  echo "[→] Revisa $ERRFILE"
+  exit 1
+fi
+
+printf '%s\n' "$JSON_EXTRACT" | jq . > "$OUTFILE"
 echo "[+] Priorización guardada en $OUTFILE"
