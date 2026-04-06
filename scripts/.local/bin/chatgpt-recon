@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# chatgpt-recon — genera prompt listo para pegar en ChatGPT
+# Uso: chatgpt-recon <dominio>
+set -euo pipefail
+
+[[ -z "${1:-}" ]] && { echo "Uso: chatgpt-recon <dominio>"; exit 1; }
+
+TARGET="$1"
+BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
+OUTDIR="$BASE/ai"
+PROMPTFILE="$OUTDIR/recon.chatgpt.prompt.txt"
+
+[[ -d "$BASE" ]] || { echo "[ERR] Target no encontrado: $BASE"; exit 1; }
+mkdir -p "$OUTDIR"
+
+section() {
+  local rel="$1"
+  local lines="${2:-200}"
+  local abs="$BASE/$rel"
+  echo "===== FILE: $rel ====="
+  if [[ -f "$abs" ]]; then
+    sed -n "1,${lines}p" "$abs"
+  else
+    echo "[missing] $rel"
+  fi
+  echo
+}
+
+{
+  cat <<EOF
+Analiza este dataset de recon de bug bounty para el target: $TARGET
+
+Devuelve SOLO JSON:
+{
+  "priority_hosts": [],
+  "sensitive_flows": [],
+  "attack_vectors": [],
+  "notes": []
+}
+
+Dataset:
+EOF
+  section "http/live.txt" 200
+  section "http/urls.txt" 200
+  section "http/api_candidates.txt" 200
+  section "js/files.txt" 200
+  section "fuzz/params.txt" 200
+  section "fuzz/sensitive_params.txt" 200
+} > "$PROMPTFILE"
+
+echo "[+] Prompt listo → $PROMPTFILE"
+echo "[→] Abre ChatGPT y pega el contenido"
