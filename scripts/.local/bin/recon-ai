@@ -2,15 +2,14 @@
 set -euo pipefail
 
 [[ -z "${1:-}" ]] && { echo "Uso: recon-ai <dominio>"; exit 1; }
+[[ -z "${OPENAI_API_KEY:-}" ]] && { echo "[ERR] Falta OPENAI_API_KEY"; exit 1; }
 
 TARGET="$1"
 BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
 OUTDIR="$BASE/ai"
 PROMPTFILE="$OUTDIR/recon.prompt.txt"
 OUTFILE="$OUTDIR/recon.json"
-ERRFILE="$OUTDIR/recon.claude.stderr.log"
 
-[[ -d "$BASE" ]] || { echo "[ERR] Target no encontrado: $BASE"; exit 1; }
 mkdir -p "$OUTDIR"
 
 section() {
@@ -26,78 +25,52 @@ section() {
   echo
 }
 
+# -------- PROMPT --------
 {
-  cat <<EOF
+cat <<EOF2
 Analiza este dataset de recon para bug bounty del target: $TARGET
 
 NO expliques teoría.
 NO propongas payloads.
 NO hagas explotación.
 
-Tu trabajo es FILTRAR y PRIORIZAR.
+Tu trabajo es FILTRAR, PRIORIZAR y REDUCIR RUIDO.
 
 Devuelve SOLO JSON válido con este esquema:
 {
-  "top_hosts": [
-    {
-      "host": "",
-      "score": 0,
-      "why": [],
-      "focus": []
-    }
-  ],
-  "top_endpoints": [
-    {
-      "url": "",
-      "score": 0,
-      "why": [],
-      "focus": []
-    }
-  ],
-  "top_params": [
-    {
-      "name": "",
-      "score": 0,
-      "why": [],
-      "focus": []
-    }
-  ],
-  "discard": [
-    {
-      "item": "",
-      "reason": ""
-    }
-  ]
+  "summary": {
+    "focus_order": [],
+    "quick_notes": []
+  },
+  "top_hosts": [],
+  "top_endpoints": [],
+  "top_params": [],
+  "discard": []
 }
 
-Criterios de scoring:
-- más score si hay auth, registration, session, redirects, business logic, partner/admin/seller flows
-- menos score si son assets estáticos, documentación, bundles repetidos, image optimizers o ruido de frontend
-- prioriza señales reales de bug bounty sobre volumen bruto
+Criterios:
+- prioriza auth, registration, session, redirect, partner, seller
+- penaliza static, bundles, docs
+- detecta params: go, next, redirect, url, path
 
 Dataset:
-EOF
-  section "http/live.txt" 200
-  section "http/urls.txt" 250
-  section "http/api_candidates.txt" 200
-  section "js/files.txt" 200
-  section "fuzz/params.txt" 200
-  section "fuzz/sensitive_params.txt" 200
-  section "fuzz/params_by_host.jsonl" 120
+EOF2
+section "http/live.txt"
+section "http/urls.txt"
 } > "$PROMPTFILE"
 
-if ! command -v claude >/dev/null 2>&1; then
-  echo "[WARN] claude no disponible. Prompt guardado en $PROMPTFILE"
-  echo "[→] Pega el prompt en ChatGPT"
-  exit 0
-fi
+# -------- CALL OPENAI --------
+RESPONSE=$(curl -s https://api.openai.com/v1/chat/completions \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"model\": \"gpt-5.3\",
+    \"messages\": [
+      {\"role\": \"user\", \"content\": $(jq -Rs . < "$PROMPTFILE")}
+    ],
+    \"temperature\": 0.2
+  }")
 
-if claude -p "$(cat "$PROMPTFILE")" > "$OUTFILE" 2>"$ERRFILE"; then
-  echo "[+] Priorización guardada en $OUTFILE"
-  echo "[+] Prompt reutilizable → $PROMPTFILE"
-else
-  rm -f "$OUTFILE"
-  echo "[WARN] Claude no devolvió resultado usable. Revisa $ERRFILE"
-  echo "[+] Prompt reutilizable → $PROMPTFILE"
-  echo "[→] Pega el prompt en ChatGPT"
-fi
+echo "$RESPONSE" | jq -r '.choices[0].message.content' > "$OUTFILE"
+
+echo "[+] Recon AI automático → $OUTFILE"

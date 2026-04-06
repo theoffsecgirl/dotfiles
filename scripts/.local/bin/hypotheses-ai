@@ -1,18 +1,15 @@
 #!/usr/bin/env bash
-# hypotheses-ai — genera hipótesis con Claude o exporta prompt reutilizable para ChatGPT
-# Uso: hypotheses-ai <dominio>
 set -euo pipefail
 
 [[ -z "${1:-}" ]] && { echo "Uso: hypotheses-ai <dominio>"; exit 1; }
+[[ -z "${OPENAI_API_KEY:-}" ]] && { echo "[ERR] Falta OPENAI_API_KEY"; exit 1; }
 
 TARGET="$1"
 BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
 OUTDIR="$BASE/ai"
 PROMPTFILE="$OUTDIR/hypotheses.prompt.txt"
 OUTFILE="$OUTDIR/hypotheses.json"
-ERRFILE="$OUTDIR/hypotheses.claude.stderr.log"
 
-[[ -d "$BASE" ]] || { echo "[ERR] Target no encontrado: $BASE"; exit 1; }
 mkdir -p "$OUTDIR"
 
 section() {
@@ -29,54 +26,78 @@ section() {
 }
 
 {
-  cat <<EOF
+cat <<EOF2
 Genera hipótesis de bug bounty para el target: $TARGET
 
-Objetivo:
-- priorizar por impacto y probabilidad
-- evitar ruido y falsos positivos
-- proponer tests claros
+NO expliques teoría general.
+NO inventes findings.
+NO hagas explotación automática.
 
-Devuelve SOLO JSON con este esquema:
+Tu trabajo es convertir la priorización en hipótesis accionables.
+
+Devuelve SOLO JSON válido con este esquema:
 {
+  "summary": {
+    "best_bets": [],
+    "quick_notes": []
+  },
   "hypotheses": [
     {
       "title": "",
-      "type": "IDOR | Auth Bypass | Business Logic | SSRF | Open Redirect | File Read | Race Condition",
+      "score": 0,
+      "type": "",
+      "host": "",
       "endpoint": "",
       "params": [],
-      "why": "",
-      "preconditions": "",
-      "test": "",
-      "expected_signal": "",
-      "impact": "",
-      "confidence": "high|medium|low"
+      "why": [],
+      "checks": [],
+      "signals": [],
+      "impact": ""
     }
   ]
 }
 
+REGLAS:
+- "summary.best_bets": máximo 5 líneas tipo "host → vector"
+- "summary.quick_notes": notas cortas operativas
+
+TIPOS permitidos:
+- Open Redirect
+- User Enumeration
+- Business Logic
+- Auth Bypass
+- Session Handling
+- Authorization
+- SSRF
+- File Read
+- Workflow Abuse
+
+Criterios:
+- prioriza hipótesis con señal real del dataset
+- premia registration/login/session/partner/seller/redirect
+- penaliza assets, docs, bundles repetidos y ruido frontend
+
 Dataset:
-EOF
-  section "http/httpx.jsonl" 200
-  section "http/api_candidates.txt" 200
-  section "http/graphql.txt" 200
-  section "js/files.txt" 200
-  section "fuzz/params_by_host.jsonl" 200
-  section "fuzz/sensitive_params.txt" 200
+EOF2
+section "http/api_candidates.txt" 200
+section "http/graphql.txt" 120
+section "fuzz/sensitive_params.txt" 120
+section "fuzz/params_by_host.jsonl" 200
+section "ai/recon.json" 200
+section "http/urls.txt" 250
 } > "$PROMPTFILE"
 
-if ! command -v claude >/dev/null 2>&1; then
-  echo "[WARN] claude no disponible. Prompt guardado en $PROMPTFILE"
-  echo "[→] Pega el prompt en ChatGPT"
-  exit 0
-fi
+RESPONSE=$(curl -s https://api.openai.com/v1/chat/completions \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"model\": \"gpt-5.3\",
+    \"messages\": [
+      {\"role\": \"user\", \"content\": $(jq -Rs . < "$PROMPTFILE")}
+    ],
+    \"temperature\": 0.2
+  }")
 
-if claude -p "$(cat "$PROMPTFILE")" > "$OUTFILE" 2>"$ERRFILE"; then
-  echo "[+] Hipótesis guardadas en $OUTFILE"
-  echo "[+] Prompt reutilizable → $PROMPTFILE"
-else
-  rm -f "$OUTFILE"
-  echo "[WARN] Claude no devolvió resultado usable. Revisa $ERRFILE"
-  echo "[+] Prompt reutilizable → $PROMPTFILE"
-  echo "[→] Pega el prompt en ChatGPT"
-fi
+echo "$RESPONSE" | jq -r '.choices[0].message.content' > "$OUTFILE"
+
+echo "[+] Hypotheses AI automático → $OUTFILE"
