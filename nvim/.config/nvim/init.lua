@@ -54,7 +54,7 @@ require("lazy").setup({
     config = function()
       require("catppuccin").setup({
         flavour = "mocha",
-        transparent_background = true,
+        +transparent_background = false,
         integrations = {
           telescope = true, gitsigns = true, nvimtree = false,
           treesitter = true, mason = true, cmp = true, dashboard = true,
