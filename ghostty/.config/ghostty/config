@@ -7,7 +7,7 @@ font-size = 14
 # Window
 window-padding-x = 10
 window-padding-y = 10
-background-opacity = 0.95
+background-opacity = 1.0
 
 # Cursor
 cursor-style = block
@@ -24,7 +24,7 @@ mouse-hide-while-typing = true
 
 # macOS
 macos-non-native-fullscreen = false
-macos-option-as-alt = true
+macos-option-as-alt = false
 
 # Keybinds
 keybind = cmd+t=new_tab
