@@ -54,7 +54,7 @@ require("lazy").setup({
     config = function()
       require("catppuccin").setup({
         flavour = "mocha",
-        transparent_background = true,
+        transparent_background = false,
         integrations = {
           telescope = true, gitsigns = true, nvimtree = false,
           treesitter = true, mason = true, cmp = true, dashboard = true,
@@ -216,17 +216,6 @@ require("lazy").setup({
           map("n", "<leader>hb", function() gs.blame_line({ full = true }) end, "Blame line")
         end,
       })
-    end,
-  },
-
-  -- Markdown preview
-  {
-    "iamcco/markdown-preview.nvim",
-    cmd   = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
-    ft    = { "markdown" },
-    build = function() vim.fn["mkdp#util#install"]() end,
-    config = function()
-      vim.keymap.set("n", "<leader>mp", "<cmd>MarkdownPreviewToggle<cr>", { desc = "Markdown preview" })
     end,
   },
 
