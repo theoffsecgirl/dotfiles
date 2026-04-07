@@ -231,6 +231,7 @@ require("lazy").setup({
   -- Treesitter
   {
     "nvim-treesitter/nvim-treesitter",
+    version = "v0.9.3",
     build  = ":TSUpdate",
     config = function()
       require("nvim-treesitter.configs").setup({
@@ -239,7 +240,7 @@ require("lazy").setup({
           "json", "yaml", "toml",
           "markdown", "markdown_inline",
           "html", "css", "javascript", "typescript", "tsx",
-          "python", "go", "http",
+          "python", "go"
         },
         highlight = { enable = true },
         indent    = { enable = true },
