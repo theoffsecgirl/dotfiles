@@ -54,7 +54,7 @@ require("lazy").setup({
     config = function()
       require("catppuccin").setup({
         flavour = "mocha",
-        +transparent_background = false,
+        transparent_background = true,
         integrations = {
           telescope = true, gitsigns = true, nvimtree = false,
           treesitter = true, mason = true, cmp = true, dashboard = true,
@@ -70,34 +70,27 @@ require("lazy").setup({
     event = "VimEnter",
     config = function()
       require("dashboard").setup({
-        theme = "doom",
+        theme = "hyper",
         config = {
           header = {
             "",
-            "  ███╗   ██╗ ██╗   ██╗ ██╗ ███╗   ███╗  ",
-            "  ████╗  ██║ ██║   ██║ ██║ ████╗ ████║  ",
-            "  ██╔██╗ ██║ ██║   ██║ ██║ ██╔████╔██║  ",
-            "  ██║╚██╗██║  ██╗ ██╔╝ ██║ ██║╚██╔╝██║  ",
-            "  ██║ ╚████║   ╚███╔╝  ██║ ██║ ╚═╝ ██║  ",
-            "  ╚═╝  ╚═══╝    ╚══╝   ╚═╝ ╚═╝     ╚═╝  ",
-            "",
-            "        bug bounty  //  offsec",
+            "   theoffsecgirl // offsec",
             "",
           },
-          center = {
+          shortcut = {
             {
-              icon = "  ", icon_hl = "Title",
-              desc = "Hunting Workspace",   desc_hl = "String",
-              key = "h", key_hl = "Number",
+              desc = "Hunting Workspace",
+              group = "String",
+              key = "h",
               action = function()
                 vim.cmd("cd " .. vim.fn.expand("~/hunting"))
                 require("oil").open(vim.fn.expand("~/hunting"))
               end,
             },
             {
-              icon = "  ", icon_hl = "Title",
-              desc = "Today's Notes",       desc_hl = "String",
-              key = "n", key_hl = "Number",
+              desc = "Today's Notes",
+              group = "String",
+              key = "n",
               action = function()
                 local p = vim.fn.expand("~/hunting/notes/" .. os.date("%Y-%m-%d") .. "-quick.md")
                 vim.fn.mkdir(vim.fn.fnamemodify(p, ":h"), "p")
@@ -105,30 +98,30 @@ require("lazy").setup({
               end,
             },
             {
-              icon = "  ", icon_hl = "Title",
-              desc = "Find File",           desc_hl = "String",
-              key = "f", key_hl = "Number",
+              desc = "Find File",
+              group = "String",
+              key = "f",
               action = "Telescope find_files",
             },
             {
-              icon = "  ", icon_hl = "Title",
-              desc = "Find Text",           desc_hl = "String",
-              key = "g", key_hl = "Number",
+              desc = "Find Text",
+              group = "String",
+              key = "g",
               action = "Telescope live_grep",
             },
             {
-              icon = "  ", icon_hl = "Title",
-              desc = "Dotfiles",            desc_hl = "String",
-              key = "d", key_hl = "Number",
+              desc = "Dotfiles",
+              group = "String",
+              key = "d",
               action = function()
                 vim.cmd("cd " .. vim.fn.expand("~/.dotfiles"))
                 require("oil").open(vim.fn.expand("~/.dotfiles"))
               end,
             },
             {
-              icon = "  ", icon_hl = "Title",
-              desc = "Cheatsheet",          desc_hl = "String",
-              key = "c", key_hl = "Number",
+              desc = "Cheatsheet",
+              group = "String",
+              key = "c",
               action = function()
                 local p = vim.fn.expand("~/.dotfiles/CHEATSHEET.md")
                 if vim.fn.filereadable(p) == 1 then
@@ -139,25 +132,25 @@ require("lazy").setup({
               end,
             },
             {
-              icon = "  ", icon_hl = "Title",
-              desc = "Recent Files",        desc_hl = "String",
-              key = "r", key_hl = "Number",
+              desc = "Recent Files",
+              group = "String",
+              key = "r",
               action = "Telescope oldfiles",
             },
             {
-              icon = "  ", icon_hl = "Title",
-              desc = "Config",              desc_hl = "String",
-              key = "v", key_hl = "Number",
+              desc = "Config",
+              group = "String",
+              key = "v",
               action = "edit ~/.config/nvim/init.lua",
             },
             {
-              icon = "  ", icon_hl = "Title",
-              desc = "Quit",                desc_hl = "String",
-              key = "q", key_hl = "Number",
+              desc = "Quit",
+              group = "String",
+              key = "q",
               action = "qa",
             },
           },
-          footer = { "", "  theoffsecgirl" },
+          footer = { "", "bug bounty  //  offsec" },
         },
       })
     end,
