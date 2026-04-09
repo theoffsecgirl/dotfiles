@@ -1,102 +1,52 @@
 <div align="center">
 
 ```
- ██████╗  ██████╗ ████████╗███████╗██╗██╗     ███████╗███████╗
- ██╔══██╗██╔═══██╗╚══██╔══╝██╔════╝██║██║     ██╔════╝██╔════╝
- ██║  ██║██║   ██║   ██║   █████╗  ██║██║     █████╗  ███████╗
- ██║  ██║██║   ██║   ██║   ██╔══╝  ██║██║     ██╔══╝  ╚════██║
- ██████╔╝╚██████╔╝   ██║   ██║     ██║███████╗███████╗███████║
- ╚═════╝  ╚═════╝    ╚═╝   ╚═╝     ╚═╝╚══════╝╚══════╝╚══════╝
-```
 
-**Entorno ofensivo para macOS y Linux — Bug Bounty & Pentesting**  
+██████╗  ██████╗ ████████╗███████╗██╗██╗     ███████╗███████╗
+██╔══██╗██╔═══██╗╚══██╔══╝██╔════╝██║██║     ██╔════╝██╔════╝
+██║  ██║██║   ██║   ██║   █████╗  ██║██║     █████╗  ███████╗
+██║  ██║██║   ██║   ██║   ██╔══╝  ██║██║     ██╔══╝  ╚════██║
+██████╔╝╚██████╔╝   ██║   ██║     ██║███████╗███████╗███████║
+╚═════╝  ╚═════╝    ╚═╝   ╚═╝     ╚═╝╚══════╝╚══════╝╚══════╝
+
+````
+
+**Offensive dotfiles — Bug Bounty & Pentesting workflow**  
 *by [TheOffSecGirl](https://github.com/theoffsecgirl)*
 
 ![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux-lightgrey?style=flat-square)
-![Shell](https://img.shields.io/badge/Shell-zsh-brightgreen?style=flat-square&logo=gnu-bash&logoColor=white)
+![Shell](https://img.shields.io/badge/Shell-zsh-brightgreen?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-red?style=flat-square)
-![BugBounty](https://img.shields.io/badge/Bug%20Bounty-Ready-brightgreen?style=flat-square)
+![Status](https://img.shields.io/badge/Status-Stable-brightgreen?style=flat-square)
 
 </div>
 
 ---
 
-## Qué hay aquí
+## ⚡ Qué es esto
 
-| Módulo | Descripción |
-|--------|-------------|
-| `zsh/` | Aliases ofensivos, funciones de bug bounty, prompt y config |
-| `nvim/` | Config de Neovim |
-| `tmux/` | Layout y keybindings para sesiones de hunting |
-| `git/` | Gitconfig base + helpers |
-| `brew/` | Brewfile completo |
-| `scripts/` | Scripts en `~/.local/bin/` |
-| `containers/` | Debian Toolbox con tooling ofensivo |
-| `tests/` | Tests |
-| `CHEATSHEET.md` | Referencia rápida |
-| `SETUP-BUGBOUNTY.md` | Setup detallado |
-| `AI-WORKFLOW.md` | Flujo IA para recon e hipótesis |
+Entorno de trabajo para **bug bounty real**, diseñado para:
+
+- eliminar fricción
+- estandarizar workflows
+- automatizar recon → mapping → explotación
+- ser portable entre máquinas
 
 ---
 
-## Instalación rápida
+## ⚡ Setup (1 comando mental)
 
 ```bash
-git clone https://github.com/theoffsecgirl/dotfiles.git ~/.dotfiles
-cd ~/.dotfiles
-./install.sh
-offsec-bootstrap
-hunt-doctor
-```
+git clone git@github.com:theoffsecgirl/dotfiles.git ~/src/dotfiles
+cd ~/src/dotfiles
+./install.sh --non-interactive --no-shell-change
+exec zsh
+````
 
 ---
 
-## Modelo operativo
+## 🚀 Quick demo
 
-### Host
-Úsalo para:
-- Git
-- dotfiles
-- Claude Code
-- edición y documentación
-
-### Contenedor (`offsec-toolbox`)
-Úsalo para:
-- `subfinder`
-- `httpx`
-- `katana`
-- `unfurl`
-- `ffuf`
-- `jq`
-- `python3`
-- `scope-v2`
-- `webmap-v2`
-- `paramhunt-v2`
-
----
-
-## Uso diario
-
-```bash
-# Arrancar contenedor
-offsec-up && offsec-shell
-
-# Bootstrap dentro del contenedor
-offsec-bootstrap
-hunt-doctor
-
-# Navegación rápida
-cdh
-cdt
-note "texto"
-notes
-```
-
----
-
-## Pipeline recomendado
-
-### En el contenedor
 ```bash
 mktarget example.com
 scope-v2 example.com
@@ -104,64 +54,173 @@ webmap-v2 example.com
 paramhunt-v2 example.com
 ```
 
-### En el host
-```bash
-claude-recon example.com
-claude-hypotheses example.com
+Resultado:
+
+```
+~/hunting/targets/example.com/
+├── http/
+├── recon/
+├── params/
+└── notes/
 ```
 
 ---
 
-## Bootstrap
+## 🧠 Filosofía
 
-```bash
-offsec-bootstrap
-```
-
-Enlaza scripts de `~/.dotfiles/scripts/.local/bin/` a `~/.local/bin/` de forma idempotente y hace backup si encuentra conflictos.
+* **host-first** → velocidad máxima
+* contenedor opcional → aislamiento
+* scripts > herramientas sueltas
+* output estructurado siempre
+* reproducibilidad total
 
 ---
 
-## Doctor
+## 🧪 Workflow real
+
+### 1. Crear target
+
+```bash
+mktarget example.com
+```
+
+### 2. Recon
+
+```bash
+scope-v2 example.com
+```
+
+### 3. Mapping (crawl + endpoints)
+
+```bash
+webmap-v2 example.com
+```
+
+### 4. Param discovery
+
+```bash
+paramhunt-v2 example.com
+```
+
+---
+
+## 🔧 Tooling clave
+
+| Tool           | Qué hace realmente          |
+| -------------- | --------------------------- |
+| `mktarget`     | estructura base + workspace |
+| `scope-v2`     | subdomains + http probing   |
+| `webmap-v2`    | crawling + endpoints útiles |
+| `paramhunt-v2` | extracción de parámetros    |
+| `hunt-doctor`  | sanity check del entorno    |
+
+---
+
+## 🩺 Diagnóstico
 
 ```bash
 hunt-doctor
 ```
 
-Valida:
-- tooling ofensivo
-- scripts enlazados
-- disponibilidad de Claude Code
+Ejemplo:
 
----
-
-## Stack de contenedores
-
-- **Debian Toolbox** → entorno diario
-- **Exegol** → recon pesado puntual
-- **Kali VM** → AD, pivoting y red interna
-
-Actualizar versiones de herramientas:
-
-```bash
-cd ~/.dotfiles/containers/debian-toolbox
-docker compose build --build-arg HTTPX_VERSION=1.6.11
+```
+[OK] subfinder
+[OK] httpx
+[OK] katana
+[OK] jq
+[OK] webmap-v2
+[WARN] claude (host only)
 ```
 
 ---
 
-## Filosofía
+## 🐳 Contenedor (opcional)
 
-Reducir fricción cognitiva y convertir recon en pipeline reproducible.
+```bash
+offsec-up
+offsec-shell
+```
+
+Uso recomendado:
+
+* aislar tooling pesado
+* reproducir entornos
 
 ---
 
-## Uso ético
+## ⚙️ Gestión de dotfiles
 
-> Usa este entorno solo en sistemas propios, laboratorios o programas con autorización explícita.
+Gestionado con **GNU Stow**:
+
+* symlinks → limpio
+* reversible
+* sin copiar configs
+
+Ubicación:
+
+```
+~/src/dotfiles
+```
 
 ---
 
-## Licencia
+## 📂 Estructura
 
-MIT · [TheOffSecGirl](https://theoffsecgirl.com)
+```
+.
+├── brew/                 # paquetes base
+├── containers/           # docker tooling
+├── docs/                 # documentación
+├── hunting-template/     # base de targets
+├── nvim/                 # editor
+├── scripts/.local/bin/   # tooling ofensivo
+├── scripts/.local/lib/   # helpers compartidos
+├── tmux/                 # sesiones
+├── vendor/               # shell-utils
+└── zsh/                  # shell config
+```
+
+---
+
+## ⚠️ Notas importantes
+
+* `$HUNTING_HOME` → `~/hunting`
+* todos los outputs van a disco (no stdout basura)
+* scripts diseñados para chaining
+
+---
+
+## 🧪 Roadmap
+
+* [ ] hardening `hunt-doctor`
+* [ ] tests BATS reales
+* [ ] mejorar `webmap-v2` output
+* [ ] cross-platform clipboard tmux
+
+---
+
+## ⚖️ Uso ético
+
+> Solo usar en sistemas propios o con autorización explícita.
+
+---
+
+## 📄 Licencia
+
+MIT — [TheOffSecGirl](https://theoffsecgirl.com)
+
+```
+
+---
+
+## Qué mejora esto (clave)
+
+- añade **quick demo → engancha**
+- cambia descripción → más creíble (no genérico)
+- tooling explicado por **impacto real**
+- workflow limpio (no ruido)
+- introduce **estructura mental atacante**
+- elimina cosas vagas
+- añade roadmap (da sensación de proyecto vivo)
+
