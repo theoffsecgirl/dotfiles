@@ -9,30 +9,29 @@
  ╚═════╝  ╚═════╝    ╚═╝   ╚═╝     ╚═╝╚══════╝╚══════╝╚══════╝
 ```
 
-**Offensive dotfiles — Bug Bounty & Pentesting workflow**  
-*by [TheOffSecGirl](https://github.com/theoffsecgirl)*
-
-![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux-lightgrey?style=flat-square)
-![Shell](https://img.shields.io/badge/Shell-zsh-brightgreen?style=flat-square)
-![License](https://img.shields.io/badge/License-MIT-red?style=flat-square)
-![Status](https://img.shields.io/badge/Status-Stable-brightgreen?style=flat-square)
+**Dotfiles para bug bounty y pentesting**  
+*by TheOffSecGirl*
 
 </div>
 
 ---
 
-## ⚡ Qué es esto
+## Qué es esto
 
-Entorno de trabajo para **bug bounty real**, diseñado para:
+Esto no son “dotfiles bonitos”.
 
-- eliminar fricción
-- estandarizar workflows
-- automatizar recon → mapping → explotación
-- ser portable entre máquinas
+Es mi entorno real de trabajo para bug bounty.
+
+Está pensado para:
+
+- no perder tiempo configurando cosas
+- tener siempre el mismo workflow
+- automatizar lo repetitivo
+- ir directo a encontrar bugs
 
 ---
 
-## ⚡ Setup (1 comando mental)
+## Setup
 
 ```bash
 git clone git@github.com:theoffsecgirl/dotfiles.git ~/src/dotfiles
@@ -41,76 +40,7 @@ cd ~/src/dotfiles
 exec zsh
 ```
 
----
-
-## 🚀 Quick demo
-
-```bash
-mktarget example.com
-scope-v2 example.com
-webmap-v2 example.com
-paramhunt-v2 example.com
-```
-
-Resultado:
-
-```
-~/hunting/targets/example.com/
-├── http/
-├── recon/
-├── params/
-└── notes/
-```
-
----
-
-## 🧠 Filosofía
-
-- **host-first** → velocidad máxima
-- contenedor opcional → aislamiento
-- scripts > herramientas sueltas
-- output estructurado siempre
-- reproducibilidad total
-
----
-
-## 🧪 Workflow real
-
-### 1. Crear target
-```bash
-mktarget example.com
-```
-
-### 2. Recon
-```bash
-scope-v2 example.com
-```
-
-### 3. Mapping (crawl + endpoints)
-```bash
-webmap-v2 example.com
-```
-
-### 4. Param discovery
-```bash
-paramhunt-v2 example.com
-```
-
----
-
-## 🔧 Tooling clave
-
-| Tool            | Qué hace realmente |
-|-----------------|------------------|
-| mktarget        | estructura base + workspace |
-| scope-v2        | subdomains + http probing |
-| webmap-v2       | crawling + endpoints útiles |
-| paramhunt-v2    | extracción de parámetros |
-| hunt-doctor     | sanity check del entorno |
-
----
-
-## 🩺 Diagnóstico
+Si algo falla:
 
 ```bash
 hunt-doctor
@@ -118,7 +48,55 @@ hunt-doctor
 
 ---
 
-## 🐳 Contenedor (opcional)
+## Cómo se usa (lo importante)
+
+### 1. Crear target
+
+```bash
+mktarget example.com
+```
+
+Workspace:
+
+```
+~/hunting/targets/example.com
+```
+
+---
+
+### 2. Recon
+
+```bash
+scope-v2 example.com
+```
+
+---
+
+### 3. Mapping
+
+```bash
+webmap-v2 example.com
+```
+
+---
+
+### 4. Params
+
+```bash
+paramhunt-v2 example.com
+```
+
+---
+
+## Workflow real
+
+```
+recon → mapping → params → vuln hunting
+```
+
+---
+
+## Contenedor (opcional)
 
 ```bash
 offsec-up
@@ -127,54 +105,30 @@ offsec-shell
 
 ---
 
-## ⚙️ Gestión de dotfiles
+## Dotfiles
 
-Gestionado con **GNU Stow**:
+Gestionados con stow:
 
-- symlinks → limpio
+- symlinks
+- limpio
 - reversible
-- sin copiar configs
-
-Ubicación:
-
-```
-~/src/dotfiles
-```
 
 ---
 
-## 📂 Estructura
+## Nota
 
-```
-.
-├── brew/
-├── containers/
-├── docs/
-├── hunting-template/
-├── nvim/
-├── scripts/.local/bin/
-├── scripts/.local/lib/
-├── tmux/
-├── vendor/
-└── zsh/
-```
+No es un framework.
+
+Son scripts que uso todos los días.
 
 ---
 
-## ⚠️ Notas importantes
+## Uso ético
 
-- $HUNTING_HOME → ~/hunting
-- outputs siempre a disco
-- scripts pensados para chaining
+Solo en sistemas con permiso.
 
 ---
 
-## ⚖️ Uso ético
+## Licencia
 
-> Solo usar en sistemas propios o con autorización explícita.
-
----
-
-## 📄 Licencia
-
-MIT — https://theoffsecgirl.com
+MIT
