@@ -1,19 +1,5 @@
 #!/usr/bin/env bash
 # mktarget — crea estructura de directorios para un target
-# Uso: mktarget <dominio>
-#
-# Estructura unificada compatible con scope, webmap, paramhunt y dns-pipeline:
-#   recon/     → subdominios, resoluciones DNS
-#   http/      → hosts vivos, httpx output
-#   fuzz/      → resultados ffuf, parámetros
-#   js/        → ficheros JS extraídos
-#   in/        → inputs: resolvers.txt, wordlists específicas
-#   out/       → outputs del pipeline DNS
-#   tmp/       → ficheros intermedios
-#   burp/      → exports de Burp Suite
-#   notes/     → notas y README
-#   reports/   → borradores de informe
-#   loot/      → credenciales, datos sensibles
 set -euo pipefail
 
 [[ -z "${1:-}" ]] && { echo "Uso: mktarget <dominio>"; exit 1; }
@@ -23,8 +9,8 @@ BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
 
 mkdir -p "$BASE"/{recon,http,fuzz,js,in,out,tmp,burp,notes,reports,loot}
 
-# resolvers.txt por defecto
-cat > "$BASE/in/resolvers.txt" <<'EOF'
+if [[ ! -f "$BASE/in/resolvers.txt" ]]; then
+  cat > "$BASE/in/resolvers.txt" <<'EOF'
 1.1.1.1
 1.0.0.1
 8.8.8.8
@@ -32,9 +18,10 @@ cat > "$BASE/in/resolvers.txt" <<'EOF'
 9.9.9.9
 149.112.112.112
 EOF
+fi
 
-# README inicial
-cat > "$BASE/notes/summary.md" <<EOF
+if [[ ! -f "$BASE/notes/summary.md" ]]; then
+  cat > "$BASE/notes/summary.md" <<EOF
 # $TARGET
 
 ## Scope
@@ -50,6 +37,7 @@ cat > "$BASE/notes/summary.md" <<EOF
 ## Hallazgos
 - [ ]
 EOF
+fi
 
 echo "[+] Target creado: $BASE"
 echo "[→] Siguiente paso: scope $TARGET"

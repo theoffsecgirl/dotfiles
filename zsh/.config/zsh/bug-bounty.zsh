@@ -11,8 +11,6 @@ fi
 # ==========================================
 # Navegación rápida workspace
 # ==========================================
-export HUNTING_HOME="${HUNTING_HOME:-$([[ -d /work ]] && echo /work || echo ${HUNTING_HOME:-$HOME/hunting})}"
-
 cdh() { cd "$HUNTING_HOME"; }
 cdt() { cd "$HUNTING_HOME/targets"; }
 cdn() { cd "$HUNTING_HOME/notes"; }
@@ -22,7 +20,8 @@ cds() { cd "$HUNTING_HOME/scripts"; }
 # ==========================================
 # Contenedores
 # ==========================================
-alias offsec='docker exec -it offsec-toolbox zsh'
+export OFFSEC_CONTAINER_NAME="${OFFSEC_CONTAINER_NAME:-offsec-toolbox}"
+alias offsec='docker exec -it ${OFFSEC_CONTAINER_NAME} zsh'
 alias offsec-restart='cd ${DOTFILES_DIR:-~/.dotfiles}/containers/debian-toolbox && docker compose restart'
 alias offsec-rebuild='cd ${DOTFILES_DIR:-~/.dotfiles}/containers/debian-toolbox && docker compose down && docker compose build --no-cache && docker compose up -d'
 
@@ -68,14 +67,15 @@ subenum() {
   echo "[*] Enumerando subdominios para $domain..."
 
   (
-    # subfinder si está disponible
     if command -v subfinder >/dev/null 2>&1; then
       subfinder -silent -d "$domain" -all 2>/dev/null
     fi
-    # crt.sh como fuente pasiva de respaldo
-    curl -s --max-time 15 "https://crt.sh/?q=%25.${domain}&output=json" 2>/dev/null \
-      | jq -r '.[].name_value' 2>/dev/null \
-      | tr ',' '\n'
+
+    if command -v curl >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then
+      curl -s --max-time 15 "https://crt.sh/?q=%25.${domain}&output=json" 2>/dev/null \
+        | jq -r '.[].name_value' 2>/dev/null \
+        | tr ',' '\n'
+    fi
   ) | sed 's/^\*\.//' | tr '[:upper:]' '[:lower:]' | sort -u
 }
 

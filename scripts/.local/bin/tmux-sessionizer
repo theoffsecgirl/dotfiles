@@ -1,17 +1,24 @@
 #!/usr/bin/env bash
 # tmux-sessionizer — switch rápido entre proyectos con fzf
-# Inspirado por ThePrimeagen
 set -euo pipefail
+
+HUNT_ROOT="${HUNTING_HOME:-$HOME/hunting}"
 
 if [[ $# -eq 1 ]]; then
   selected="$1"
 else
-  selected=$(find ${HUNTING_HOME:-$HOME/hunting} ${HUNTING_HOME:-$HOME/hunting}/targets ~/.dotfiles -mindepth 1 -maxdepth 1 -type d 2>/dev/null | fzf --height=40% --reverse --prompt='proyecto> ')
+  roots=("$HUNT_ROOT" "$HUNT_ROOT/targets" "$HOME/.dotfiles")
+  if command -v fzf >/dev/null 2>&1; then
+    selected="$(find "${roots[@]}" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | fzf --height=40% --reverse --prompt='proyecto> ')"
+  else
+    echo "[!] Falta fzf. Pasa una ruta manualmente: tmux-sessionizer <directorio>" >&2
+    exit 1
+  fi
 fi
 
 [[ -z "${selected:-}" ]] && exit 0
 
-selected_name=$(basename "$selected" | tr . _)
+selected_name="$(basename "$selected" | tr ' .:/' '____')"
 
 if [[ -z "${TMUX:-}" ]] && ! pgrep -x tmux >/dev/null 2>&1; then
   tmux new-session -s "$selected_name" -c "$selected"
