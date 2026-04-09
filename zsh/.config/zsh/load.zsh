@@ -1,8 +1,14 @@
-# Carga modular de configuración Zsh (Mac-first)
+# Carga modular de configuración Zsh
 # Este fichero se debe sourcear desde ~/.zshrc
 
-# Path base
-export PATH="$HOME/.local/bin:$PATH"
+# PATH unificado y sin duplicados
+typeset -U path PATH
+path=(
+  "$HOME/.local/bin"
+  "$HOME/go/bin"
+  $path
+)
+export PATH
 
 # Homebrew (Apple Silicon / Intel) — se cachea para evitar subshells repetidas
 if [[ -x /opt/homebrew/bin/brew ]]; then
@@ -17,10 +23,13 @@ fi
 
 # Completion
 autoload -Uz compinit
+mkdir -p "$HOME/.cache/zsh"
 if [[ -n "$BREW_PREFIX" && -d "$BREW_PREFIX/share/zsh/site-functions" ]]; then
   fpath=("$BREW_PREFIX/share/zsh/site-functions" $fpath)
 fi
-compinit -u
+[[ -d /usr/local/share/zsh/site-functions ]] && fpath=(/usr/local/share/zsh/site-functions $fpath)
+[[ -d /usr/share/zsh/site-functions ]] && fpath=(/usr/share/zsh/site-functions $fpath)
+compinit -d "$HOME/.cache/zsh/zcompdump"
 
 # Historial sensato
 HISTFILE="$HOME/.zsh_history"
@@ -32,19 +41,26 @@ setopt HIST_IGNORE_DUPS HIST_REDUCE_BLANKS SHARE_HISTORY INC_APPEND_HISTORY
 setopt AUTO_CD CORRECT NO_BEEP
 
 # FZF
-if command -v fzf >/dev/null 2>&1 && [[ -n "$BREW_PREFIX" ]]; then
-  [[ -f "$BREW_PREFIX/opt/fzf/shell/key-bindings.zsh" ]] && \
-    source "$BREW_PREFIX/opt/fzf/shell/key-bindings.zsh"
-  [[ -f "$BREW_PREFIX/opt/fzf/shell/completion.zsh" ]] && \
-    source "$BREW_PREFIX/opt/fzf/shell/completion.zsh"
+if command -v fzf >/dev/null 2>&1; then
+  [[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
+  [[ -f /usr/share/fzf/key-bindings.zsh ]] && source /usr/share/fzf/key-bindings.zsh
+  [[ -f /usr/share/fzf/completion.zsh ]] && source /usr/share/fzf/completion.zsh
+  [[ -n "$BREW_PREFIX" && -f "$BREW_PREFIX/opt/fzf/shell/key-bindings.zsh" ]] && source "$BREW_PREFIX/opt/fzf/shell/key-bindings.zsh"
+  [[ -n "$BREW_PREFIX" && -f "$BREW_PREFIX/opt/fzf/shell/completion.zsh" ]] && source "$BREW_PREFIX/opt/fzf/shell/completion.zsh"
 fi
 
 # Syntax highlighting + autosuggestions
-[[ -n "$BREW_PREFIX" && -f "$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]] && \
-  source "$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-
-[[ -n "$BREW_PREFIX" && -f "$BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]] && \
-  source "$BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+for _plugin in \
+  "$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" \
+  /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+  /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+  "$BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh" \
+  /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
+  /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+do
+  [[ -f "$_plugin" ]] && source "$_plugin"
+done
+unset _plugin
 
 # Prompt
 if command -v starship >/dev/null 2>&1; then
