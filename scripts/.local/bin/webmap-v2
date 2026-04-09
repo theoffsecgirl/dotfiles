@@ -3,19 +3,27 @@
 # Uso: webmap-v2 <dominio>
 set -euo pipefail
 
-[[ -z "${1:-}" ]] && { echo "Uso: webmap-v2 <dominio>"; exit 1; }
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+LIB_DIR="$(cd -- "$SCRIPT_DIR/../lib" && pwd)"
+# shellcheck source=/dev/null
+source "$LIB_DIR/offsec.sh"
+
+[[ -z "${1:-}" ]] && die "Uso: webmap-v2 <dominio>"
 
 TARGET="$1"
 BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
 LIVEFILE="$BASE/http/live.txt"
 
-[[ -f "$LIVEFILE" ]] || { echo "[!] Ejecuta primero scope-v2 $TARGET"; exit 1; }
+[[ -f "$LIVEFILE" ]] || die "Ejecuta primero scope-v2 $TARGET"
 
-for dep in katana anew grep jq; do
-  command -v "$dep" >/dev/null 2>&1 || { echo "[!] Falta: $dep"; exit 1; }
-done
+need_cmd katana anew grep jq
+ensure_dir "$BASE/http" "$BASE/js" "$BASE/meta"
 
-mkdir -p "$BASE/http" "$BASE/js" "$BASE/meta"
+: > "$BASE/http/urls.txt"
+: > "$BASE/http/urls_clean.txt"
+: > "$BASE/http/api_candidates.txt"
+: > "$BASE/http/graphql.txt"
+: > "$BASE/js/files.txt"
 
 katana \
   -list "$LIVEFILE" \
@@ -26,27 +34,23 @@ katana \
   | tee "$BASE/http/katana.raw" \
   | anew "$BASE/http/urls.txt" >/dev/null || true
 
-: > "$BASE/http/katana.jsonl"
-
-# JS files
 grep -Ei '\.js($|\?)' "$BASE/http/urls.txt" | anew "$BASE/js/files.txt" >/dev/null || true
-
-# API candidates
-grep -Ei '/api/|/v1/|/v2/|/graphql|/rest' "$BASE/http/urls.txt" | anew "$BASE/http/api_candidates.txt" >/dev/null || true
-
-# GraphQL
+grep -Ei '/api(/|$)|/v[0-9]+/|graphql|rest|swagger|openapi|/rpc(/|$)|/query($|[/?])|/mutation($|[/?])|/internal(/|$)' "$BASE/http/urls.txt" | anew "$BASE/http/api_candidates.txt" >/dev/null || true
 grep -Ei 'graphql' "$BASE/http/urls.txt" | anew "$BASE/http/graphql.txt" >/dev/null || true
-# Static noise filtering
 grep -Evi '\.(png|jpg|jpeg|gif|svg|css|woff|woff2|ttf|ico)($|\?)' "$BASE/http/urls.txt" > "$BASE/http/urls_clean.txt" || true
 
+urls_count="$(count_lines_safe "$BASE/http/urls.txt")"
+js_count="$(count_lines_safe "$BASE/js/files.txt")"
+api_count="$(count_lines_safe "$BASE/http/api_candidates.txt")"
+
 jq -n \
-  --arg urls "$(wc -l < "$BASE/http/urls.txt" | tr -d ' ')" \
-  --arg js "$(wc -l < "$BASE/js/files.txt" | tr -d ' ')" \
-  --arg api "$(wc -l < "$BASE/http/api_candidates.txt" | tr -d ' ')" \
+  --arg urls "$urls_count" \
+  --arg js "$js_count" \
+  --arg api "$api_count" \
   '{urls:($urls|tonumber), js:($js|tonumber), api_candidates:($api|tonumber)}' \
   > "$BASE/meta/webmap.json"
 
-echo "[+] URLs totales: $(wc -l < "$BASE/http/urls.txt" | tr -d ' ')"
-echo "[+] JS: $(wc -l < "$BASE/js/files.txt" | tr -d ' ')"
-echo "[+] API candidates: $(wc -l < "$BASE/http/api_candidates.txt" | tr -d ' ')"
-echo "[+] JSONL → $BASE/http/katana.jsonl"
+log_ok "URLs totales: $urls_count"
+log_ok "JS: $js_count"
+log_ok "API candidates: $api_count"
+log_ok "Raw crawl → $BASE/http/katana.raw"
