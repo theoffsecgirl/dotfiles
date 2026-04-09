@@ -10,7 +10,13 @@
 ```
 
 **Dotfiles para bug bounty y pentesting**  
-*by TheOffSecGirl*
+*by [TheOffSecGirl](https://github.com/theoffsecgirl)*
+![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux-lightgrey?style=flat-square)
+![Shell](https://img.shields.io/badge/Shell-zsh-brightgreen?style=flat-square)
+![License](https://img.shields.io/badge/License-MIT-red?style=flat-square)
+![Status](https://img.shields.io/badge/Status-Stable-brightgreen?style=flat-square)
+
+</div>
 
 </div>
 
