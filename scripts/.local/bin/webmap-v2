@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # webmap-v2 — crawling enriquecido + separación de endpoints
-# Uso: webmap-v2 <dominio>
+# Uso: webmap-v2 <dominio|lista.txt|url>
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
@@ -8,13 +8,47 @@ LIB_DIR="$(cd -- "$SCRIPT_DIR/../lib" && pwd)"
 # shellcheck source=/dev/null
 source "$LIB_DIR/offsec.sh"
 
-[[ -z "${1:-}" ]] && die "Uso: webmap-v2 <dominio>"
+BASE_ROOT="${HUNTING_HOME:-$HOME/hunting}/targets"
+MODE=""
+TARGET=""
+BASE=""
+INPUT_LIST=""
+INPUT_SOURCE=""
 
-TARGET="$1"
-BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
-LIVEFILE="$BASE/http/live.txt"
+resolve_input() {
+  local arg="${1:-}"
 
-[[ -f "$LIVEFILE" ]] || die "Ejecuta primero scope-v2 $TARGET"
+  [[ -z "$arg" ]] && die "Uso: webmap-v2 <dominio|lista.txt|url>"
+
+  if [[ -f "$arg" ]]; then
+    MODE="file"
+    INPUT_SOURCE="$arg"
+    TARGET="$(basename "$arg")"
+    TARGET="${TARGET%.*}"
+    BASE="$BASE_ROOT/_adhoc/$TARGET"
+    INPUT_LIST="$arg"
+    return
+  fi
+
+  if [[ "$arg" =~ ^https?:// ]]; then
+    MODE="url"
+    INPUT_SOURCE="$arg"
+    TARGET="$(printf '%s' "$arg" | sed -E 's#https?://##; s#/.*$##; s#[^A-Za-z0-9._-]#_#g')"
+    BASE="$BASE_ROOT/_adhoc/$TARGET"
+    INPUT_LIST="$(mktemp)"
+    printf '%s\n' "$arg" > "$INPUT_LIST"
+    return
+  fi
+
+  MODE="target"
+  TARGET="$arg"
+  BASE="$BASE_ROOT/$TARGET"
+  INPUT_SOURCE="$BASE/http/live.txt"
+  INPUT_LIST="$INPUT_SOURCE"
+  [[ -f "$INPUT_LIST" ]] || die "Ejecuta primero scope-v2 $TARGET o pásame una lista/URL"
+}
+
+resolve_input "${1:-}"
 
 need_cmd katana anew grep jq
 ensure_dir "$BASE/http" "$BASE/js" "$BASE/meta"
@@ -26,7 +60,7 @@ ensure_dir "$BASE/http" "$BASE/js" "$BASE/meta"
 : > "$BASE/js/files.txt"
 
 katana \
-  -list "$LIVEFILE" \
+  -list "$INPUT_LIST" \
   -silent \
   -jc \
   -kf all \
@@ -47,9 +81,12 @@ jq -n \
   --arg urls "$urls_count" \
   --arg js "$js_count" \
   --arg api "$api_count" \
-  '{urls:($urls|tonumber), js:($js|tonumber), api_candidates:($api|tonumber)}' \
+  --arg mode "$MODE" \
+  --arg source "$INPUT_SOURCE" \
+  '{urls:($urls|tonumber), js:($js|tonumber), api_candidates:($api|tonumber), input_mode:$mode, input_source:$source}' \
   > "$BASE/meta/webmap.json"
 
+log_ok "Modo: $MODE"
 log_ok "URLs totales: $urls_count"
 log_ok "JS: $js_count"
 log_ok "API candidates: $api_count"
