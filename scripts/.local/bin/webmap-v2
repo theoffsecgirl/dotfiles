@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # webmap-v2 — crawling enriquecido + separación de endpoints
-# Uso: webmap-v2 <dominio>
+# Uso: webmap-v2 <dominio|lista.txt|url>
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
@@ -8,13 +8,39 @@ LIB_DIR="$(cd -- "$SCRIPT_DIR/../lib" && pwd)"
 # shellcheck source=/dev/null
 source "$LIB_DIR/offsec.sh"
 
-[[ -z "${1:-}" ]] && die "Uso: webmap-v2 <dominio>"
+resolve_input() {
+  local arg="${1:-}"
 
-TARGET="$1"
-BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
-LIVEFILE="$BASE/http/live.txt"
+  [[ -z "$arg" ]] && die "Uso: webmap-v2 <dominio|lista.txt|url>"
 
-[[ -f "$LIVEFILE" ]] || die "Ejecuta primero scope-v2 $TARGET"
+  if [[ -f "$arg" ]]; then
+    INPUT_MODE="file"
+    INPUT_SOURCE="$arg"
+    TARGET="$(basename "$arg")"
+    TARGET="${TARGET%.*}"
+    BASE="${HUNTING_HOME:-$HOME/hunting}/targets/_adhoc/$TARGET"
+    LIVEFILE="$arg"
+    return
+  fi
+
+  if [[ "$arg" =~ ^https?:// ]]; then
+    INPUT_MODE="url"
+    INPUT_SOURCE="$arg"
+    TARGET="$(printf '%s' "$arg" | sed -E 's#https?://##; s#/.*$##; s#[^A-Za-z0-9._-]#_#g')"
+    BASE="${HUNTING_HOME:-$HOME/hunting}/targets/_adhoc/$TARGET"
+    LIVEFILE="$(mktemp)"
+    printf '%s\n' "$arg" > "$LIVEFILE"
+    return
+  fi
+
+  INPUT_MODE="target"
+  TARGET="$arg"
+  BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
+  LIVEFILE="$BASE/http/live.txt"
+  [[ -f "$LIVEFILE" ]] || die "Ejecuta primero scope-v2 $TARGET"
+}
+
+resolve_input "${1:-}"
 
 need_cmd katana anew grep jq
 ensure_dir "$BASE/http" "$BASE/js" "$BASE/meta"
@@ -47,9 +73,12 @@ jq -n \
   --arg urls "$urls_count" \
   --arg js "$js_count" \
   --arg api "$api_count" \
-  '{urls:($urls|tonumber), js:($js|tonumber), api_candidates:($api|tonumber)}' \
+  --arg mode "$INPUT_MODE" \
+  --arg source "${INPUT_SOURCE:-$LIVEFILE}" \
+  '{urls:($urls|tonumber), js:($js|tonumber), api_candidates:($api|tonumber), input_mode:$mode, input_source:$source}' \
   > "$BASE/meta/webmap.json"
 
+log_ok "Modo: $INPUT_MODE"
 log_ok "URLs totales: $urls_count"
 log_ok "JS: $js_count"
 log_ok "API candidates: $api_count"
