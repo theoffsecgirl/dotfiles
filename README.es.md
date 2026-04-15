@@ -14,27 +14,27 @@
  ╚═════╝  ╚═════╝    ╚═╝   ╚═╝     ╚═╝╚══════╝╚══════╝╚══════╝
 ````
 
-**Dotfiles for bug bounty and pentesting**  
+**Dotfiles para bug bounty y pentesting**  
 *by [TheOffSecGirl](https://github.com/theoffsecgirl)*
 
-> 🇪🇸 [Versión en español](README.es.md)
+> 🇬🇧 [English version](README.md)
 
 </div>
 
 ---
 
-## What is this
+## Qué es esto
 
-These are not "pretty dotfiles".
+Esto no son “dotfiles bonitos”.
 
-This is my actual working environment for bug bounty.
+Es mi entorno real de trabajo para bug bounty.
 
-Built to:
+Está pensado para:
 
-- stop wasting time on setup
-- keep the same workflow everywhere
-- automate the repetitive parts
-- go straight to finding bugs
+- no perder tiempo configurando cosas
+- tener siempre el mismo workflow
+- automatizar lo repetitivo
+- ir directo a encontrar bugs
 
 ---
 
@@ -47,7 +47,7 @@ cd ~/src/dotfiles
 exec zsh
 ```
 
-If something breaks:
+Si algo falla:
 
 ```bash
 hunt-doctor
@@ -55,9 +55,9 @@ hunt-doctor
 
 ---
 
-## How to use it (the important parts)
+## Cómo se usa (lo importante)
 
-### 1. Create target
+### 1. Crear target
 
 ```bash
 mktarget example.com
@@ -95,7 +95,7 @@ paramhunt-v2 example.com
 
 ---
 
-## Real workflow
+## Workflow real
 
 ```
 recon → mapping → params → vuln hunting
@@ -103,7 +103,7 @@ recon → mapping → params → vuln hunting
 
 ---
 
-## Container (optional)
+## Contenedor (opcional)
 
 ```bash
 offsec-up
@@ -114,28 +114,28 @@ offsec-shell
 
 ## Dotfiles
 
-Managed with stow:
+Gestionados con stow:
 
 - symlinks
-- clean
+- limpio
 - reversible
 
 ---
 
-## Note
+## Nota
 
-This is not a framework.
+No es un framework.
 
-These are scripts I use every day.
-
----
-
-## Ethical use
-
-Authorized systems only.
+Son scripts que uso todos los días.
 
 ---
 
-## License
+## Uso ético
+
+Solo en sistemas con permiso.
+
+---
+
+## Licencia
 
 MIT
