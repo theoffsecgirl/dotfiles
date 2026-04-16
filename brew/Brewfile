@@ -19,6 +19,8 @@ brew "stow"
 brew "zsh-autosuggestions"
 brew "zsh-syntax-highlighting"
 brew "starship"
+brew "zoxide"
+brew "atuin"
 
 # Web / bug bounty (herramientas de sistema)
 brew "nmap"
