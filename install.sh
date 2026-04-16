@@ -151,6 +151,12 @@ main() {
   apply_stow
   maybe_change_shell
 
+  # Instalar herramientas de theoffsecgirl
+  if [[ -f "$ROOT/tools/install-tools.sh" ]]; then
+    info "Instalando herramientas de seguridad"
+    bash "$ROOT/tools/install-tools.sh" || warn "Algunas herramientas no se instalaron correctamente"
+  fi
+
   ok "Instalación completada"
   echo
   echo "Siguiente paso:"
