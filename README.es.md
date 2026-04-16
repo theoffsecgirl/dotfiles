@@ -25,7 +25,7 @@
 
 ## Qué es esto
 
-Esto no son “dotfiles bonitos”.
+Esto no son "dotfiles bonitos".
 
 Es mi entorno real de trabajo para bug bounty.
 
@@ -41,9 +41,9 @@ Está pensado para:
 ## Setup
 
 ```bash
-git clone git@github.com:theoffsecgirl/dotfiles.git ~/src/dotfiles
-cd ~/src/dotfiles
-./install.sh --non-interactive --no-shell-change
+git clone git@github.com:theoffsecgirl/dotfiles.git ~/.dotfiles
+cd ~/.dotfiles
+./install.sh
 exec zsh
 ```
 
@@ -74,59 +74,140 @@ Workspace:
 ### 2. Recon
 
 ```bash
-scope-v2 example.com
+recon example.com
 ```
 
----
-
-### 3. Mapping
+Ejecuta subenum → probe → nota automática. Los subdominios se guardan en `~/hunting/targets/example.com/subdomains.txt`.
 
 ```bash
-webmap-v2 example.com
+subenum example.com   # solo subdominios
+scope example.com     # filtrar in-scope
 ```
 
 ---
 
-### 4. Params
+### 3. Nuclei
 
 ```bash
-paramhunt-v2 example.com
+nuc -l urls.txt       # nuclei -silent
+nucl urls.txt         # contra CVEs, guarda resultado
 ```
 
 ---
 
-## Workflow real
-
-```
-recon → mapping → params → vuln hunting
-```
-
----
-
-## Contenedor (opcional)
+### 4. HTTP
 
 ```bash
-offsec-up
-offsec-shell
+h      # httpx -silent
+hh     # httpx + tech-detect + status-code
+hhh    # httpx + tech-detect + title + web-server
+f      # ffuf -c -mc all -fc 404
 ```
 
 ---
 
-## Dotfiles
+### 5. Cheatsheet interactivo
 
-Gestionados con stow:
+```bash
+tips
+```
 
-- symlinks
-- limpio
-- reversible
+Abre un buscador fzf con todos los aliases organizados por categoría (git, recon, docker, navegación, utilidades). Escribe para filtrar, ESC para salir.
 
 ---
 
-## Nota
+## Navegación rápida
 
-No es un framework.
+[`zoxide`](https://github.com/ajeetdsouza/zoxide) aprende los directorios que más usas:
 
-Son scripts que uso todos los días.
+```bash
+z hunting       # salta a ~/hunting
+z dotfiles      # salta a ~/.dotfiles
+zi              # selector interactivo con fzf
+dotfiles        # alias directo a ~/.dotfiles
+hunting         # alias directo a ~/hunting
+```
+
+---
+
+## Historial avanzado
+
+[`atuin`](https://github.com/atuinsh/atuin) reemplaza el historial de zsh con búsqueda semántica y contexto (directorio, exit code, duración):
+
+```bash
+Ctrl+R   # búsqueda interactiva del historial
+```
+
+---
+
+## Aliases git
+
+| Alias | Comando |
+|-------|--------|
+| `gs` | `git status -sb` |
+| `gl` | `git log --oneline --graph --decorate -20` |
+| `gd` | `git diff` |
+| `gds` | `git diff --staged` |
+| `gc 'msg'` | `git commit -m` |
+| `gca` | `git commit --amend --no-edit` |
+| `gco` | `git checkout` |
+| `gcb` | `git checkout -b` |
+| `gst` / `gstp` | `git stash` / `git stash pop` |
+| `glog` | log completo con grafo |
+
+---
+
+## Herramientas incluidas
+
+Instaladas automáticamente en `~/.local/tools/` con `./install.sh`:
+
+| Herramienta | Uso |
+|-------------|-----|
+| `webxray` | Scanner web ofensivo: XSS, SQLi, headers, WAF bypass |
+| `pathraider` | LFI y path traversal con bypass de encoding |
+| `bbcopilot` | Asistente IA para bug bounty con vault local |
+| `takeovflow` | Subdomain takeover detection |
+| `bluedeath` | Herramienta ofensiva shell |
+
+Actualizar todas:
+
+```bash
+bash ~/.dotfiles/tools/update-tools.sh
+```
+
+---
+
+## Contenedor offsec (opcional)
+
+```bash
+offsec-up       # levantar contenedor
+offsec-shell    # entrar al contenedor
+offsec          # exec directo a zsh en el contenedor
+```
+
+---
+
+## Estructura
+
+```
+~/.dotfiles/
+├── zsh/
+│   └── .config/zsh/
+│       ├── load.zsh           # carga principal
+│       ├── bug-bounty.zsh     # funciones y aliases de recon
+│       └── aliases-general.zsh # aliases de productividad
+├── tmux/
+├── nvim/
+├── git/
+├── ghostty/
+├── scripts/
+├── tools/
+│   ├── install-tools.sh
+│   └── update-tools.sh
+└── install.sh
+```
+
+Gestionado con stow — symlinks limpios y reversibles.
 
 ---
 

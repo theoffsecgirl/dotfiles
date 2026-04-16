@@ -27,13 +27,13 @@
 
 These are not "pretty dotfiles".
 
-This is my actual working environment for bug bounty.
+This is my real bug bounty working environment.
 
-Built to:
+Designed to:
 
 - stop wasting time on setup
 - keep the same workflow everywhere
-- automate the repetitive parts
+- automate repetitive tasks
 - go straight to finding bugs
 
 ---
@@ -41,9 +41,9 @@ Built to:
 ## Setup
 
 ```bash
-git clone git@github.com:theoffsecgirl/dotfiles.git ~/src/dotfiles
-cd ~/src/dotfiles
-./install.sh --non-interactive --no-shell-change
+git clone git@github.com:theoffsecgirl/dotfiles.git ~/.dotfiles
+cd ~/.dotfiles
+./install.sh
 exec zsh
 ```
 
@@ -55,7 +55,7 @@ hunt-doctor
 
 ---
 
-## How to use it (the important parts)
+## How to use it
 
 ### 1. Create target
 
@@ -74,65 +74,146 @@ Workspace:
 ### 2. Recon
 
 ```bash
-scope-v2 example.com
+recon example.com
 ```
 
----
-
-### 3. Mapping
+Runs subenum → probe → auto note. Subdomains saved to `~/hunting/targets/example.com/subdomains.txt`.
 
 ```bash
-webmap-v2 example.com
+subenum example.com   # subdomains only
+scope example.com     # filter in-scope
 ```
 
 ---
 
-### 4. Params
+### 3. Nuclei
 
 ```bash
-paramhunt-v2 example.com
+nuc -l urls.txt       # nuclei -silent
+nucl urls.txt         # against CVEs, saves result
 ```
 
 ---
 
-## Real workflow
-
-```
-recon → mapping → params → vuln hunting
-```
-
----
-
-## Container (optional)
+### 4. HTTP
 
 ```bash
-offsec-up
-offsec-shell
+h      # httpx -silent
+hh     # httpx + tech-detect + status-code
+hhh    # httpx + tech-detect + title + web-server
+f      # ffuf -c -mc all -fc 404
 ```
 
 ---
 
-## Dotfiles
+### 5. Interactive cheatsheet
 
-Managed with stow:
+```bash
+tips
+```
 
-- symlinks
-- clean
-- reversible
+Opens an fzf browser with all aliases organized by category (git, recon, docker, navigation, utilities). Type to filter, ESC to exit.
 
 ---
 
-## Note
+## Quick navigation
 
-This is not a framework.
+[`zoxide`](https://github.com/ajeetdsouza/zoxide) learns your most used directories:
 
-These are scripts I use every day.
+```bash
+z hunting       # jump to ~/hunting
+z dotfiles      # jump to ~/.dotfiles
+zi              # interactive selector with fzf
+dotfiles        # direct alias to ~/.dotfiles
+hunting         # direct alias to ~/hunting
+```
+
+---
+
+## Advanced history
+
+[`atuin`](https://github.com/atuinsh/atuin) replaces zsh history with semantic search and context (directory, exit code, duration):
+
+```bash
+Ctrl+R   # interactive history search
+```
+
+---
+
+## Git aliases
+
+| Alias | Command |
+|-------|--------|
+| `gs` | `git status -sb` |
+| `gl` | `git log --oneline --graph --decorate -20` |
+| `gd` | `git diff` |
+| `gds` | `git diff --staged` |
+| `gc 'msg'` | `git commit -m` |
+| `gca` | `git commit --amend --no-edit` |
+| `gco` | `git checkout` |
+| `gcb` | `git checkout -b` |
+| `gst` / `gstp` | `git stash` / `git stash pop` |
+| `glog` | full graph log |
+
+---
+
+## Included tools
+
+Auto-installed in `~/.local/tools/` by `./install.sh`:
+
+| Tool | Usage |
+|------|-------|
+| `webxray` | Offensive web scanner: XSS, SQLi, headers, WAF bypass |
+| `pathraider` | LFI and path traversal with encoding bypass |
+| `bbcopilot` | AI bug bounty assistant with local methodology vault |
+| `takeovflow` | Subdomain takeover detection |
+| `bluedeath` | Offensive shell tool |
+
+Update all tools:
+
+```bash
+bash ~/.dotfiles/tools/update-tools.sh
+```
+
+---
+
+## Offsec container (optional)
+
+```bash
+offsec-up       # start container
+offsec-shell    # enter container
+offsec          # exec directly into zsh in container
+```
+
+---
+
+## Structure
+
+```
+~/.dotfiles/
+├── zsh/
+│   └── .config/zsh/
+│       ├── load.zsh           # main loader
+│       ├── bug-bounty.zsh     # recon functions and aliases
+│       └── aliases-general.zsh # productivity aliases
+├── tmux/
+├── nvim/
+├── git/
+├── ghostty/
+├── scripts/
+├── tools/
+│   ├── install-tools.sh
+│   └── update-tools.sh
+└── install.sh
+```
+
+Managed with stow — clean, reversible symlinks.
 
 ---
 
 ## Ethical use
 
-Authorized systems only.
+Only on systems you have permission to test.
 
 ---
 
