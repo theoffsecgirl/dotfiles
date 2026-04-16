@@ -90,6 +90,39 @@ do
 done
 unset _f
 
+# zoxide — navegación inteligente de directorios
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init zsh)"
+fi
+
+# atuin — historial avanzado con búsqueda semántica
+if command -v atuin >/dev/null 2>&1; then
+  eval "$(atuin init zsh)"
+fi
+
+# Completions dinámicas para herramientas de seguridad
+_load_tool_completion() {
+  local tool="$1"
+  local cache="$HOME/.cache/zsh/_${tool}"
+  if command -v "$tool" >/dev/null 2>&1; then
+    if [[ ! -f "$cache" || "$cache" -ot "$(command -v "$tool")" ]]; then
+      case "$tool" in
+        gh)      gh completion -s zsh > "$cache" 2>/dev/null ;;
+        docker)  docker completion zsh > "$cache" 2>/dev/null ;;
+        kubectl) kubectl completion zsh > "$cache" 2>/dev/null ;;
+      esac
+    fi
+    [[ -f "$cache" ]] && source "$cache"
+  fi
+}
+for _t in gh docker kubectl; do
+  _load_tool_completion "$_t"
+done
+unset _t
+
+# Aliases generales de productividad
+[[ -f "$HOME/.config/zsh/aliases-general.zsh" ]] && source "$HOME/.config/zsh/aliases-general.zsh"
+
 # Bug bounty workspace
 [[ -f "$HOME/.config/zsh/bug-bounty.zsh" ]] && source "$HOME/.config/zsh/bug-bounty.zsh"
 

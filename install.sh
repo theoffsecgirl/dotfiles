@@ -84,7 +84,7 @@ install_macos_base() {
   fi
 
   info "Instalando dependencias base en macOS"
-  brew install stow zsh tmux neovim jq fzf ripgrep fd bat
+  brew install stow zsh tmux neovim jq fzf ripgrep fd bat zoxide atuin
 }
 
 apply_stow() {
