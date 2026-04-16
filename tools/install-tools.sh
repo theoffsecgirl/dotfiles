@@ -40,10 +40,12 @@ clone_or_pull() {
 
 # ------------------------------------------
 # Herramientas Python con pyproject.toml
+# Uso: install_python_tool <dir_name> <repo_url> <binary_name>
 # ------------------------------------------
 install_python_tool() {
   local name="$1"
   local repo="$2"
+  local binary="${3:-$name}"
   local dest="$TOOLS_DIR/$name"
 
   clone_or_pull "$name" "$repo"
@@ -55,10 +57,10 @@ install_python_tool() {
   "$dest/venv/bin/pip" install --quiet --upgrade pip
   "$dest/venv/bin/pip" install --quiet -e "$dest"
 
-  local bin_src="$dest/venv/bin/$name"
+  local bin_src="$dest/venv/bin/$binary"
   if [[ -f "$bin_src" ]]; then
-    ln -sf "$bin_src" "$BIN_DIR/$name"
-    ok "$name → $BIN_DIR/$name"
+    ln -sf "$bin_src" "$BIN_DIR/$binary"
+    ok "$name → $BIN_DIR/$binary"
   else
     warn "No se encontró el binario $bin_src; revisa el nombre del entry point"
   fi
@@ -114,7 +116,7 @@ install_bluedeath() {
 # ------------------------------------------
 install_python_tool "webxray"    "https://github.com/theoffsecgirl/webxray.git"
 install_python_tool "pathraider" "https://github.com/theoffsecgirl/pathraider.git"
-install_python_tool "bb-copilot" "https://github.com/theoffsecgirl/bb-copilot.git"
+install_python_tool "bb-copilot" "https://github.com/theoffsecgirl/bb-copilot.git" "bbcopilot"
 install_takeovflow
 install_bluedeath
 
@@ -123,7 +125,7 @@ install_bluedeath
 # ------------------------------------------
 echo
 ok "Herramientas instaladas en $BIN_DIR:"
-for _tool in webxray pathraider bb-copilot takeovflow bluedeath; do
+for _tool in webxray pathraider bbcopilot takeovflow bluedeath; do
   if [[ -e "$BIN_DIR/$_tool" ]]; then
     printf '  ✅ %s\n' "$_tool"
   else
