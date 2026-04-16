@@ -64,6 +64,10 @@ subenum() {
   local domain="${1:-}"
   [[ -z "$domain" ]] && { echo "Uso: subenum <dominio.com>"; return 1; }
 
+  local outdir="$HUNTING_HOME/targets/$domain"
+  local outfile="$outdir/subdomains.txt"
+  mkdir -p "$outdir"
+
   echo "[*] Enumerando subdominios para $domain..."
 
   (
@@ -76,7 +80,9 @@ subenum() {
         | jq -r '.[].name_value' 2>/dev/null \
         | tr ',' '\n'
     fi
-  ) | sed 's/^\*\.//' | tr '[:upper:]' '[:lower:]' | sort -u
+  ) | sed 's/^\*\.//' | tr '[:upper:]' '[:lower:]' | sort -u | tee "$outfile"
+
+  echo "[+] Subdominios guardados → $outfile"
 }
 
 # Probar lista de URLs con httpx
@@ -86,6 +92,41 @@ probe() {
   [[ ! -f "$input" ]] && { echo "[!] Fichero no encontrado: $input"; return 1; }
   local out="${input%.txt}_probed.txt"
   httpx -silent -tech-detect -status-code -l "$input" -o "$out"
+  echo "[+] Resultados → $out"
+}
+
+# Filtrar subdominios in-scope para un dominio
+scope() {
+  local domain="${1:-}"
+  [[ -z "$domain" ]] && { echo "Uso: scope <dominio.com>"; return 1; }
+  local scope_file="$HUNTING_HOME/targets/$domain/scope.txt"
+  local subs_file="$HUNTING_HOME/targets/$domain/subdomains.txt"
+  [[ ! -f "$scope_file" ]] && { echo "[!] Fichero de scope no encontrado: $scope_file"; return 1; }
+  [[ ! -f "$subs_file" ]] && { echo "[!] Ejecuta primero: subenum $domain"; return 1; }
+  grep -Ff "$scope_file" "$subs_file"
+}
+
+# Recon completo: subenum → probe → nota
+recon() {
+  local domain="${1:-}"
+  [[ -z "$domain" ]] && { echo "Uso: recon <dominio.com>"; return 1; }
+  subenum "$domain"
+  local subs="$HUNTING_HOME/targets/$domain/subdomains.txt"
+  [[ -f "$subs" ]] && probe "$subs"
+  note "recon completado para $domain"
+}
+
+
+# ==========================================
+# Nuclei
+# ==========================================
+alias nuc='nuclei -silent'
+
+nucl() {
+  local input="${1:-}"
+  [[ -z "$input" ]] && { echo "Uso: nucl <urls.txt>"; return 1; }
+  local out="${input%.txt}-nuclei.txt"
+  nuclei -silent -l "$input" -t cves/ -o "$out"
   echo "[+] Resultados → $out"
 }
 

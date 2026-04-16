@@ -29,7 +29,12 @@ if [[ -n "$BREW_PREFIX" && -d "$BREW_PREFIX/share/zsh/site-functions" ]]; then
 fi
 [[ -d /usr/local/share/zsh/site-functions ]] && fpath=(/usr/local/share/zsh/site-functions $fpath)
 [[ -d /usr/share/zsh/site-functions ]] && fpath=(/usr/share/zsh/site-functions $fpath)
-compinit -d "$HOME/.cache/zsh/zcompdump"
+zcompdump="$HOME/.cache/zsh/zcompdump"
+if [[ ! -s "$zcompdump" || ! "${zcompdump}.zwc" -nt "$zcompdump" ]]; then
+  compinit -d "$zcompdump" && zcompile "$zcompdump"
+else
+  compinit -C -d "$zcompdump"
+fi
 
 # Historial sensato
 HISTFILE="$HOME/.zsh_history"
@@ -47,6 +52,7 @@ if command -v fzf >/dev/null 2>&1; then
   [[ -f /usr/share/fzf/completion.zsh ]] && source /usr/share/fzf/completion.zsh
   [[ -n "$BREW_PREFIX" && -f "$BREW_PREFIX/opt/fzf/shell/key-bindings.zsh" ]] && source "$BREW_PREFIX/opt/fzf/shell/key-bindings.zsh"
   [[ -n "$BREW_PREFIX" && -f "$BREW_PREFIX/opt/fzf/shell/completion.zsh" ]] && source "$BREW_PREFIX/opt/fzf/shell/completion.zsh"
+  export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border --preview "bat --color=always {} 2>/dev/null || echo {}" --preview-window=right:50%'
 fi
 
 # Syntax highlighting + autosuggestions
