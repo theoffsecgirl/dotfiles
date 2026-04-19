@@ -25,8 +25,8 @@ alias glog='git log --oneline --graph --all --decorate'
 # -------------------------
 # Solo si zoxide está disponible
 if command -v zoxide >/dev/null 2>&1; then
-  alias cd='z'
-  alias cdi='zi'  # modo interactivo con fzf
+  alias j='z'
+  alias ji='zi'  # modo interactivo con fzf
 fi
 
 # -------------------------
@@ -37,10 +37,10 @@ alias la='ls -A'
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
-alias mkdir='mkdir -pv'
-alias cp='cp -iv'
-alias mv='mv -iv'
-alias rm='rm -iv'
+alias mkdir='mkdir -p'
+alias cp='cp -v'
+alias mv='mv -v'
+alias rm='rm -I'
 alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
