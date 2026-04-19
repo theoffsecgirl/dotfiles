@@ -10,13 +10,19 @@ path=(
 )
 export PATH
 
-# Homebrew (Apple Silicon / Intel) — se cachea para evitar subshells repetidas
-if [[ -x /opt/homebrew/bin/brew ]]; then
-  eval "$(/opt/homebrew/bin/brew shellenv)"
-  BREW_PREFIX="/opt/homebrew"
-elif [[ -x /usr/local/bin/brew ]]; then
-  eval "$(/usr/local/bin/brew shellenv)"
-  BREW_PREFIX="/usr/local"
+# Homebrew (Apple Silicon / Intel) — sin subshells por arranque
+if [[ -d /opt/homebrew ]]; then
+  export HOMEBREW_PREFIX=/opt/homebrew
+  export PATH="$HOMEBREW_PREFIX/bin:$HOMEBREW_PREFIX/sbin:$PATH"
+  export MANPATH="$HOMEBREW_PREFIX/share/man:${MANPATH:-}"
+  export INFOPATH="$HOMEBREW_PREFIX/share/info:${INFOPATH:-}"
+  BREW_PREFIX="$HOMEBREW_PREFIX"
+elif [[ -d /usr/local ]]; then
+  export HOMEBREW_PREFIX=/usr/local
+  export PATH="$HOMEBREW_PREFIX/bin:$HOMEBREW_PREFIX/sbin:$PATH"
+  export MANPATH="$HOMEBREW_PREFIX/share/man:${MANPATH:-}"
+  export INFOPATH="$HOMEBREW_PREFIX/share/info:${INFOPATH:-}"
+  BREW_PREFIX="$HOMEBREW_PREFIX"
 else
   BREW_PREFIX=""
 fi
@@ -40,10 +46,11 @@ fi
 HISTFILE="$HOME/.zsh_history"
 HISTSIZE=50000
 SAVEHIST=50000
-setopt HIST_IGNORE_DUPS HIST_REDUCE_BLANKS SHARE_HISTORY INC_APPEND_HISTORY
+setopt HIST_IGNORE_DUPS HIST_IGNORE_SPACE HIST_REDUCE_BLANKS APPEND_HISTORY
 
 # Opciones de calidad de vida
-setopt AUTO_CD CORRECT NO_BEEP
+setopt AUTO_CD NO_BEEP
+unsetopt CORRECT
 
 # FZF
 if command -v fzf >/dev/null 2>&1; then
@@ -52,14 +59,11 @@ if command -v fzf >/dev/null 2>&1; then
   [[ -f /usr/share/fzf/completion.zsh ]] && source /usr/share/fzf/completion.zsh
   [[ -n "$BREW_PREFIX" && -f "$BREW_PREFIX/opt/fzf/shell/key-bindings.zsh" ]] && source "$BREW_PREFIX/opt/fzf/shell/key-bindings.zsh"
   [[ -n "$BREW_PREFIX" && -f "$BREW_PREFIX/opt/fzf/shell/completion.zsh" ]] && source "$BREW_PREFIX/opt/fzf/shell/completion.zsh"
-  export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border --preview "bat --color=always {} 2>/dev/null || echo {}" --preview-window=right:50%'
+  export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
 fi
 
-# Syntax highlighting + autosuggestions
+# Autosuggestions primero
 for _plugin in \
-  "$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" \
-  /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
-  /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
   "$BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh" \
   /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
   /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
@@ -125,6 +129,16 @@ unset _t
 
 # Bug bounty workspace
 [[ -f "$HOME/.config/zsh/bug-bounty.zsh" ]] && source "$HOME/.config/zsh/bug-bounty.zsh"
+
+# zsh-syntax-highlighting al final para evitar interferencias con widgets/completions
+for _plugin in \
+  "$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" \
+  /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+  /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+do
+  [[ -f "$_plugin" ]] && source "$_plugin"
+done
+unset _plugin
 
 # Local overrides (no se versiona)
 [[ -f "$HOME/.config/zsh/local.zsh" ]] && source "$HOME/.config/zsh/local.zsh"
