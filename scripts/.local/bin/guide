@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+# guide — guía operativa rápida por clase de bug
+# Uso: guide <idor|cors|graphql|race|logic|authz> [target]
+set -euo pipefail
+
+TOPIC="${1:-}"
+TARGET="${2:-}"
+
+[[ -n "$TOPIC" ]] || { echo "Uso: guide <idor|cors|graphql|race|logic|authz> [target]"; exit 1; }
+
+show_target_hint() {
+  [[ -n "$TARGET" ]] || return 0
+  echo ""
+  echo "Target: $TARGET"
+}
+
+case "$TOPIC" in
+  idor)
+    echo "[IDOR]"
+    show_target_hint
+    echo "1) Abre: fuzz/idor_candidates.txt"
+    echo "2) Prioriza recursos con id/user/org/team/project/account"
+    echo "3) Cambia referencias entre cuentas, roles y tenants"
+    echo "4) Valida: read / update / delete / enumerate"
+    echo "5) Siguiente paso: probar mismo endpoint con usuario de menor privilegio"
+    ;;
+  cors)
+    echo "[CORS]"
+    show_target_hint
+    echo "1) Abre: http/cors_candidates.txt"
+    echo "2) Busca ACAO reflejado + ACAC: true"
+    echo "3) Comprueba si hay datos sensibles accesibles con credenciales"
+    echo "4) Prueba Origin: https://evil.com y Origin: null"
+    echo "5) Siguiente paso: validar lectura de datos autenticados desde navegador"
+    ;;
+  graphql)
+    echo "[GraphQL]"
+    show_target_hint
+    echo "1) Abre: http/graphql_candidates.txt y http/graphql.txt"
+    echo "2) Comprueba introspection, queries anónimas y mutations sensibles"
+    echo "3) Busca object traversal, field overfetching y auth gaps"
+    echo "4) Siguiente paso: probar IDs ajenos y aliases/batching"
+    ;;
+  race)
+    echo "[RACE]"
+    show_target_hint
+    echo "1) Abre: fuzz/race_targets.txt"
+    echo "2) Prioriza: redeem / invite / claim / purchase / upgrade / reset"
+    echo "3) Repite la misma acción en paralelo"
+    echo "4) Valida doble gasto, doble canje o bypass de límite"
+    echo "5) Siguiente paso: usar race-burst o raw requests desde Burp"
+    ;;
+  logic)
+    echo "[BUSINESS LOGIC]"
+    show_target_hint
+    echo "1) Busca flujos con cupones, invitaciones, billing, upgrades, imports"
+    echo "2) Rompe el orden esperado del flujo"
+    echo "3) Repite acciones, omite pasos o mezcla estados"
+    echo "4) Valida beneficio real: crédito, acceso, privilegio o datos"
+    echo "5) Siguiente paso: comparar comportamiento entre roles y tenants"
+    ;;
+  authz)
+    echo "[AUTHZ]"
+    show_target_hint
+    echo "1) Prioriza /admin, /internal, /api, /settings, /members, /roles"
+    echo "2) Compara owner/admin/member/guest"
+    echo "3) Repite mismas acciones con tokens/usuarios distintos"
+    echo "4) Valida read / write / invite / role change / export"
+    echo "5) Siguiente paso: cruzar objetos de otra org o workspace"
+    ;;
+  *)
+    echo "Tema no soportado: $TOPIC" >&2
+    exit 1
+    ;;
+esac
