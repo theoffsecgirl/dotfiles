@@ -6,6 +6,7 @@ typeset -U path PATH
 path=(
   "$HOME/.local/bin"
   "$HOME/go/bin"
+  "$HOME/.dotfiles/tools/bin"
   $path
 )
 export PATH
