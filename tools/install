@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT="${DOTFILES_DIR:-$HOME/.dotfiles}"
+export DOTFILES_DIR="$ROOT"
 TOOLS_DIR="$ROOT/tools"
 SRC_DIR="$TOOLS_DIR/src"
 BIN_DIR="$TOOLS_DIR/bin"

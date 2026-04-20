@@ -1,29 +1,15 @@
 # name|repo_full_name|build_cmd
 
-# === Personal tools ===
-corskit|theoffsecgirl/corskit|go build -o "$DOTFILES_DIR/tools/bin/corskit" .
-pathraider|theoffsecgirl/pathraider|go build -o "$DOTFILES_DIR/tools/bin/pathraider" .
-webxray|theoffsecgirl/webxray|go build -o "$DOTFILES_DIR/tools/bin/webxray" .
-takeovflow|theoffsecgirl/takeovflow|go build -o "$DOTFILES_DIR/tools/bin/takeovflow" .
-bb-copilot|theoffsecgirl/bb-copilot|go build -o "$DOTFILES_DIR/tools/bin/bb-copilot" .
-
-# === Core recon (ProjectDiscovery) ===
-subfinder|projectdiscovery/subfinder|go build -o "$DOTFILES_DIR/tools/bin/subfinder" ./v2/cmd/subfinder
+subfinder|projectdiscovery/subfinder|go build -o "$DOTFILES_DIR/tools/bin/subfinder" ./cmd/subfinder
 httpx|projectdiscovery/httpx|go build -o "$DOTFILES_DIR/tools/bin/httpx" ./cmd/httpx
 nuclei|projectdiscovery/nuclei|go build -o "$DOTFILES_DIR/tools/bin/nuclei" ./cmd/nuclei
 katana|projectdiscovery/katana|go build -o "$DOTFILES_DIR/tools/bin/katana" ./cmd/katana
-
-# === URLs / crawling ===
 gau|lc/gau|go build -o "$DOTFILES_DIR/tools/bin/gau" ./cmd/gau
 waybackurls|tomnomnom/waybackurls|go build -o "$DOTFILES_DIR/tools/bin/waybackurls" .
 unfurl|tomnomnom/unfurl|go build -o "$DOTFILES_DIR/tools/bin/unfurl" .
-
-# === Python tool ===
-uro|s0md3v/uro|pip3 install --user uro
-
-# === Fuzzing ===
 ffuf|ffuf/ffuf|go build -o "$DOTFILES_DIR/tools/bin/ffuf" .
-
-# === Utils ===
 anew|tomnomnom/anew|go build -o "$DOTFILES_DIR/tools/bin/anew" .
 qsreplace|tomnomnom/qsreplace|go build -o "$DOTFILES_DIR/tools/bin/qsreplace" .
+
+# pendiente de gestionar bien en macOS
+# uro|s0md3v/uro|pip3 install --user uro
