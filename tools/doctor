@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="${DOTFILES_DIR:-$HOME/.dotfiles}"
+TOOLS_DIR="$ROOT/tools"
+BIN_DIR="$TOOLS_DIR/bin"
+MANIFEST="$TOOLS_DIR/manifests/tools.txt"
+
+fail=0
+
+while IFS='|' read -r name repo build; do
+  [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
+
+  if [[ ! -x "$BIN_DIR/$name" ]]; then
+    echo "[!] Missing binary: $name"
+    fail=1
+  else
+    echo "[+] OK: $name"
+  fi
+done < "$MANIFEST"
+
+[[ "$fail" -eq 0 ]] && echo "[+] All tools OK" || exit 1
