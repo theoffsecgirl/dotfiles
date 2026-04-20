@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# racehunt — detecta endpoints candidatos a race conditions
+# Uso: racehunt <dominio>
+set -euo pipefail
+
+TARGET="$1"
+BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
+OUT="$BASE/fuzz/race_targets.txt"
+mkdir -p "$BASE/fuzz"
+
+URLFILE="$BASE/http/urls_clean.txt"
+[[ -f "$URLFILE" ]] || { echo "[!] Ejecuta webmap primero"; exit 1; }
+
+grep -Ei '(redeem|apply|claim|invite|purchase|transfer|send|buy|upgrade|downgrade|reset|verify)' "$URLFILE" \
+  | sort -u > "$OUT" || true
+
+echo "[+] Race targets → $OUT"
