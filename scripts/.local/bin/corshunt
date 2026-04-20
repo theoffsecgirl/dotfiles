@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# corshunt — detecta configuraciones CORS potencialmente explotables
+# Uso: corshunt <dominio>
+set -euo pipefail
+
+TARGET="$1"
+BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
+OUT="$BASE/http/cors_candidates.txt"
+mkdir -p "$BASE/http"
+: > "$OUT"
+
+while read -r url; do
+  hdrs=$(curl -s -I -H "Origin: https://evil.com" "$url" 2>/dev/null || true)
+  echo "$hdrs" | grep -qi "access-control-allow-origin" || continue
+
+  if echo "$hdrs" | grep -qi "access-control-allow-credentials: true"; then
+    echo "$url" >> "$OUT"
+  fi
+done < "$BASE/http/live.txt"
+
+echo "[+] CORS candidates → $OUT"
