@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# redirecthunt — detecta parámetros de redirección interesantes
+# Uso: redirecthunt <dominio>
+set -euo pipefail
+
+TARGET="$1"
+BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
+OUT="$BASE/fuzz/redirect_candidates.txt"
+mkdir -p "$BASE/fuzz"
+
+PARAMS_FILE="$BASE/fuzz/urls_with_params.txt"
+[[ -f "$PARAMS_FILE" ]] || { echo "[!] Ejecuta paramhunt primero"; exit 1; }
+
+grep -Ei '(redirect|url|next|return|continue|redirect_uri)=' "$PARAMS_FILE" \
+  | sort -u > "$OUT" || true
+
+echo "[+] Redirect candidates → $OUT"
