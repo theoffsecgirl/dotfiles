@@ -1,0 +1,6 @@
+# name|repo_full_name|build_cmd
+corskit|theoffsecgirl/corskit|go build -o "$DOTFILES_DIR/tools/bin/corskit" .
+pathraider|theoffsecgirl/pathraider|go build -o "$DOTFILES_DIR/tools/bin/pathraider" .
+webxray|theoffsecgirl/webxray|go build -o "$DOTFILES_DIR/tools/bin/webxray" .
+takeovflow|theoffsecgirl/takeovflow|go build -o "$DOTFILES_DIR/tools/bin/takeovflow" .
+bb-copilot|theoffsecgirl/bb-copilot|go build -o "$DOTFILES_DIR/tools/bin/bb-copilot" .
