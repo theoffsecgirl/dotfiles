@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="${DOTFILES_DIR:-$HOME/.dotfiles}"
+TOOLS_DIR="$ROOT/tools"
+SRC_DIR="$TOOLS_DIR/src"
+BIN_DIR="$TOOLS_DIR/bin"
+MANIFEST="$TOOLS_DIR/manifests/tools.txt"
+
+mkdir -p "$SRC_DIR" "$BIN_DIR"
+
+while IFS='|' read -r name repo build; do
+  [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
+
+  dst="$SRC_DIR/$name"
+
+  if [[ ! -d "$dst" ]]; then
+    echo "[*] Cloning $repo"
+    git clone "https://github.com/$repo.git" "$dst"
+  fi
+
+  echo "[*] Building $name"
+  (cd "$dst" && eval "$build")
+done < "$MANIFEST"
+
+echo "[+] Tools installed"
