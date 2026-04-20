@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# bb — orquestador de workflow
+# Uso: bb triage <target>
+set -euo pipefail
+
+CMD="${1:-}"
+TARGET="${2:-}"
+
+case "$CMD" in
+  triage)
+    [[ -n "$TARGET" ]] || { echo "Uso: bb triage <target>"; exit 1; }
+
+    echo "[*] Running triage for $TARGET"
+
+    idhunt "$TARGET" || true
+    corshunt "$TARGET" || true
+    redirecthunt "$TARGET" || true
+    gqlhunt "$TARGET" || true
+    racehunt "$TARGET" || true
+
+    echo ""
+    echo "=== PRIORIDAD ==="
+    echo "1) IDOR → fuzz/idor_candidates.txt"
+    echo "2) API → http/api_candidates.txt"
+    echo "3) GraphQL → http/graphql_candidates.txt"
+    echo "4) Params → fuzz/params.txt"
+    echo "5) Race → fuzz/race_targets.txt"
+    echo ""
+    echo "=== SIGUIENTE PASO ==="
+    echo "guide idor $TARGET"
+    echo "guide authz $TARGET"
+    ;;
+  *)
+    echo "Uso: bb triage <target>"
+    exit 1
+    ;;
+esac
