@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# idhunt — prioriza candidatos para IDOR/BOLA desde URLs y endpoints ya recolectados
+# Uso: idhunt <dominio|urls.txt>
+set -euo pipefail
+
+BASE_ROOT="${HUNTING_HOME:-$HOME/hunting}/targets"
+
+resolve_input() {
+  local arg="${1:-}"
+  [[ -z "$arg" ]] && { echo "Uso: idhunt <dominio|urls.txt>"; exit 1; }
+
+  if [[ -f "$arg" ]]; then
+    TARGET="$(basename "$arg")"
+    TARGET="${TARGET%.*}"
+    BASE="$BASE_ROOT/_adhoc/$TARGET"
+    URLFILE="$arg"
+    return
+  fi
+
+  TARGET="$arg"
+  BASE="$BASE_ROOT/$TARGET"
+  URLFILE="$BASE/http/urls_clean.txt"
+  [[ -f "$URLFILE" ]] || URLFILE="$BASE/http/api_candidates.txt"
+  [[ -f "$URLFILE" ]] || URLFILE="$BASE/http/urls.txt"
+  [[ -f "$URLFILE" ]] || { echo "[!] No URLs para analizar"; exit 1; }
+}
+
+resolve_input "$1"
+mkdir -p "$BASE/fuzz"
+
+grep -Eio '([?&](id|user(id)?|account(id)?|org(id)?|team(id)?|project(id)?|workspace(id)?|member(id)?|document(id)?|invoice(id)?|file(id)?|object(id)?|owner(id)?|profile(id)?|tenant(id)?)=)|(/[0-9]{1,18})(/|$)|(/[0-9a-fA-F-]{8,})(/|$)' "$URLFILE" >/dev/null 2>&1 || true
+
+grep -Ei '([?&](id|user(id)?|account(id)?|org(id)?|team(id)?|project(id)?|workspace(id)?|member(id)?|document(id)?|invoice(id)?|file(id)?|object(id)?|owner(id)?|profile(id)?|tenant(id)?)=)|(/[0-9]{1,18})(/|$)|(/[0-9a-fA-F-]{8,})(/|$)' "$URLFILE" \
+  | sort -u > "$BASE/fuzz/idor_candidates.txt" || true
+
+echo "[+] IDOR candidates → $BASE/fuzz/idor_candidates.txt"
