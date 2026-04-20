@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# gqlhunt — análisis rápido de endpoints GraphQL
+# Uso: gqlhunt <dominio>
+set -euo pipefail
+
+TARGET="$1"
+BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
+OUT="$BASE/http/graphql_candidates.txt"
+mkdir -p "$BASE/http"
+
+GQL_FILE="$BASE/http/graphql.txt"
+[[ -f "$GQL_FILE" ]] || { echo "[!] No graphql.txt"; exit 1; }
+
+: > "$OUT"
+
+while read -r url; do
+  resp=$(curl -s -X POST "$url" -H 'Content-Type: application/json' \
+    --data '{"query":"{__schema{types{name}}}"}' 2>/dev/null || true)
+
+  echo "$resp" | grep -q "__schema" && echo "$url" >> "$OUT"
+done < "$GQL_FILE"
+
+echo "[+] GraphQL candidates → $OUT"
