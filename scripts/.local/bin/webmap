@@ -1,31 +1,86 @@
 #!/usr/bin/env bash
-# webmap — crawl de URLs JS con katana
-# Uso: webmap <dominio>
-# Depende de: scope (genera http/live.txt), katana, anew
+# webmap — crawling enriquecido + separación de endpoints
+# Uso: webmap <dominio|lista.txt|url>
 set -euo pipefail
 
-[[ -z "${1:-}" ]] && { echo "Uso: webmap <dominio>"; exit 1; }
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+LIB_DIR="$(cd -- "$SCRIPT_DIR/../lib" && pwd)"
+# shellcheck source=/dev/null
+source "$LIB_DIR/offsec.sh"
 
-TARGET="$1"
-BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
-LIVEFILE="$BASE/http/live.txt"
+resolve_input() {
+  local arg="${1:-}"
 
-if [[ ! -f "$LIVEFILE" ]]; then
-  echo "[!] No se encontró $LIVEFILE"
-  echo "    Ejecuta primero: scope $TARGET"
-  exit 1
-fi
+  [[ -z "$arg" ]] && die "Uso: webmap <dominio|lista.txt|url>"
 
-if ! command -v katana >/dev/null 2>&1; then
-  echo "[!] katana no instalado: go install github.com/projectdiscovery/katana/cmd/katana@latest"
-  exit 1
-fi
+  if [[ -f "$arg" ]]; then
+    INPUT_MODE="file"
+    INPUT_SOURCE="$arg"
+    TARGET="$(basename "$arg")"
+    TARGET="${TARGET%.*}"
+    BASE="${HUNTING_HOME:-$HOME/hunting}/targets/_adhoc/$TARGET"
+    LIVEFILE="$arg"
+    return
+  fi
 
-mkdir -p "$BASE/http" "$BASE/js"
+  if [[ "$arg" =~ ^https?:// ]]; then
+    INPUT_MODE="url"
+    INPUT_SOURCE="$arg"
+    TARGET="$(printf '%s' "$arg" | sed -E 's#https?://##; s#/.*$##; s#[^A-Za-z0-9._-]#_#g')"
+    BASE="${HUNTING_HOME:-$HOME/hunting}/targets/_adhoc/$TARGET"
+    LIVEFILE="$(mktemp)"
+    printf '%s\n' "$arg" > "$LIVEFILE"
+    return
+  fi
 
-katana -list "$LIVEFILE" -silent -jc -kf all | anew "$BASE/http/urls.txt"
-grep -Ei '\.js($|\?)' "$BASE/http/urls.txt" | anew "$BASE/js/files.txt"
+  INPUT_MODE="target"
+  TARGET="$arg"
+  BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
+  LIVEFILE="$BASE/http/live.txt"
+  [[ -f "$LIVEFILE" ]] || die "Ejecuta primero scope $TARGET"
+}
 
-URL_COUNT=$(wc -l < "$BASE/http/urls.txt" | tr -d ' ')
-JS_COUNT=$(wc -l < "$BASE/js/files.txt" | tr -d ' ')
-echo "[+] URLs: $URL_COUNT | JS: $JS_COUNT → $BASE"
+resolve_input "${1:-}"
+
+need_cmd katana anew grep jq
+ensure_dir "$BASE/http" "$BASE/js" "$BASE/meta"
+
+: > "$BASE/http/urls.txt"
+: > "$BASE/http/urls_clean.txt"
+: > "$BASE/http/api_candidates.txt"
+: > "$BASE/http/graphql.txt"
+: > "$BASE/js/files.txt"
+
+katana \
+  -list "$LIVEFILE" \
+  -silent \
+  -jc \
+  -kf all \
+  2>/dev/null \
+  | tee "$BASE/http/katana.raw" \
+  | { command -v uro >/dev/null 2>&1 && uro || cat; } \
+  | anew "$BASE/http/urls.txt" >/dev/null || true
+
+grep -Ei '\.js($|\?)' "$BASE/http/urls.txt" | anew "$BASE/js/files.txt" >/dev/null || true
+grep -Ei '/api(/|$)|/v[0-9]+/|graphql|rest|swagger|openapi|/rpc(/|$)|/query($|[/?])|/mutation($|[/?])|/internal(/|$)' "$BASE/http/urls.txt" | anew "$BASE/http/api_candidates.txt" >/dev/null || true
+grep -Ei 'graphql' "$BASE/http/urls.txt" | anew "$BASE/http/graphql.txt" >/dev/null || true
+grep -Evi '\.(png|jpg|jpeg|gif|svg|css|woff|woff2|ttf|ico)($|\?)' "$BASE/http/urls.txt" > "$BASE/http/urls_clean.txt" || true
+
+urls_count="$(count_lines_safe "$BASE/http/urls.txt")"
+js_count="$(count_lines_safe "$BASE/js/files.txt")"
+api_count="$(count_lines_safe "$BASE/http/api_candidates.txt")"
+
+jq -n \
+  --arg urls "$urls_count" \
+  --arg js "$js_count" \
+  --arg api "$api_count" \
+  --arg mode "$INPUT_MODE" \
+  --arg source "${INPUT_SOURCE:-$LIVEFILE}" \
+  '{urls:($urls|tonumber), js:($js|tonumber), api_candidates:($api|tonumber), input_mode:$mode, input_source:$source}' \
+  > "$BASE/meta/webmap.json"
+
+log_ok "Modo: $INPUT_MODE"
+log_ok "URLs totales: $urls_count"
+log_ok "JS: $js_count"
+log_ok "API candidates: $api_count"
+log_ok "Raw crawl → $BASE/http/katana.raw"
