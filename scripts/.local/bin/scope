@@ -1,35 +1,56 @@
 #!/usr/bin/env bash
-# scope — recon inicial: subdominios + hosts vivos
+# scope — recon inicial enriquecido: subdominios + hosts vivos + httpx JSONL
 # Uso: scope <dominio>
-# Genera: recon/subdomains.txt, http/live.txt
 set -euo pipefail
 
 [[ -z "${1:-}" ]] && { echo "Uso: scope <dominio>"; exit 1; }
 
 TARGET="$1"
 BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
+mkdir -p "$BASE"/{recon,http,meta,ai,tmp}
 
-# Garantizar estructura completa (idempotente)
 if command -v mktarget >/dev/null 2>&1; then
   mktarget "$TARGET" >/dev/null 2>&1 || true
-else
-  mkdir -p "$BASE"/{recon,http,fuzz,js,in,out,tmp,burp,notes,reports,loot}
 fi
 
-# Verificar dependencias
-for dep in subfinder httpx anew; do
+for dep in subfinder httpx anew jq; do
   command -v "$dep" >/dev/null 2>&1 || { echo "[!] Falta: $dep"; exit 1; }
 done
 
 echo "[*] Enumerando subdominios para $TARGET..."
-subfinder -d "$TARGET" -silent | anew "$BASE/recon/subdomains.txt"
+subfinder -d "$TARGET" -silent -all -recursive | sed 's/^\*\.//' | sort -u | anew "$BASE/recon/subdomains.txt" >/dev/null
 
 SUB_COUNT=$(wc -l < "$BASE/recon/subdomains.txt" | tr -d ' ')
 echo "[+] Subdominios: $SUB_COUNT"
 
-echo "[*] Probando hosts HTTP..."
-httpx -silent -l "$BASE/recon/subdomains.txt" | anew "$BASE/http/live.txt"
+echo "[*] Enriqueciendo hosts HTTP con httpx..."
+httpx \
+  -silent \
+  -l "$BASE/recon/subdomains.txt" \
+  -json \
+  -title \
+  -tech-detect \
+  -status-code \
+  -follow-redirects \
+  -ip \
+  -cdn \
+  -ports 80,443,8080,8443 \
+  | tee "$BASE/http/httpx.jsonl" \
+  | jq -r 'select(.url != null) | .url' \
+  | anew "$BASE/http/live.txt" >/dev/null
 
-LIVE_COUNT=$(wc -l < "$BASE/http/live.txt" | tr -d ' ')
-echo "[+] Hosts vivos: $LIVE_COUNT → $BASE/http/live.txt"
+jq -r 'select(.url != null) | [.input, .url, (.status_code|tostring), (.webserver // ""), (.title // "")] | @tsv' "$BASE/http/httpx.jsonl" \
+  > "$BASE/http/httpx_table.tsv"
+
+jq -n \
+  --arg target "$TARGET" \
+  --arg generated_at "$(date -u +%FT%TZ)" \
+  --arg sub_count "$SUB_COUNT" \
+  --arg live_count "$(wc -l < "$BASE/http/live.txt" | tr -d ' ')" \
+  '{target:$target, generated_at:$generated_at, subdomains:($sub_count|tonumber), live_hosts:($live_count|tonumber)}' \
+  > "$BASE/meta/scope.json"
+
+echo "[+] Hosts vivos: $(wc -l < "$BASE/http/live.txt" | tr -d ' ') → $BASE/http/live.txt"
+echo "[+] httpx JSONL → $BASE/http/httpx.jsonl"
+echo "[+] metadata → $BASE/meta/scope.json"
 echo "[→] Siguiente paso: webmap $TARGET"
