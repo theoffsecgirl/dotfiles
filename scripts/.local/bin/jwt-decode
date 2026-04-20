@@ -13,7 +13,7 @@ b64url_decode() {
   local s="$1"
   # sustituir - por + y _ por /
   s="${s//-/+}"
-  s="${s//_//}"
+  s="${s//_/\/}"
   # añadir padding
   case $(( ${#s} % 4 )) in
     2) s="${s}==" ;;
