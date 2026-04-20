@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# race-burst — ejecución concurrente simple para tests de race
+# Uso: race-burst <request.txt> <num>
+set -euo pipefail
+
+REQ="${1:-}"
+NUM="${2:-10}"
+
+[[ -f "$REQ" ]] || { echo "Uso: race-burst <request.txt> <num>"; exit 1; }
+
+HOST=$(grep -i '^Host:' "$REQ" | awk '{print $2}' | tr -d '\r')
+
+[[ -n "$HOST" ]] || { echo "[!] No Host header"; exit 1; }
+
+echo "[*] Lanzando $NUM requests contra $HOST"
+
+for i in $(seq 1 "$NUM"); do
+  (cat "$REQ" | nc "$HOST" 443 >/dev/null 2>&1 &)
+done
+
+wait
+
+echo "[+] Burst completado"
