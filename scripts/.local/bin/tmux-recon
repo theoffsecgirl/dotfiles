@@ -1,10 +1,20 @@
 #!/usr/bin/env bash
 # tmux-recon — abre sesión tmux de 4 panes para recon
-# Uso: tmux-recon [nombre-sesión] [workdir]
+# Uso: tmux-recon [nombre-sesión] [workdir] [--force]
 set -euo pipefail
 
-SESSION="${1:-recon}"
-WORKDIR="${2:-$PWD}"
+force=0
+args=()
+for arg in "$@"; do
+  if [[ "$arg" == "--force" ]]; then
+    force=1
+  else
+    args+=("$arg")
+  fi
+done
+
+SESSION="${args[0]:-recon}"
+WORKDIR="${args[1]:-$PWD}"
 
 mkdir -p "$WORKDIR/.recon"
 touch "$WORKDIR/.recon/output.log"
@@ -26,8 +36,10 @@ tmux select-window -t "$SESSION:recon"
 PANE_COUNT=$(tmux list-panes -t "$SESSION:recon" | wc -l | tr -d ' ')
 if [[ "$PANE_COUNT" -gt 1 ]]; then
   echo "[!] La ventana 'recon' ya tiene $PANE_COUNT panes. Se van a cerrar y recrear."
-  read -r -p "    ¿Continuar? [s/N] " confirm
-  [[ "${confirm,,}" != "s" ]] && { echo "Cancelado."; exit 0; }
+  if [[ "$force" -ne 1 && -t 0 ]]; then
+    read -r -p "    ¿Continuar? [s/N] " confirm
+    [[ "${confirm,,}" != "s" ]] && { echo "Cancelado."; exit 0; }
+  fi
 fi
 
 # Dejar 1 pane
