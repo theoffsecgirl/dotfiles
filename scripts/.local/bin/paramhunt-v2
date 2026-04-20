@@ -37,6 +37,8 @@ resolve_input() {
 
 resolve_input "$1"
 
+command -v unfurl >/dev/null 2>&1 || { echo "[!] Falta: unfurl"; exit 1; }
+
 mkdir -p "$BASE/fuzz" "$BASE/meta"
 
 grep '=' "$URLFILE" | sort -u > "$BASE/fuzz/urls_with_params.txt" || true
