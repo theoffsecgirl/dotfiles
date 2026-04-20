@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="${DOTFILES_DIR:-$HOME/.dotfiles}"
+TOOLS_DIR="$ROOT/tools"
+SRC_DIR="$TOOLS_DIR/src"
+MANIFEST="$TOOLS_DIR/manifests/tools.txt"
+
+while IFS='|' read -r name repo build; do
+  [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
+
+  dst="$SRC_DIR/$name"
+
+  if [[ -d "$dst" ]]; then
+    echo "[*] Updating $name"
+    (cd "$dst" && git pull --quiet)
+    echo "[*] Rebuilding $name"
+    (cd "$dst" && eval "$build")
+  fi
+done < "$MANIFEST"
+
+echo "[+] Tools updated"
