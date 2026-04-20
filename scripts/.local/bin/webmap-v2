@@ -58,6 +58,7 @@ katana \
   -kf all \
   2>/dev/null \
   | tee "$BASE/http/katana.raw" \
+  | { command -v uro >/dev/null 2>&1 && uro || cat; } \
   | anew "$BASE/http/urls.txt" >/dev/null || true
 
 grep -Ei '\.js($|\?)' "$BASE/http/urls.txt" | anew "$BASE/js/files.txt" >/dev/null || true
