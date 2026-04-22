@@ -10,6 +10,13 @@ path=(
 )
 export PATH
 
+# 🔒 Protección contra shadowing de binarios críticos
+for cmd in scope webmap; do
+  if whence -w "$cmd" 2>/dev/null | grep -q "function"; then
+    unfunction "$cmd" 2>/dev/null || true
+  fi
+done
+
 # Homebrew (Apple Silicon / Intel) — sin subshells por arranque
 if [[ -d /opt/homebrew ]]; then
   export HOMEBREW_PREFIX=/opt/homebrew
