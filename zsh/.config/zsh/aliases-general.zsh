@@ -23,11 +23,8 @@ alias glog='git log --oneline --graph --all --decorate'
 # -------------------------
 # Navegación con zoxide
 # -------------------------
-# Solo si zoxide está disponible
-if command -v zoxide >/dev/null 2>&1; then
-  alias j='z'
-  alias ji='zi'  # modo interactivo con fzf
-fi
+# j/ji eliminados: zoxide ya provee z/zi como nombres nativos
+# Usa directamente: z <dir>  |  zi (interactivo)
 
 # -------------------------
 # Utilidades generales
@@ -60,10 +57,10 @@ alias hunting='cd ~/hunting'
 # -------------------------
 # Python
 # -------------------------
+# py/pip: solo si el sistema no tiene ya python3 como python
+# pyv y pyi eliminados: baja frecuencia, no justifican alias
 alias py='python3'
 alias pip='pip3'
-alias pyi='pip3 install'
-alias pyv='python3 --version'
 
 # -------------------------
 # Docker
