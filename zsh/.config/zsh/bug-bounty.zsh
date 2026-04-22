@@ -29,7 +29,7 @@ cds() { cd "$HUNTING_HOME/scripts"; }
 # Contenedores
 # ==========================================
 export OFFSEC_CONTAINER_NAME="${OFFSEC_CONTAINER_NAME:-offsec-toolbox}"
-alias offsec='docker exec -it ${OFFSEC_CONTAINER_NAME} zsh'
+alias offsec='docker exec -it "${OFFSEC_CONTAINER_NAME}" zsh'
 alias offsec-restart='cd ${DOTFILES_DIR:-~/.dotfiles}/containers/debian-toolbox && docker compose restart'
 alias offsec-rebuild='cd ${DOTFILES_DIR:-~/.dotfiles}/containers/debian-toolbox && docker compose down && docker compose build --no-cache && docker compose up -d'
 
@@ -73,8 +73,8 @@ subenum() {
     fi
 
     if command -v curl >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then
-      curl -s --max-time 15 "https://crt.sh/?q=%25.${domain}&output=json" 2>/dev/null \
-        | jq -r '.[].name_value' 2>/dev/null \
+      curl -sf --max-time 15 "https://crt.sh/?q=%25.${domain}&output=json" 2>/dev/null \
+        | jq -r 'if type == "array" then .[].name_value else empty end' 2>/dev/null \
         | tr ',' '\n'
     fi
   ) | sed 's/^\*\.//' | tr '[:upper:]' '[:lower:]' | sort -u | tee "$outfile"
@@ -119,11 +119,12 @@ recon() {
 # ==========================================
 alias nuc='nuclei -silent'
 
+# nucl usa -tags cve (nuclei v3+); el antiguo directorio cves/ fue deprecado
 nucl() {
   local input="${1:-}"
   [[ -z "$input" ]] && { echo "Uso: nucl <urls.txt>"; return 1; }
   local out="${input%.txt}-nuclei.txt"
-  nuclei -silent -l "$input" -t cves/ -o "$out"
+  nuclei -silent -l "$input" -tags cve -o "$out"
   echo "[+] Resultados → $out"
 }
 
