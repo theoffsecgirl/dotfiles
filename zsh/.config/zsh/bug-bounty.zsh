@@ -95,10 +95,10 @@ probe() {
   echo "[+] Resultados → $out"
 }
 
-# Filtrar subdominios in-scope para un dominio
-scope() {
+# Filtrar subdominios in-scope para un dominio (legacy helper, evita colisionar con el binario scope)
+inscope() {
   local domain="${1:-}"
-  [[ -z "$domain" ]] && { echo "Uso: scope <dominio.com>"; return 1; }
+  [[ -z "$domain" ]] && { echo "Uso: inscope <dominio.com>"; return 1; }
   local scope_file="$HUNTING_HOME/targets/$domain/scope.txt"
   local subs_file="$HUNTING_HOME/targets/$domain/subdomains.txt"
   [[ ! -f "$scope_file" ]] && { echo "[!] Fichero de scope no encontrado: $scope_file"; return 1; }
@@ -170,3 +170,7 @@ venv-auto() {
     echo "❌ No se encontró venv ni .venv. Crea uno con: venv-create"
   fi
 }
+
+
+# Compatibilidad explícita con el nombre antiguo sin pisar el binario scope
+alias scope-filter=inscope
