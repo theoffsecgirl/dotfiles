@@ -74,7 +74,7 @@ Ejecuta subenum → probe → nota automática. Los subdominios se guardan en `~
 
 ```bash
 subenum example.com   # solo subdominios
-scope example.com     # filtrar in-scope
+inscope example.com   # filtrar in-scope (helper legacy)
 ```
 
 ---
