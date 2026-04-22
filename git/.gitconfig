@@ -35,8 +35,13 @@
   wip  = !git add -A && git commit -m 'wip'
   pushf = push --force-with-lease
 
-# Incluye config local con name/email (no se versiona)
-# Crea con: git config -f ~/.gitconfig.local user.name "Tu Nombre"
-#           git config -f ~/.gitconfig.local user.email "tu@email.com"
-[includeIf "gitdir:~/"]
+# Identidad por defecto (personal) — aplica a todos los repos salvo override
+# Crea con:
+#   git config -f ~/.gitconfig.local user.name "Tu Nombre"
+#   git config -f ~/.gitconfig.local user.email "tu@email.com"
+[include]
   path = ~/.gitconfig.local
+
+# Override por directorio — crea ~/.gitconfig.work con user.email de trabajo
+# [includeIf "gitdir:~/work/"]
+#   path = ~/.gitconfig.work
