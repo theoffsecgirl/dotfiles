@@ -24,7 +24,7 @@ if [[ -d /opt/homebrew ]]; then
   export MANPATH="$HOMEBREW_PREFIX/share/man:${MANPATH:-}"
   export INFOPATH="$HOMEBREW_PREFIX/share/info:${INFOPATH:-}"
   BREW_PREFIX="$HOMEBREW_PREFIX"
-elif [[ -d /usr/local ]]; then
+elif [[ -x /usr/local/bin/brew ]]; then
   export HOMEBREW_PREFIX=/usr/local
   export PATH="$HOMEBREW_PREFIX/bin:$HOMEBREW_PREFIX/sbin:$PATH"
   export MANPATH="$HOMEBREW_PREFIX/share/man:${MANPATH:-}"
@@ -50,10 +50,12 @@ else
 fi
 
 # Historial sensato
-HISTFILE="$HOME/.zsh_history"
+# HISTFILE en .cache para mantener home limpio junto al zcompdump
+HISTFILE="$HOME/.cache/zsh/history"
 HISTSIZE=50000
 SAVEHIST=50000
-setopt HIST_IGNORE_DUPS HIST_IGNORE_SPACE HIST_REDUCE_BLANKS APPEND_HISTORY
+setopt HIST_IGNORE_DUPS HIST_IGNORE_SPACE HIST_REDUCE_BLANKS APPEND_HISTORY \
+       HIST_VERIFY SHARE_HISTORY HIST_EXPIRE_DUPS_FIRST
 
 # Opciones de calidad de vida
 setopt AUTO_CD NO_BEEP
