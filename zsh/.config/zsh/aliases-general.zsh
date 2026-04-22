@@ -37,7 +37,12 @@ alias ....='cd ../../..'
 alias mkdir='mkdir -p'
 alias cp='cp -v'
 alias mv='mv -v'
-alias rm='rm -I'
+# rm -I (GNU/Linux) ó rm -i (macOS/BSD) — pide confirmación antes de borrar varios ficheros
+if rm --version 2>/dev/null | grep -q GNU; then
+  alias rm='rm -I'
+else
+  alias rm='rm -i'
+fi
 alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
@@ -57,10 +62,11 @@ alias hunting='cd ~/hunting'
 # -------------------------
 # Python
 # -------------------------
-# py/pip: solo si el sistema no tiene ya python3 como python
-# pyv y pyi eliminados: baja frecuencia, no justifican alias
 alias py='python3'
-alias pip='pip3'
+# pip: solo si no estamos dentro de un venv (que ya tiene pip en PATH)
+if [[ -z "${VIRTUAL_ENV:-}" ]]; then
+  alias pip='pip3'
+fi
 
 # -------------------------
 # Docker
