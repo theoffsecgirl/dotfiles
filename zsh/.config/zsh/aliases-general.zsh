@@ -106,7 +106,7 @@ tips() {
   content+="subenum <domain>    enumera subdominios → guarda en targets/\n"
   content+="probe <urls.txt>    httpx con tech-detect\n"
   content+="recon <domain>      subenum + probe + nota automática\n"
-  content+="scope <domain>      filtra subdominios in-scope\n"
+  content+="inscope <domain>    filtra subdominios in-scope\n"
   content+="nuc                 nuclei -silent\n"
   content+="nucl <urls.txt>     nuclei contra CVEs → guarda resultado\n"
   content+="\n"
