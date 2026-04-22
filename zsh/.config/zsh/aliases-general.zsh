@@ -88,55 +88,142 @@ fi
 # Tips — cheatsheet interactivo de aliases y atajos
 # -------------------------
 tips() {
+  emulate -L zsh
+  setopt local_options extended_glob no_aliases
+
   local content=""
-  content+="=== GIT ===\n"
-  content+="gs        git status -sb\n"
-  content+="gl        git log oneline graph\n"
-  content+="gd        git diff\n"
-  content+="gds       git diff --staged\n"
-  content+="gc 'msg'  git commit -m\n"
-  content+="gca       amend último commit\n"
-  content+="gst/gstp  stash / stash pop\n"
+  local all_aliases=""
+  local -a custom_functions
+  local fn
+
+  _tips_section() {
+    local title="$1"
+    content+="=== ${title} ===\n"
+  }
+
+  _tips_alias() {
+    local name="$1"
+    local note="$2"
+    [[ -n "${aliases[$name]:-}" ]] || return 0
+    if [[ -n "$note" ]]; then
+      content+="${name}\t${aliases[$name]}\t# ${note}\n"
+    else
+      content+="${name}\t${aliases[$name]}\n"
+    fi
+  }
+
+  _tips_func() {
+    local name="$1"
+    local note="$2"
+    (( $+functions[$name] )) || return 0
+    if [[ -n "$note" ]]; then
+      content+="${name}\tfunción\t# ${note}\n"
+    else
+      content+="${name}\tfunción\n"
+    fi
+  }
+
+  _tips_section "GIT"
+  _tips_alias gs "estado corto"
+  _tips_alias gl "log gráfico"
+  _tips_alias gd "diff actual"
+  _tips_alias gds "diff staged"
+  _tips_alias gc "commit rápido"
+  _tips_alias gca "amend último commit"
+  _tips_alias gst "stash"
+  _tips_alias gstp "stash pop"
+  _tips_alias gb "ramas verbosas"
+  _tips_alias glog "log global"
   content+="\n"
-  content+="=== NAVEGACIÓN ===\n"
-  content+="z <dir>   saltar a directorio frecuente (zoxide)\n"
-  content+="zi        selector interactivo de directorios\n"
-  content+="dotfiles  cd ~/.dotfiles\n"
-  content+="hunting   cd ~/hunting\n"
-  content+="..  ...   subir 1 o 2 niveles\n"
+
+  _tips_section "NAVEGACIÓN"
+  if (( $+commands[z] )) || (( $+functions[z] )); then
+    content+="z\tcomando\t# saltar a directorio frecuente (zoxide)\n"
+  fi
+  if (( $+commands[zi] )) || (( $+functions[zi] )); then
+    content+="zi\tcomando\t# selector interactivo de directorios\n"
+  fi
+  _tips_alias dotfiles "cd ~/.dotfiles"
+  _tips_alias hunting "cd ~/hunting"
+  _tips_alias .. "subir 1 nivel"
+  _tips_alias ... "subir 2 niveles"
+  _tips_alias .... "subir 3 niveles"
   content+="\n"
-  content+="=== RECON ===\n"
-  content+="subenum <domain>    enumera subdominios → guarda en targets/\n"
-  content+="probe <urls.txt>    httpx con tech-detect\n"
-  content+="recon <domain>      subenum + probe + nota automática\n"
-  content+="inscope <domain>    filtra subdominios in-scope\n"
-  content+="nuc                 nuclei -silent\n"
-  content+="nucl <urls.txt>     nuclei contra CVEs → guarda resultado\n"
+
+  _tips_section "RECON"
+  _tips_func subenum "enumera subdominios"
+  _tips_func probe "httpx con tech detect"
+  _tips_func recon "pipeline rápido"
+  _tips_func inscope "filtra scope"
+  _tips_alias nuc "nuclei -silent"
+  _tips_func nucl "nuclei CVEs"
   content+="\n"
-  content+="=== HTTP ===\n"
-  content+="h    httpx -silent\n"
-  content+="hh   httpx + tech-detect + status-code\n"
-  content+="hhh  httpx + tech-detect + title + web-server\n"
-  content+="f    ffuf -c -mc all -fc 404\n"
+
+  _tips_section "HTTP"
+  _tips_alias h "httpx básico"
+  _tips_alias hh "httpx + tech + status"
+  _tips_alias hhh "httpx + title + webserver"
+  _tips_alias ch "curl headers"
+  _tips_alias hget "HTTP GET"
+  _tips_alias hpost "HTTP POST"
+  _tips_alias f "ffuf base"
   content+="\n"
-  content+="=== DOCKER ===\n"
-  content+="dkps    docker ps\n"
-  content+="dkexec  docker exec -it\n"
-  content+="dklog   docker logs -f\n"
-  content+="offsec  entrar al contenedor offsec-toolbox\n"
+
+  _tips_section "DOCKER"
+  _tips_alias dk "docker base"
+  _tips_alias dkps "docker ps"
+  _tips_alias dkpsa "docker ps -a"
+  _tips_alias dkimg "docker images"
+  _tips_alias dkexec "docker exec -it"
+  _tips_alias dklog "docker logs -f"
+  _tips_alias dkprune "docker system prune"
+  _tips_alias offsec "entrar al contenedor offsec-toolbox"
+  _tips_alias offsec-restart "reiniciar toolbox"
+  _tips_alias offsec-rebuild "rebuild toolbox"
   content+="\n"
-  content+="=== UTILIDADES ===\n"
-  content+="ll          ls -lAh\n"
-  content+="duu         du ordenado por tamaño\n"
-  content+="ports       puertos activos\n"
-  content+="myip        IP pública\n"
-  content+="localip     IP local\n"
-  content+="path        PATH línea por línea\n"
-  content+="reload      exec zsh\n"
-  content+="note 'txt'  añadir nota rápida de hunting\n"
-  content+="notes       ver notas de hoy\n"
+
+  _tips_section "UTILIDADES"
+  _tips_alias ll "ls largo"
+  _tips_alias la "ls ocultos"
+  _tips_alias duu "uso de disco ordenado"
+  _tips_alias ports "puertos activos"
+  _tips_alias myip "IP pública"
+  _tips_alias localip "IP local"
+  _tips_alias path "PATH línea por línea"
+  _tips_alias reload "recargar shell"
+  _tips_alias py "python3"
+  _tips_alias pip "pip3 fuera de venv"
+  _tips_func note "añadir nota rápida"
+  _tips_func notes "ver notas de hoy"
+  _tips_alias venv-create "crear venv"
+  _tips_alias venv-activate "activar venv"
+  _tips_alias venv-deactivate "desactivar venv"
+  _tips_func venv-auto "activar venv automático"
+  _tips_alias scope-filter "compat alias antiguo"
+  content+="\n"
+
+  _tips_section "TODOS LOS ALIASES CARGADOS"
+  all_aliases="$(alias | LC_ALL=C sort)"
+  if [[ -n "$all_aliases" ]]; then
+    content+="${all_aliases}\n"
+  else
+    content+="(sin aliases cargados)\n"
+  fi
+  content+="\n"
+
+  _tips_section "FUNCIONES CUSTOM"
+  custom_functions=(
+    cdh cdt cdn cds
+    subenum probe inscope recon
+    nucl note notes
+    venv-auto tips
+  )
+  for fn in "${custom_functions[@]}"; do
+    (( $+functions[$fn] )) && content+="${fn}\n"
+  done
+
   if command -v fzf >/dev/null 2>&1; then
-    printf '%b' "$content" | fzf --ansi --no-sort --reverse --header='Alias cheatsheet — ESC para salir'
+    printf '%b' "$content" | fzf --ansi --no-sort --reverse --header='tips — aliases y funciones cargadas · ESC para salir'
   else
     printf '%b' "$content" | less
   fi
