@@ -73,7 +73,7 @@ Runs subenum → probe → auto note. Subdomains saved to `~/hunting/targets/exa
 
 ```bash
 subenum example.com   # subdomains only
-scope example.com     # filter in-scope
+inscope example.com   # filter in-scope (legacy helper)
 ```
 
 ---
