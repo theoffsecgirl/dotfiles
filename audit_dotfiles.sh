@@ -13,17 +13,17 @@ xargs -0 file 2>/dev/null | grep CRLF || true
 echo
 
 echo "[3] Scripts sh"
-grep -RIn '^#!/bin/sh\|^#!/usr/bin/env sh' "$ROOT" || true
+grep -RIEn '^#!/bin/sh|^#!/usr/bin/env sh' "$ROOT" || true
 echo
 
 echo "[4] Bashismos en scripts sh"
 while read -r f; do
   grep -nE '\[\[|<<<|< <\(|function |mapfile|readarray|declare -A|&>' "$f" 2>/dev/null | sed "s|^|$f:|"
-done < <(grep -RIl '^#!/bin/sh\|^#!/usr/bin/env sh' "$ROOT") || true
+done < <(grep -RIEl '^#!/bin/sh|^#!/usr/bin/env sh' "$ROOT") || true
 echo
 
 echo "[5] Sintaxis bash"
-find "$ROOT" -type f \( -name "*.sh" -o -path "*/bin/*" -o -path "*/.local/bin/*" \) | while read -r f; do
+find "$ROOT" -type f \( -name "*.sh" -o -name "*.zsh" -o -path "*/bin/*" -o -path "*/.local/bin/*" \) | while read -r f; do
   if head -n1 "$f" | grep -q 'bash'; then
     bash -n "$f" || echo "[BASH-ERR] $f"
   fi
