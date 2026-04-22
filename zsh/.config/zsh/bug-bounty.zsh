@@ -9,6 +9,14 @@ fi
 # Se carga automáticamente desde load.zsh
 
 # ==========================================
+# Wordlists — variables de entorno (más seguro que funciones con subshell)
+# ==========================================
+export WL_COMMON="${WORDLISTS:-/usr/share/wordlists}/dirb/common.txt"
+export WL_MEDIUM="${WORDLISTS:-/usr/share/wordlists}/Discovery/Web-Content/directory-list-2.3-medium.txt"
+# Uso: ffuf -w $WL_COMMON -u https://target/FUZZ
+
+
+# ==========================================
 # Navegación rápida workspace
 # ==========================================
 cdh() { cd "$HUNTING_HOME"; }
@@ -42,17 +50,6 @@ alias hpost='http POST'
 # Fuzzing
 # ==========================================
 alias f='ffuf -c -mc all -fc 404'
-
-# Wordlists rápidas (referencia)
-wl-common() { echo "${WORDLISTS:-/usr/share/wordlists}/dirb/common.txt"; }
-wl-medium()  { echo "${WORDLISTS:-/usr/share/wordlists}/Discovery/Web-Content/directory-list-2.3-medium.txt"; }
-
-
-# ==========================================
-# JSON helpers
-# ==========================================
-alias jq-keys='jq "keys"'
-alias jq-pretty='jq .'
 
 
 # ==========================================
@@ -95,7 +92,7 @@ probe() {
   echo "[+] Resultados → $out"
 }
 
-# Filtrar subdominios in-scope para un dominio (legacy helper, evita colisionar con el binario scope)
+# Filtrar subdominios in-scope para un dominio
 inscope() {
   local domain="${1:-}"
   [[ -z "$domain" ]] && { echo "Uso: inscope <dominio.com>"; return 1; }
