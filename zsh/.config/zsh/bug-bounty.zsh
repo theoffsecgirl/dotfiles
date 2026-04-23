@@ -371,7 +371,6 @@ tips() {
   setopt local_options extended_glob no_aliases
 
   local content=""
-  local fn
 
   _tips_section() {
     local title="$1"
@@ -396,9 +395,6 @@ tips() {
     printf -v line '%-18s -> %-45s # %s\n' "$name" "función" "$note"
     content+="$line"
   }
-
-  content+="tips — aliases y funciones cargadas\n"
-  content+="ESC para salir | escribe para filtrar\n"
 
   _tips_section "GIT"
   _tips_alias gs "estado corto"
@@ -435,9 +431,10 @@ tips() {
   _tips_func probe "httpx sobre lista"
   _tips_func recon "mktarget + subenum + probe"
   _tips_func inscope "filtra subdominios in-scope"
+  _tips_alias scope-filter "compat alias antiguo"
   _tips_func note "añadir nota rápida global"
   _tips_func notes "ver notas de hoy"
-  _tips_alias scope-filter "compat alias antiguo"
+  _tips_func tips "abrir cheatsheet operativo"
 
   _tips_section "CONTAINER"
   _tips_func offsec-system-start "arranca servicios de Apple Container"
@@ -451,7 +448,7 @@ tips() {
   _tips_func offsec-status "lista contenedores"
   _tips_func offsec-rm "borra el contenedor"
 
-  _tips_section "HTTP"
+  _tips_section "HTTP / FUZZ"
   _tips_alias h "httpx básico"
   _tips_alias hh "httpx con tech y status"
   _tips_alias hhh "httpx con title y webserver"
@@ -460,6 +457,7 @@ tips() {
   _tips_alias hpost "HTTP POST"
   _tips_alias f "ffuf base"
   _tips_alias nuc "nuclei -silent"
+  _tips_func nucl "nuclei sobre lista"
 
   _tips_section "PYTHON"
   _tips_alias py "python3"
@@ -479,14 +477,8 @@ tips() {
   _tips_alias path "PATH línea por línea"
   _tips_alias reload "recargar shell"
 
-  _tips_section "FUNCIONES CUSTOM"
-  for fn in cdh cdt cdn cds mktarget subenum probe inscope recon nucl note notes venv-auto tips offsec-system-start offsec-build offsec-init offsec offsec-start offsec-stop offsec-rebuild offsec-logs offsec-status offsec-rm; do
-    (( $+functions[$fn] )) || continue
-    content+="$fn                 -> función                                       # custom\n"
-  done
-
   if command -v fzf >/dev/null 2>&1; then
-    printf '%b' "$content" | fzf --ansi --layout=reverse --no-sort --header='tips — aliases y funciones cargadas · ESC para salir'
+    printf '%b' "$content" | fzf --ansi --layout=reverse --no-sort --header='tips · ESC para salir | escribe para filtrar'
   else
     printf '%b' "$content" | less -R
   fi
