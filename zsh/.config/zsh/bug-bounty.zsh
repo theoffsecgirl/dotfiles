@@ -100,12 +100,131 @@ RESOLVERS
 
 
 # ==========================================
-# Contenedores
+# Contenedores (Apple Container)
 # ==========================================
 export OFFSEC_CONTAINER_NAME="${OFFSEC_CONTAINER_NAME:-offsec-toolbox}"
-alias offsec='docker exec -it "${OFFSEC_CONTAINER_NAME}" zsh'
-alias offsec-restart='cd ${DOTFILES_DIR:-~/.dotfiles}/containers/debian-toolbox && docker compose restart'
-alias offsec-rebuild='cd ${DOTFILES_DIR:-~/.dotfiles}/containers/debian-toolbox && docker compose down && docker compose build --no-cache && docker compose up -d'
+export OFFSEC_IMAGE_NAME="${OFFSEC_IMAGE_NAME:-offsec-toolbox:latest}"
+export OFFSEC_IMAGE_BASE="${OFFSEC_IMAGE_BASE:-debian:bookworm-slim}"
+export OFFSEC_WORKDIR="${OFFSEC_WORKDIR:-/work}"
+export OFFSEC_HOST_MOUNT="${OFFSEC_HOST_MOUNT:-$HOME/hunting}"
+
+container-runtime() {
+  command -v container >/dev/null 2>&1
+}
+
+offsec-system-start() {
+  container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
+  container system start
+}
+
+offsec-status() {
+  container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
+  container ls
+}
+
+offsec-build() {
+  container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
+
+  local tmpdir dockerfile
+  tmpdir="$(mktemp -d)" || return 1
+  dockerfile="$tmpdir/Containerfile"
+
+  cat > "$dockerfile" <<EOF
+FROM ${OFFSEC_IMAGE_BASE}
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+  ca-certificates \
+  curl \
+  wget \
+  git \
+  jq \
+  vim \
+  zsh \
+  python3 \
+  python3-pip \
+  python3-venv \
+  dnsutils \
+  iputils-ping \
+  net-tools \
+  procps \
+  build-essential \
+  unzip \
+  && rm -rf /var/lib/apt/lists/*
+
+WORKDIR ${OFFSEC_WORKDIR}
+CMD ["sleep", "infinity"]
+EOF
+
+  echo "[*] Construyendo imagen ${OFFSEC_IMAGE_NAME}..."
+  container build -t "${OFFSEC_IMAGE_NAME}" "$tmpdir"
+  local rc=$?
+  rm -rf "$tmpdir"
+  return $rc
+}
+
+offsec-init() {
+  container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
+
+  local running exists
+  running="$(container ls --format json 2>/dev/null | jq -r '.[]?.name // empty' 2>/dev/null | grep -Fx "${OFFSEC_CONTAINER_NAME}" || true)"
+  if [[ -n "$running" ]]; then
+    echo "[+] Contenedor ya en ejecución: ${OFFSEC_CONTAINER_NAME}"
+    return 0
+  fi
+
+  exists="$(container list --format json 2>/dev/null | jq -r '.[]?.name // empty' 2>/dev/null | grep -Fx "${OFFSEC_CONTAINER_NAME}" || true)"
+  if [[ -n "$exists" ]]; then
+    echo "[*] Arrancando contenedor existente: ${OFFSEC_CONTAINER_NAME}"
+    container start "${OFFSEC_CONTAINER_NAME}"
+    return $?
+  fi
+
+  [[ -d "${OFFSEC_HOST_MOUNT}" ]] || mkdir -p "${OFFSEC_HOST_MOUNT}"
+
+  echo "[*] Creando contenedor ${OFFSEC_CONTAINER_NAME}..."
+  container run -d \
+    --name "${OFFSEC_CONTAINER_NAME}" \
+    --volume "${OFFSEC_HOST_MOUNT}:${OFFSEC_WORKDIR}" \
+    --workdir "${OFFSEC_WORKDIR}" \
+    "${OFFSEC_IMAGE_NAME}" \
+    sleep infinity
+}
+
+offsec() {
+  container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
+  offsec-init || return 1
+  container exec -it "${OFFSEC_CONTAINER_NAME}" zsh
+}
+
+offsec-start() {
+  container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
+  offsec-init
+}
+
+offsec-stop() {
+  container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
+  container stop "${OFFSEC_CONTAINER_NAME}"
+}
+
+offsec-logs() {
+  container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
+  container logs "${OFFSEC_CONTAINER_NAME}"
+}
+
+offsec-rm() {
+  container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
+  container rm "${OFFSEC_CONTAINER_NAME}"
+}
+
+offsec-rebuild() {
+  container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
+  offsec-stop >/dev/null 2>&1 || true
+  offsec-rm >/dev/null 2>&1 || true
+  offsec-build || return 1
+  offsec-init
+}
 
 
 # ==========================================
@@ -321,6 +440,18 @@ tips() {
   _tips_func notes "ver notas de hoy"
   _tips_alias scope-filter "compat alias antiguo"
 
+  _tips_section "CONTAINER"
+  _tips_func offsec-system-start "arranca servicios de Apple Container"
+  _tips_func offsec-build "construye imagen offsec-toolbox"
+  _tips_func offsec-init "crea o arranca el contenedor"
+  _tips_func offsec "entra al contenedor toolbox"
+  _tips_func offsec-start "arranca toolbox"
+  _tips_func offsec-stop "para toolbox"
+  _tips_func offsec-rebuild "reconstruye imagen y contenedor"
+  _tips_func offsec-logs "logs del contenedor"
+  _tips_func offsec-status "lista contenedores"
+  _tips_func offsec-rm "borra el contenedor"
+
   _tips_section "HTTP"
   _tips_alias h "httpx básico"
   _tips_alias hh "httpx con tech y status"
@@ -330,18 +461,6 @@ tips() {
   _tips_alias hpost "HTTP POST"
   _tips_alias f "ffuf base"
   _tips_alias nuc "nuclei -silent"
-
-  _tips_section "DOCKER"
-  _tips_alias dk "docker base"
-  _tips_alias dkps "docker ps"
-  _tips_alias dkpsa "docker ps -a"
-  _tips_alias dkimg "docker images"
-  _tips_alias dkexec "docker exec -it"
-  _tips_alias dklog "docker logs -f"
-  _tips_alias dkprune "docker system prune"
-  _tips_alias offsec "entrar al contenedor offsec-toolbox"
-  _tips_alias offsec-restart "reiniciar toolbox"
-  _tips_alias offsec-rebuild "rebuild toolbox"
 
   _tips_section "PYTHON"
   _tips_alias py "python3"
@@ -372,7 +491,7 @@ tips() {
   fi
 
   _tips_section "FUNCIONES CUSTOM"
-  for fn in cdh cdt cdn cds mktarget subenum probe inscope recon nucl note notes venv-auto tips; do
+  for fn in cdh cdt cdn cds mktarget subenum probe inscope recon nucl note notes venv-auto tips offsec-system-start offsec-build offsec-init offsec offsec-start offsec-stop offsec-rebuild offsec-logs offsec-status offsec-rm; do
     (( $+functions[$fn] )) || continue
     content+="$fn                 -> función                                       # custom\n"
   done
