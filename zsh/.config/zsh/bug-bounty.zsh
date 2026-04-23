@@ -371,7 +371,6 @@ tips() {
   setopt local_options extended_glob no_aliases
 
   local content=""
-  local all_aliases=""
   local fn
 
   _tips_section() {
@@ -479,16 +478,6 @@ tips() {
   _tips_alias localip "IP local"
   _tips_alias path "PATH línea por línea"
   _tips_alias reload "recargar shell"
-
-  _tips_section "TODOS LOS ALIASES CARGADOS"
-  all_aliases="$(alias | LC_ALL=C sort)"
-  if [[ -n "$all_aliases" ]]; then
-    while IFS= read -r line; do
-      content+="$line\n"
-    done <<< "$all_aliases"
-  else
-    content+="(sin aliases cargados)\n"
-  fi
 
   _tips_section "FUNCIONES CUSTOM"
   for fn in cdh cdt cdn cds mktarget subenum probe inscope recon nucl note notes venv-auto tips offsec-system-start offsec-build offsec-init offsec offsec-start offsec-stop offsec-rebuild offsec-logs offsec-status offsec-rm; do
