@@ -57,7 +57,7 @@ alias q='exit'
 alias path='echo $PATH | tr ":" "\n"'
 alias reload='exec zsh'
 alias dotfiles='cd ~/.dotfiles'
-alias hunting='cd ""'
+alias hunting='cd "$HUNTING_HOME"'
 
 # -------------------------
 # Python
@@ -144,7 +144,7 @@ tips() {
     content+="zi\tcomando\t# selector interactivo de directorios\n"
   fi
   _tips_alias dotfiles "cd ~/.dotfiles"
-  _tips_alias hunting "cd ~/hunting"
+  _tips_alias hunting "cd $HUNTING_HOME"
   _tips_alias .. "subir 1 nivel"
   _tips_alias ... "subir 2 niveles"
   _tips_alias .... "subir 3 niveles"
