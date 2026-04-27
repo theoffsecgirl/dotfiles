@@ -5,6 +5,8 @@ else
   export HUNTING_HOME="${HUNTING_HOME:-$HOME/hunting}"
 fi
 
+export GLOBAL_NOTES_HOME="${GLOBAL_NOTES_HOME:-$HOME/hunting/notes}"
+
 # Bug Bounty aliases y funciones
 # Se carga automáticamente desde load.zsh
 
@@ -20,7 +22,7 @@ export WL_MEDIUM="${WORDLISTS:-/usr/share/wordlists}/Discovery/Web-Content/direc
 # ==========================================
 cdh() { cd "$HUNTING_HOME"; }
 cdt() { cd "$HUNTING_HOME/targets"; }
-cdn() { cd "$HUNTING_HOME/notes"; }
+cdn() { cd "$GLOBAL_NOTES_HOME"; }
 cds() { cd "$HUNTING_HOME/scripts"; }
 
 
@@ -52,7 +54,7 @@ mktarget() {
   base="$(_target_base "$domain")"
 
   mkdir -p \
-    "$HUNTING_HOME/notes" \
+    "$GLOBAL_NOTES_HOME" \
     "$HUNTING_HOME/scripts" \
     "$base/notes" \
     "$base/recon" \
@@ -324,14 +326,14 @@ nucl() {
 # ==========================================
 note() {
   [[ -z "${*:-}" ]] && { echo "Uso: note 'tu nota aquí'"; return 1; }
-  local note_file="${HUNTING_HOME:-$HOME/hunting}/notes/$(date +%Y-%m-%d)-quick.md"
+  local note_file="${GLOBAL_NOTES_HOME:-$HOME/hunting/notes}/$(date +%Y-%m-%d)-quick.md"
   mkdir -p "$(dirname "$note_file")"
   printf '[%s] %s\n' "$(date +%H:%M:%S)" "$*" >> "$note_file"
   echo "✅ Nota añadida → $note_file"
 }
 
 notes() {
-  local note_file="${HUNTING_HOME:-$HOME/hunting}/notes/$(date +%Y-%m-%d)-quick.md"
+  local note_file="${GLOBAL_NOTES_HOME:-$HOME/hunting/notes}/$(date +%Y-%m-%d)-quick.md"
   if [[ -f "$note_file" ]]; then
     tail -20 "$note_file"
   else
