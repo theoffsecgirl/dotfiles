@@ -59,6 +59,23 @@ _current_target_base() {
   printf '%s' "$root/$slug"
 }
 
+_target_note_file() {
+  local target_base="$1"
+  local kind="${2:-daily}"
+
+  case "$kind" in
+    daily|quick|target)
+      printf '%s' "$target_base/notes/$(date +%Y-%m-%d)-target.md"
+      ;;
+    overview|shortlist|hypotheses|findings|decisions)
+      printf '%s' "$target_base/notes/$kind.md"
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
 mktarget() {
   local domain="${1:-}"
   [[ -z "$domain" ]] && { echo "Uso: mktarget <dominio>"; return 1; }
@@ -347,7 +364,37 @@ note() {
 }
 
 tnote() {
-  [[ -z "${*:-}" ]] && { echo "Uso: tnote 'nota del target actual'"; return 1; }
+  local kind="daily"
+  local edit=0
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -f|--file)
+        shift
+        [[ -z "${1:-}" ]] && { echo "Uso: tnote -f <overview|shortlist|hypotheses|findings|decisions> 'nota'"; return 1; }
+        kind="$1"
+        ;;
+      -o|--open)
+        edit=1
+        ;;
+      -h|--help)
+        echo "Uso: tnote [-o] [-f overview|shortlist|hypotheses|findings|decisions] 'nota del target actual'"
+        return 0
+        ;;
+      --)
+        shift
+        break
+        ;;
+      -* )
+        echo "[!] Flag no soportado: $1"
+        return 1
+        ;;
+      *)
+        break
+        ;;
+    esac
+    shift
+  done
 
   local target_base
   target_base="$(_current_target_base)" || {
@@ -355,9 +402,23 @@ tnote() {
     return 1
   }
 
-  local note_file="$target_base/notes/$(date +%Y-%m-%d)-target.md"
+  local note_file
+  note_file="$(_target_note_file "$target_base" "$kind")" || {
+    echo "[!] Fichero no soportado: $kind"
+    echo "    Usa: overview, shortlist, hypotheses, findings, decisions"
+    return 1
+  }
+
   mkdir -p "$(dirname "$note_file")"
-  printf '[%s] %s\n' "$(date +%H:%M:%S)" "$*" >> "$note_file"
+
+  if (( edit )); then
+    "${EDITOR:-vim}" "$note_file"
+    return $?
+  fi
+
+  [[ -z "${*:-}" ]] && { echo "Uso: tnote [-f <file>] 'nota del target actual'"; return 1; }
+
+  printf '\n- [%s] %s\n' "$(date +%Y-%m-%dT%H:%M:%S)" "$*" >> "$note_file"
   echo "✅ Nota target añadida → $note_file"
 }
 
@@ -371,17 +432,31 @@ notes() {
 }
 
 tnotes() {
+  local kind="daily"
+
+  if [[ "${1:-}" == "-f" || "${1:-}" == "--file" ]]; then
+    shift
+    [[ -z "${1:-}" ]] && { echo "Uso: tnotes -f <overview|shortlist|hypotheses|findings|decisions>"; return 1; }
+    kind="$1"
+  fi
+
   local target_base
   target_base="$(_current_target_base)" || {
     echo "[!] No estás dentro de ${HUNTING_HOME:-$HOME/hunting}/targets/<target>"
     return 1
   }
 
-  local note_file="$target_base/notes/$(date +%Y-%m-%d)-target.md"
+  local note_file
+  note_file="$(_target_note_file "$target_base" "$kind")" || {
+    echo "[!] Fichero no soportado: $kind"
+    echo "    Usa: overview, shortlist, hypotheses, findings, decisions"
+    return 1
+  }
+
   if [[ -f "$note_file" ]]; then
-    tail -20 "$note_file"
+    tail -30 "$note_file"
   else
-    echo "No hay notas de target hoy."
+    echo "No hay notas en: $note_file"
   fi
 }
 
@@ -479,9 +554,9 @@ tips() {
   _tips_func inscope "filtra subdominios in-scope"
   _tips_alias scope-filter "compat alias antiguo"
   _tips_func note "añadir nota rápida global"
-  _tips_func tnote "añadir nota al target actual"
+  _tips_func tnote "target note: tnote [-o] [-f findings|hypotheses|decisions] texto"
   _tips_func notes "ver notas globales de hoy"
-  _tips_func tnotes "ver notas de hoy del target actual"
+  _tips_func tnotes "ver notas del target: tnotes [-f findings|hypotheses]"
   _tips_func tips "abrir cheatsheet operativo"
 
   _tips_section "CONTAINER"
