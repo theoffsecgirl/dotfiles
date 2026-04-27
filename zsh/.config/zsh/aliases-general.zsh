@@ -57,7 +57,7 @@ alias q='exit'
 alias path='echo $PATH | tr ":" "\n"'
 alias reload='exec zsh'
 alias dotfiles='cd ~/.dotfiles'
-alias hunting='cd ~/hunting'
+alias hunting='cd ""'
 
 # -------------------------
 # Python
