@@ -45,6 +45,20 @@ _target_base() {
   printf '%s' "$HUNTING_HOME/targets/$slug"
 }
 
+_current_target_base() {
+  local targets_root="${HUNTING_HOME:-$HOME/hunting}/targets"
+  local current="${PWD:A}"
+  local root="${targets_root:A}"
+
+  [[ "$current" == "$root"/* ]] || return 1
+
+  local rel="${current#$root/}"
+  local slug="${rel%%/*}"
+
+  [[ -n "$slug" && -d "$root/$slug" ]] || return 1
+  printf '%s' "$root/$slug"
+}
+
 mktarget() {
   local domain="${1:-}"
   [[ -z "$domain" ]] && { echo "Uso: mktarget <dominio>"; return 1; }
@@ -332,12 +346,42 @@ note() {
   echo "✅ Nota añadida → $note_file"
 }
 
+tnote() {
+  [[ -z "${*:-}" ]] && { echo "Uso: tnote 'nota del target actual'"; return 1; }
+
+  local target_base
+  target_base="$(_current_target_base)" || {
+    echo "[!] No estás dentro de ${HUNTING_HOME:-$HOME/hunting}/targets/<target>"
+    return 1
+  }
+
+  local note_file="$target_base/notes/$(date +%Y-%m-%d)-target.md"
+  mkdir -p "$(dirname "$note_file")"
+  printf '[%s] %s\n' "$(date +%H:%M:%S)" "$*" >> "$note_file"
+  echo "✅ Nota target añadida → $note_file"
+}
+
 notes() {
   local note_file="${GLOBAL_NOTES_HOME:-$HOME/hunting/notes}/$(date +%Y-%m-%d)-quick.md"
   if [[ -f "$note_file" ]]; then
     tail -20 "$note_file"
   else
-    echo "No hay notas de hoy."
+    echo "No hay notas globales de hoy."
+  fi
+}
+
+tnotes() {
+  local target_base
+  target_base="$(_current_target_base)" || {
+    echo "[!] No estás dentro de ${HUNTING_HOME:-$HOME/hunting}/targets/<target>"
+    return 1
+  }
+
+  local note_file="$target_base/notes/$(date +%Y-%m-%d)-target.md"
+  if [[ -f "$note_file" ]]; then
+    tail -20 "$note_file"
+  else
+    echo "No hay notas de target hoy."
   fi
 }
 
@@ -435,7 +479,9 @@ tips() {
   _tips_func inscope "filtra subdominios in-scope"
   _tips_alias scope-filter "compat alias antiguo"
   _tips_func note "añadir nota rápida global"
-  _tips_func notes "ver notas de hoy"
+  _tips_func tnote "añadir nota al target actual"
+  _tips_func notes "ver notas globales de hoy"
+  _tips_func tnotes "ver notas de hoy del target actual"
   _tips_func tips "abrir cheatsheet operativo"
 
   _tips_section "CONTAINER"
