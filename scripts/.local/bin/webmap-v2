@@ -18,7 +18,7 @@ resolve_input() {
     INPUT_SOURCE="$arg"
     TARGET="$(basename "$arg")"
     TARGET="${TARGET%.*}"
-    BASE="${HUNTING_HOME:-$HOME/hunting}/targets/_adhoc/$TARGET"
+    BASE="${HUNTING_HOME:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty}/targets/_adhoc/$TARGET"
     LIVEFILE="$arg"
     return
   fi
@@ -27,7 +27,7 @@ resolve_input() {
     INPUT_MODE="url"
     INPUT_SOURCE="$arg"
     TARGET="$(printf '%s' "$arg" | sed -E 's#https?://##; s#/.*$##; s#[^A-Za-z0-9._-]#_#g')"
-    BASE="${HUNTING_HOME:-$HOME/hunting}/targets/_adhoc/$TARGET"
+    BASE="${HUNTING_HOME:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty}/targets/_adhoc/$TARGET"
     LIVEFILE="$(mktemp)"
     printf '%s\n' "$arg" > "$LIVEFILE"
     return
@@ -35,7 +35,7 @@ resolve_input() {
 
   INPUT_MODE="target"
   TARGET="$arg"
-  BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
+  BASE="${HUNTING_HOME:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty}/targets/$TARGET"
   LIVEFILE="$BASE/http/live.txt"
   [[ -f "$LIVEFILE" ]] || die "Ejecuta primero scope-v2 $TARGET"
 }

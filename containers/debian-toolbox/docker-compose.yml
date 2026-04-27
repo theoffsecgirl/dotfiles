@@ -18,7 +18,7 @@ services:
       # Dotfiles (solo lectura)
       - ~/.dotfiles:/root/.dotfiles:ro
       # Workspace persistente
-      - ~/hunting:/work:rw
+      - ${HUNTING_HOME:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty}:/work:rw
       # SSH keys
       - ~/.ssh:/root/.ssh:ro
       # Git config global

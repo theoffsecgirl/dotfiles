@@ -2,7 +2,7 @@
 # tmux-sessionizer — switch rápido entre proyectos con fzf
 set -euo pipefail
 
-HUNT_ROOT="${HUNTING_HOME:-$HOME/hunting}"
+HUNT_ROOT="${HUNTING_HOME:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty}"
 
 if [[ $# -eq 1 ]]; then
   selected="$1"

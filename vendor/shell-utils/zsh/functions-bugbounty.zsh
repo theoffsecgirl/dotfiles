@@ -39,7 +39,7 @@ mkproject() {
   domain="${domain%%/*}"
   domain="${domain:l}"
 
-  local base="$HOME/hunting/targets/$domain"
+  local base="${HUNTING_HOME:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty}/targets/$domain"
 
   mkdir -p "$base"/{in,out,tmp,notes,recon,http,fuzz,js,burp,reports,loot}
 

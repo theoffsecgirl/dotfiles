@@ -4,6 +4,9 @@
 local fn = vim.fn
 local uv = vim.uv or vim.loop
 
+local hunting_home = os.getenv("HUNTING_HOME") or vim.fn.expand("~/Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty")
+local hunting_notes = hunting_home .. "/notes"
+
 -- Leader
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
@@ -83,8 +86,8 @@ require("lazy").setup({
               group = "String",
               key = "h",
               action = function()
-                vim.cmd("cd " .. vim.fn.expand("~/hunting"))
-                require("oil").open(vim.fn.expand("~/hunting"))
+                vim.cmd("cd " .. hunting_home)
+                require("oil").open(hunting_home)
               end,
             },
             {
@@ -92,7 +95,7 @@ require("lazy").setup({
               group = "String",
               key = "n",
               action = function()
-                local p = vim.fn.expand("~/hunting/notes/" .. os.date("%Y-%m-%d") .. "-quick.md")
+                local p = hunting_notes .. "/" .. os.date("%Y-%m-%d") .. "-quick.md"
                 vim.fn.mkdir(vim.fn.fnamemodify(p, ":h"), "p")
                 vim.cmd("edit " .. p)
               end,
@@ -388,7 +391,7 @@ map("t", "<C-x>",     "<C-\\><C-n>",   "Exit terminal mode")
 
 -- Notes rapidas
 map("n", "<leader>n", function()
-  local p = fn.expand("~/hunting/notes/" .. os.date("%Y-%m-%d") .. "-quick.md")
+  local p = hunting_notes .. "/" .. os.date("%Y-%m-%d") .. "-quick.md"
   fn.mkdir(fn.fnamemodify(p, ":h"), "p")
   vim.cmd("edit " .. p)
 end, "Open today's notes")

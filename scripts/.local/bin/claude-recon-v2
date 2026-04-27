@@ -6,7 +6,7 @@ set -euo pipefail
 [[ -z "${1:-}" ]] && { echo "Uso: claude-recon-v2 <dominio>"; exit 1; }
 
 TARGET="$1"
-BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
+BASE="${HUNTING_HOME:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty}/targets/$TARGET"
 OUTDIR="$BASE/ai"
 PROMPTFILE="$OUTDIR/recon.prompt.txt"
 OUTFILE="$OUTDIR/recon.json"
