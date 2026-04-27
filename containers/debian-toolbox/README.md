@@ -41,7 +41,7 @@ docker compose down
 
 ## Montajes
 
-- `~/hunting` → `/work` (persistente)
+- `$HUNTING_HOME` → `/work` (persistente)
 - `~/.dotfiles` → `/root/.dotfiles` (read-only)
 - `~/.ssh` → `/root/.ssh` (read-only)
 - `~/.gitconfig` → `/root/.gitconfig` (read-only)
