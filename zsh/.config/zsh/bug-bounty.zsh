@@ -2,10 +2,12 @@ if [[ -n "${OFFSEC_CONTAINER:-}" ]]; then
   unsetopt CORRECT
   export HUNTING_HOME="/work"
 else
-  export HUNTING_HOME="${HUNTING_HOME:-$HOME/hunting}"
+  export ICLOUD_HOME="${ICLOUD_HOME:-$HOME/Library/Mobile Documents/com~apple~CloudDocs}"
+  export PROFESIONAL_HOME="${PROFESIONAL_HOME:-$ICLOUD_HOME/02_PROFESIONAL}"
+  export HUNTING_HOME="${HUNTING_HOME:-$PROFESIONAL_HOME/bugbounty}"
 fi
 
-export GLOBAL_NOTES_HOME="${GLOBAL_NOTES_HOME:-$HOME/hunting/notes}"
+export GLOBAL_NOTES_HOME="${GLOBAL_NOTES_HOME:-$HUNTING_HOME/notes}"
 
 # Bug Bounty aliases y funciones
 # Se carga automáticamente desde load.zsh
@@ -139,7 +141,7 @@ export OFFSEC_CONTAINER_NAME="${OFFSEC_CONTAINER_NAME:-offsec-toolbox}"
 export OFFSEC_IMAGE_NAME="${OFFSEC_IMAGE_NAME:-offsec-toolbox:latest}"
 export OFFSEC_IMAGE_BASE="${OFFSEC_IMAGE_BASE:-debian:bookworm-slim}"
 export OFFSEC_WORKDIR="${OFFSEC_WORKDIR:-/work}"
-export OFFSEC_HOST_MOUNT="${OFFSEC_HOST_MOUNT:-$HOME/hunting}"
+export OFFSEC_HOST_MOUNT="${OFFSEC_HOST_MOUNT:-$HUNTING_HOME}"
 
 container-runtime() {
   command -v container >/dev/null 2>&1
@@ -357,7 +359,7 @@ nucl() {
 # ==========================================
 note() {
   [[ -z "${*:-}" ]] && { echo "Uso: note 'tu nota aquí'"; return 1; }
-  local note_file="${GLOBAL_NOTES_HOME:-$HOME/hunting/notes}/$(date +%Y-%m-%d)-quick.md"
+  local note_file="${GLOBAL_NOTES_HOME:-$HUNTING_HOME/notes}/$(date +%Y-%m-%d)-quick.md"
   mkdir -p "$(dirname "$note_file")"
   printf '[%s] %s\n' "$(date +%H:%M:%S)" "$*" >> "$note_file"
   echo "✅ Nota añadida → $note_file"
@@ -422,15 +424,6 @@ tnote() {
   echo "✅ Nota target añadida → $note_file"
 }
 
-notes() {
-  local note_file="${GLOBAL_NOTES_HOME:-$HOME/hunting/notes}/$(date +%Y-%m-%d)-quick.md"
-  if [[ -f "$note_file" ]]; then
-    tail -20 "$note_file"
-  else
-    echo "No hay notas globales de hoy."
-  fi
-}
-
 tnotes() {
   local kind="daily"
 
@@ -483,126 +476,3 @@ venv-auto() {
 
 # Compatibilidad explícita con el nombre antiguo sin pisar el binario scope
 alias scope-filter=inscope
-
-# ==========================================
-# Tips — cheatsheet interactivo de aliases y atajos
-# ==========================================
-tips() {
-  emulate -L zsh
-  setopt local_options extended_glob no_aliases
-
-  local content=""
-
-  _tips_section() {
-    local title="$1"
-    content+=$'\n'
-    content+="=== ${title} ===\n"
-  }
-
-  _tips_alias() {
-    local name="$1"
-    local note="$2"
-    [[ -n "${aliases[$name]:-}" ]] || return 0
-    local line
-    printf -v line '%-18s -> %-45s # %s\n' "$name" "${aliases[$name]}" "$note"
-    content+="$line"
-  }
-
-  _tips_func() {
-    local name="$1"
-    local note="$2"
-    (( $+functions[$name] )) || return 0
-    local line
-    printf -v line '%-18s -> %-45s # %s\n' "$name" "función" "$note"
-    content+="$line"
-  }
-
-  _tips_section "GIT"
-  _tips_alias gs "estado corto"
-  _tips_alias gl "log gráfico"
-  _tips_alias gd "diff actual"
-  _tips_alias gds "diff staged"
-  _tips_alias gc "commit rápido"
-  _tips_alias gca "amend último commit"
-  _tips_alias gst "stash"
-  _tips_alias gstp "stash pop"
-  _tips_alias gb "ramas verbosas"
-  _tips_alias glog "log global"
-
-  _tips_section "NAVEGACIÓN"
-  if (( $+commands[z] )) || (( $+functions[z] )); then
-    content+="z                  -> comando                                       # saltar a directorio frecuente (zoxide)\n"
-  fi
-  if (( $+commands[zi] )) || (( $+functions[zi] )); then
-    content+="zi                 -> comando                                       # selector interactivo de directorios\n"
-  fi
-  _tips_alias dotfiles "ir a ~/.dotfiles"
-  _tips_alias hunting "ir a ~/hunting"
-  _tips_alias .. "subir 1 nivel"
-  _tips_alias ... "subir 2 niveles"
-  _tips_alias .... "subir 3 niveles"
-  _tips_func cdh "ir a HUNTING_HOME"
-  _tips_func cdt "ir a targets"
-  _tips_func cdn "ir a notas globales"
-  _tips_func cds "ir a scripts"
-
-  _tips_section "BUG BOUNTY"
-  _tips_func mktarget "crear target simple y consistente"
-  _tips_func subenum "enumera subdominios"
-  _tips_func probe "httpx sobre lista"
-  _tips_func recon "mktarget + subenum + probe"
-  _tips_func inscope "filtra subdominios in-scope"
-  _tips_alias scope-filter "compat alias antiguo"
-  _tips_func note "añadir nota rápida global"
-  _tips_func tnote "target note: tnote [-o] [-f findings|hypotheses|decisions] texto"
-  _tips_func notes "ver notas globales de hoy"
-  _tips_func tnotes "ver notas del target: tnotes [-f findings|hypotheses]"
-  _tips_func tips "abrir cheatsheet operativo"
-
-  _tips_section "CONTAINER"
-  _tips_func offsec-system-start "arranca servicios de Apple Container"
-  _tips_func offsec-build "construye imagen offsec-toolbox"
-  _tips_func offsec-init "crea o arranca el contenedor"
-  _tips_func offsec "entra al contenedor toolbox"
-  _tips_func offsec-start "arranca toolbox"
-  _tips_func offsec-stop "para toolbox"
-  _tips_func offsec-rebuild "reconstruye imagen y contenedor"
-  _tips_func offsec-logs "logs del contenedor"
-  _tips_func offsec-status "lista contenedores"
-  _tips_func offsec-rm "borra el contenedor"
-
-  _tips_section "HTTP / FUZZ"
-  _tips_alias h "httpx básico"
-  _tips_alias hh "httpx con tech y status"
-  _tips_alias hhh "httpx con title y webserver"
-  _tips_alias ch "curl solo headers"
-  _tips_alias hget "HTTP GET"
-  _tips_alias hpost "HTTP POST"
-  _tips_alias f "ffuf base"
-  _tips_alias nuc "nuclei -silent"
-  _tips_func nucl "nuclei sobre lista"
-
-  _tips_section "PYTHON"
-  _tips_alias py "python3"
-  _tips_alias pip "pip3 fuera de venv"
-  _tips_alias venv-create "crear venv"
-  _tips_alias venv-activate "activar venv"
-  _tips_alias venv-deactivate "desactivar venv"
-  _tips_func venv-auto "activar venv o .venv si existe"
-
-  _tips_section "UTILIDADES"
-  _tips_alias ll "ls largo"
-  _tips_alias la "ls ocultos"
-  _tips_alias duu "uso de disco ordenado"
-  _tips_alias ports "puertos activos"
-  _tips_alias myip "IP pública"
-  _tips_alias localip "IP local"
-  _tips_alias path "PATH línea por línea"
-  _tips_alias reload "recargar shell"
-
-  if command -v fzf >/dev/null 2>&1; then
-    printf '%b' "$content" | fzf --ansi --layout=reverse --no-sort --header='tips · ESC para salir | escribe para filtrar'
-  else
-    printf '%b' "$content" | less -R
-  fi
-}
