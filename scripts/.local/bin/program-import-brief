@@ -1,0 +1,271 @@
+#!/usr/bin/env python3
+"""
+program-import-brief — importa un brief pegado/exportado a un workspace de programa.
+
+Uso:
+  program-import-brief <programa> <brief.txt>
+
+Genera/actualiza:
+  in/program.md
+  in/scope-web.txt
+  in/out-of-scope.txt
+  in/roots.txt
+  in/brief.txt
+  meta/brief-import.json
+"""
+from __future__ import annotations
+
+import json
+import os
+import re
+import shutil
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+from urllib.parse import urlparse
+
+
+def die(msg: str, code: int = 1) -> None:
+    print(f"[!] {msg}", file=sys.stderr)
+    raise SystemExit(code)
+
+
+def hunting_home() -> Path:
+    return Path(os.environ.get(
+        "HUNTING_HOME",
+        str(Path.home() / "Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty"),
+    ))
+
+
+def clean_line(line: str) -> str:
+    return line.strip().strip("`'\"").strip()
+
+
+def normalize_host(value: str) -> str:
+    value = clean_line(value)
+    if not value:
+        return ""
+    if value.startswith(("http://", "https://")):
+        parsed = urlparse(value)
+        return parsed.netloc.lower().strip()
+    return value.lower().strip().strip("/")
+
+
+def root_from_pattern(value: str) -> str:
+    host = normalize_host(value)
+    host = host.replace("*.", "").replace("*", "")
+    host = host.strip(".")
+    parts = [p for p in host.split(".") if p]
+    if len(parts) < 2:
+        return ""
+    if parts[0] == "www" and len(parts) >= 3:
+        return ".".join(parts[1:])
+    return ".".join(parts[-2:])
+
+
+def unique(items: list[str]) -> list[str]:
+    seen: set[str] = set()
+    out: list[str] = []
+    for item in items:
+        item = clean_line(item)
+        if not item or item in seen:
+            continue
+        seen.add(item)
+        out.append(item)
+    return out
+
+
+def extract_section(text: str, start_patterns: list[str], stop_patterns: list[str]) -> str:
+    lines = text.splitlines()
+    start = None
+    for i, line in enumerate(lines):
+        lower = line.lower().strip()
+        if any(p in lower for p in start_patterns):
+            start = i
+            break
+    if start is None:
+        return ""
+    end = len(lines)
+    for j in range(start + 1, len(lines)):
+        lower = lines[j].lower().strip()
+        if any(p in lower for p in stop_patterns):
+            end = j
+            break
+    return "\n".join(lines[start:end])
+
+
+def extract_urls_and_patterns(section: str) -> list[str]:
+    values: list[str] = []
+    url_re = re.compile(r"https?://[^\s)\]}>]+", re.I)
+    wildcard_re = re.compile(r"(?<![A-Za-z0-9_-])(?:[A-Za-z0-9_-]+\.)*\*\.[A-Za-z0-9_.-]+|(?<![A-Za-z0-9_-])(?:www\.)?[A-Za-z0-9_-]+\.[A-Za-z0-9_.-]*\*", re.I)
+    host_re = re.compile(r"(?<![@/A-Za-z0-9_-])(?:www\.)?[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)+(?=$|[\s,;)\]>])", re.I)
+
+    values.extend(url_re.findall(section))
+    values.extend(wildcard_re.findall(section))
+
+    for host in host_re.findall(section):
+        lower = host.lower()
+        if lower.endswith((".md", ".txt", ".png", ".jpg", ".jpeg", ".gif", ".pdf")):
+            continue
+        values.append(host)
+
+    cleaned = []
+    for value in values:
+        value = clean_line(value).rstrip(".,;")
+        if value:
+            cleaned.append(value)
+    return unique(cleaned)
+
+
+def extract_rules(text: str) -> list[str]:
+    interesting = []
+    patterns = [
+        "automated tools",
+        "scanner",
+        "user agent",
+        "bugcrowd-",
+        "customer data",
+        "personally identifiable",
+        "pii",
+        "pivot",
+        "post-exploitation",
+        "own account",
+        "safe harbor",
+        "public disclosure",
+        "social engineering",
+        "phishing",
+    ]
+    for raw in text.splitlines():
+        line = clean_line(raw.lstrip("-•*0123456789. "))
+        if not line:
+            continue
+        lower = line.lower()
+        if any(p in lower for p in patterns):
+            interesting.append(line)
+    return unique(interesting)
+
+
+def write_lines(path: Path, lines: list[str], header: str) -> None:
+    body = [header, ""] + lines if lines else [header, "", "# TODO: rellenar manualmente"]
+    path.write_text("\n".join(body).rstrip() + "\n", encoding="utf-8")
+
+
+def main() -> int:
+    if len(sys.argv) != 3:
+        die("Uso: program-import-brief <programa> <brief.txt>")
+
+    program = sys.argv[1].strip()
+    brief_file = Path(sys.argv[2]).expanduser()
+    if not program:
+        die("Programa vacío")
+    if not brief_file.is_file():
+        die(f"No existe el brief: {brief_file}")
+
+    base = hunting_home() / "targets" / program
+    in_dir = base / "in"
+    meta_dir = base / "meta"
+    notes_dir = base / "notes"
+    for d in (in_dir, meta_dir, notes_dir):
+        d.mkdir(parents=True, exist_ok=True)
+
+    text = brief_file.read_text(encoding="utf-8", errors="replace")
+    normalized = text.replace("\r\n", "\n")
+
+    in_scope_section = extract_section(
+        normalized,
+        ["in scope targets", "in-scope targets", "in scope", "scope and rewards"],
+        ["out of scope targets", "out-of-scope targets", "known issues", "things to know", "rules", "exclusions"],
+    )
+    out_scope_section = extract_section(
+        normalized,
+        ["out of scope targets", "out-of-scope targets", "out of scope"],
+        ["known issues", "things to know", "vulnerabilities rewarded", "rules", "public disclosure", "safe harbor"],
+    )
+
+    in_scope = extract_urls_and_patterns(in_scope_section or normalized)
+    out_scope = extract_urls_and_patterns(out_scope_section)
+
+    # Evitar que un out-of-scope aparezca como in-scope si la extracción global lo capturó.
+    out_norm = {normalize_host(x) for x in out_scope}
+    in_scope = [x for x in in_scope if normalize_host(x) not in out_norm]
+
+    roots = unique([r for r in (root_from_pattern(x) for x in in_scope) if r])
+    rules = extract_rules(normalized)
+
+    shutil.copyfile(brief_file, in_dir / "brief.txt")
+    write_lines(in_dir / "scope-web.txt", in_scope, "# In-scope web assets extracted from brief")
+    write_lines(in_dir / "out-of-scope.txt", out_scope, "# Out-of-scope assets extracted from brief")
+    write_lines(in_dir / "roots.txt", roots, "# Root domains inferred from in-scope web assets")
+
+    program_md = [
+        f"# {program} program notes",
+        "",
+        f"Imported at: {datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')}",
+        "",
+        "## In-scope web",
+        "",
+        *(f"- {x}" for x in in_scope),
+        "",
+        "## Out of scope",
+        "",
+        *(f"- {x}" for x in out_scope),
+        "",
+        "## Inferred roots",
+        "",
+        *(f"- {x}" for x in roots),
+        "",
+        "## Important rules detected",
+        "",
+        *(f"- {x}" for x in rules),
+        "",
+        "## Recommended flow",
+        "",
+        "```bash",
+        f"cd \"$HUNTING_HOME/targets/{program}\"",
+        f"scope-program {program}",
+        f"webmap {program}",
+        f"paramhunt-v2 {program}",
+        "```",
+        "",
+    ]
+    (in_dir / "program.md").write_text("\n".join(program_md), encoding="utf-8")
+
+    summary = notes_dir / "summary.md"
+    if not summary.exists():
+        summary.write_text(
+            f"# {program} hunting notes\n\n"
+            "## Scope summary\n\n"
+            "## Recon summary\n\n"
+            "## Interesting endpoints\n\n"
+            "## Hypotheses\n"
+            "- [ ] Auth/account logic\n"
+            "- [ ] IDOR/authz\n"
+            "- [ ] Redirects\n"
+            "- [ ] Client-side issues\n"
+            "- [ ] API behavior\n\n"
+            "## Findings\n",
+            encoding="utf-8",
+        )
+
+    meta = {
+        "program": program,
+        "imported_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "source": str(brief_file),
+        "in_scope_count": len(in_scope),
+        "out_of_scope_count": len(out_scope),
+        "roots_count": len(roots),
+        "rules_count": len(rules),
+    }
+    (meta_dir / "brief-import.json").write_text(json.dumps(meta, indent=2) + "\n", encoding="utf-8")
+
+    print(f"[+] Importado brief para: {program}")
+    print(f"[+] In-scope web: {len(in_scope)} → {in_dir / 'scope-web.txt'}")
+    print(f"[+] Out-of-scope: {len(out_scope)} → {in_dir / 'out-of-scope.txt'}")
+    print(f"[+] Roots: {len(roots)} → {in_dir / 'roots.txt'}")
+    print(f"[+] Program notes → {in_dir / 'program.md'}")
+    print(f"[→] Revisa manualmente los ficheros antes de lanzar recon")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
