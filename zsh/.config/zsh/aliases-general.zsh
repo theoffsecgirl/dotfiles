@@ -86,12 +86,15 @@ fi
 
 # -------------------------
 # Tips — cheatsheet interactivo curado
+# Seleccionar una entrada copia el comando al portapapeles.
 # -------------------------
 tips() {
   emulate -L zsh
   setopt local_options no_aliases
 
   local content=""
+  local selected=""
+  local cmd=""
 
   _tips_section() {
     local title="$1"
@@ -125,6 +128,22 @@ tips() {
     local desc="$2"
     if (( $+commands[$name] )) || (( $+functions[$name] )) || [[ -n "${aliases[$name]:-}" ]]; then
       _tips_add "$name" "comando" "$desc"
+    fi
+  }
+
+  _tips_copy() {
+    local value="$1"
+    if command -v pbcopy >/dev/null 2>&1; then
+      printf '%s' "$value" | pbcopy
+    elif command -v wl-copy >/dev/null 2>&1; then
+      printf '%s' "$value" | wl-copy
+    elif command -v xclip >/dev/null 2>&1; then
+      printf '%s' "$value" | xclip -selection clipboard
+    elif command -v xsel >/dev/null 2>&1; then
+      printf '%s' "$value" | xsel --clipboard --input
+    else
+      print -r -- "[!] No encuentro pbcopy, wl-copy, xclip ni xsel. Comando seleccionado: $value" >&2
+      return 1
     fi
   }
 
@@ -233,7 +252,10 @@ tips() {
   content="${content#\n}"
 
   if command -v fzf >/dev/null 2>&1; then
-    printf '%b' "$content" | column -ts $'\t' | fzf --ansi --no-sort --reverse --header='tips — comandos curados · busca por nombre, categoría o descripción · ESC para salir'
+    selected="$(printf '%b' "$content" | column -ts $'\t' | fzf --ansi --no-sort --reverse --header='tips — ENTER copia el comando · busca por nombre/categoría/descripción · ESC para salir')" || return 0
+    cmd="${selected%% *}"
+    [[ -n "$cmd" && "$cmd" != "===" && "$cmd" != "COMANDO" ]] || return 0
+    _tips_copy "$cmd" && print -r -- "[+] Copiado al portapapeles: $cmd"
   elif command -v column >/dev/null 2>&1; then
     printf '%b' "$content" | column -ts $'\t' | less
   else
