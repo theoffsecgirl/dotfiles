@@ -78,7 +78,7 @@ _target_note_file() {
   esac
 }
 
-mktarget() {
+mktarget_legacy() {
   local domain="${1:-}"
   [[ -z "$domain" ]] && { echo "Uso: mktarget <dominio>"; return 1; }
 
