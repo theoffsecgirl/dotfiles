@@ -48,13 +48,16 @@ hunt-doctor
 
 ## Workflow de bug bounty
 
-### 1. Crear target
+### Target single-domain
 
 ```bash
 mktarget example.com
+scope example.com
+webmap example.com
+paramhunt-v2 example.com
 ```
 
-Layout oficial:
+Layout:
 
 ```text
 $HUNTING_HOME/targets/example.com/
@@ -74,69 +77,47 @@ $HUNTING_HOME/targets/example.com/
 └── meta/
 ```
 
-### 2. Enumeración y HTTP
+### Programa multi-dominio (privados típicos)
 
 ```bash
-scope example.com
+program-init example
+cd "$HUNTING_HOME/targets/example"
 ```
 
-Salida:
+Importar brief:
+
+```bash
+nvim in/brief.txt
+program-import-brief example in/brief.txt
+```
+
+Validar scope:
+
+```bash
+nvim in/roots.txt
+nvim in/scope-web.txt
+nvim in/out-of-scope.txt
+```
+
+Recon:
+
+```bash
+scope-program example
+webmap example
+paramhunt-v2 example
+```
+
+Todo se mantiene en:
 
 ```text
-recon/subdomains.txt
-http/live.txt
-http/httpx.jsonl
-http/httpx_table.tsv
-meta/scope.json
+$HUNTING_HOME/targets/example/
 ```
 
-### 3. Crawl y mapeo
+### Validación
 
 ```bash
-webmap example.com
+type -a program-init scope-program program-import-brief scope webmap mktarget subscan
 ```
-
-Salida:
-
-```text
-http/urls.txt
-http/urls_clean.txt
-http/api_candidates.txt
-http/graphql.txt
-js/files.txt
-meta/webmap.json
-```
-
-### 4. Parámetros
-
-```bash
-paramhunt-v2 example.com
-```
-
-Salida:
-
-```text
-fuzz/urls_with_params.txt
-fuzz/params.txt
-meta/paramhunt.json
-```
-
-### Flujo recomendado
-
-```bash
-mktarget example.com
-scope example.com
-webmap example.com
-paramhunt-v2 example.com
-```
-
-Validación:
-
-```bash
-type -a scope webmap mktarget subscan
-```
-
-Todos deben resolver a `~/.local/bin/*`.
 
 ---
 
@@ -151,42 +132,19 @@ cds        # cd $HUNTING_HOME/scripts
 
 ---
 
-## Tools
-
-Scripts versionados:
-
-```text
-tools/install-tools.sh
-tools/update-tools.sh
-```
-
-Ignorados:
-
-```text
-tools/bin/
-tools/src/
-```
-
-Reinstalar:
+## Tips interactivos
 
 ```bash
-bash ~/.dotfiles/tools/install-tools.sh
+tips
 ```
 
 ---
 
-## Estructura
+## Tools
 
-```text
-~/.dotfiles/
-├── zsh/
-├── tmux/
-├── nvim/
-├── git/
-├── ghostty/
-├── scripts/
-├── tools/
-└── install.sh
+```bash
+bash ~/.dotfiles/tools/install-tools.sh
+bash ~/.dotfiles/tools/update-tools.sh
 ```
 
 ---
