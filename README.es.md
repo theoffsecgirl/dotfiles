@@ -5,8 +5,6 @@
 ![License](https://img.shields.io/badge/License-MIT-red?style=flat-square)
 ![Status](https://img.shields.io/badge/Status-Stable-brightgreen?style=flat-square)
 
-
-
 **Dotfiles para bug bounty y pentesting**  
 *by [TheOffSecGirl](https://github.com/theoffsecgirl)*
 
@@ -22,9 +20,9 @@ Esto no son "dotfiles bonitos".
 
 Es mi entorno real de trabajo para bug bounty.
 
-Está pensado para:
+Pensado para:
 
-- no perder tiempo configurando cosas
+- no perder tiempo configurando
 - tener siempre el mismo workflow
 - automatizar lo repetitivo
 - ir directo a encontrar bugs
@@ -48,7 +46,7 @@ hunt-doctor
 
 ---
 
-## Cómo se usa (lo importante)
+## Workflow de bug bounty
 
 ### 1. Crear target
 
@@ -56,151 +54,140 @@ hunt-doctor
 mktarget example.com
 ```
 
-Workspace:
+Layout oficial:
 
+```text
+$HUNTING_HOME/targets/example.com/
+├── recon/
+├── http/
+├── fuzz/
+├── js/
+├── in/
+│   └── resolvers.txt
+├── out/
+├── tmp/
+├── burp/
+├── notes/
+│   └── summary.md
+├── reports/
+├── loot/
+└── meta/
 ```
-~/hunting/targets/example.com
-```
 
----
-
-### 2. Recon
+### 2. Enumeración y HTTP
 
 ```bash
-recon example.com
+scope example.com
 ```
 
-Ejecuta subenum → probe → nota automática. Los subdominios se guardan en `~/hunting/targets/example.com/subdomains.txt`.
+Salida:
+
+```text
+recon/subdomains.txt
+http/live.txt
+http/httpx.jsonl
+http/httpx_table.tsv
+meta/scope.json
+```
+
+### 3. Crawl y mapeo
 
 ```bash
-subenum example.com   # solo subdominios
-inscope example.com   # filtrar in-scope (helper legacy)
+webmap example.com
 ```
 
----
+Salida:
 
-### 3. Nuclei
+```text
+http/urls.txt
+http/urls_clean.txt
+http/api_candidates.txt
+http/graphql.txt
+js/files.txt
+meta/webmap.json
+```
+
+### 4. Parámetros
 
 ```bash
-nuc -l urls.txt       # nuclei -silent
-nucl urls.txt         # contra CVEs, guarda resultado
+paramhunt-v2 example.com
 ```
 
----
+Salida:
 
-### 4. HTTP
+```text
+fuzz/urls_with_params.txt
+fuzz/params.txt
+meta/paramhunt.json
+```
+
+### Flujo recomendado
 
 ```bash
-h      # httpx -silent
-hh     # httpx + tech-detect + status-code
-hhh    # httpx + tech-detect + title + web-server
-f      # ffuf -c -mc all -fc 404
+mktarget example.com
+scope example.com
+webmap example.com
+paramhunt-v2 example.com
 ```
 
----
-
-### 5. Cheatsheet interactivo
+Validación:
 
 ```bash
-tips
+type -a scope webmap mktarget subscan
 ```
 
-Abre un buscador fzf con todos los aliases organizados por categoría (git, recon, docker, navegación, utilidades). Escribe para filtrar, ESC para salir.
+Todos deben resolver a `~/.local/bin/*`.
 
 ---
 
 ## Navegación rápida
 
-[`zoxide`](https://github.com/ajeetdsouza/zoxide) aprende los directorios que más usas:
-
 ```bash
-z hunting       # salta a ~/hunting
-z dotfiles      # salta a ~/.dotfiles
-zi              # selector interactivo con fzf
-dotfiles        # alias directo a ~/.dotfiles
-hunting         # alias directo a ~/hunting
+cdh        # cd $HUNTING_HOME
+cdt        # cd $HUNTING_HOME/targets
+cdn        # cd $HUNTING_HOME/notes
+cds        # cd $HUNTING_HOME/scripts
 ```
 
 ---
 
-## Historial avanzado
+## Tools
 
-[`atuin`](https://github.com/atuinsh/atuin) reemplaza el historial de zsh con búsqueda semántica y contexto (directorio, exit code, duración):
+Scripts versionados:
 
-```bash
-Ctrl+R   # búsqueda interactiva del historial
+```text
+tools/install-tools.sh
+tools/update-tools.sh
 ```
 
----
+Ignorados:
 
-## Aliases git
-
-| Alias | Comando |
-|-------|--------|
-| `gs` | `git status -sb` |
-| `gl` | `git log --oneline --graph --decorate -20` |
-| `gd` | `git diff` |
-| `gds` | `git diff --staged` |
-| `gc 'msg'` | `git commit -m` |
-| `gca` | `git commit --amend --no-edit` |
-| `gco` | `git checkout` |
-| `gcb` | `git checkout -b` |
-| `gst` / `gstp` | `git stash` / `git stash pop` |
-| `glog` | log completo con grafo |
-
----
-
-## Herramientas incluidas
-
-Instaladas automáticamente en `~/.local/tools/` con `./install.sh`:
-
-| Herramienta | Uso |
-|-------------|-----|
-| `webxray` | Scanner web ofensivo: XSS, SQLi, headers, WAF bypass |
-| `pathraider` | LFI y path traversal con bypass de encoding |
-| `bbcopilot` | Asistente IA para bug bounty con vault local |
-| `takeovflow` | Subdomain takeover detection |
-| `bluedeath` | Herramienta ofensiva shell |
-
-Actualizar todas:
-
-```bash
-bash ~/.dotfiles/tools/update-tools.sh
+```text
+tools/bin/
+tools/src/
 ```
 
----
-
-## Contenedor offsec (opcional)
+Reinstalar:
 
 ```bash
-offsec-up       # levantar contenedor
-offsec-shell    # entrar al contenedor
-offsec          # exec directo a zsh en el contenedor
+bash ~/.dotfiles/tools/install-tools.sh
 ```
 
 ---
 
 ## Estructura
 
-```
+```text
 ~/.dotfiles/
 ├── zsh/
-│   └── .config/zsh/
-│       ├── load.zsh           # carga principal
-│       ├── bug-bounty.zsh     # funciones y aliases de recon
-│       └── aliases-general.zsh # aliases de productividad
 ├── tmux/
 ├── nvim/
 ├── git/
 ├── ghostty/
 ├── scripts/
 ├── tools/
-│   ├── install-tools.sh
-│   └── update-tools.sh
 └── install.sh
 ```
-
-Gestionado con stow — symlinks limpios y reversibles.
 
 ---
 
