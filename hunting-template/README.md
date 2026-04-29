@@ -2,19 +2,29 @@
 
 Estructura para organizar bug bounty hunting.
 
-## Estructura
+## Estructura actual
 
 ```
 ~/hunting/
-├── targets/           # Datos por target
+├── targets/
 │   └── example.com/
 │       ├── recon/
-│       ├── vulns/
-│       └── notes.md
-├── notes/             # Notas generales y metodologías
-├── scripts/           # Scripts propios y PoCs
-└── templates/         # Templates reutilizables
-    └── python-venv/
+│       ├── http/
+│       ├── fuzz/
+│       ├── js/
+│       ├── in/
+│       │   └── resolvers.txt
+│       ├── out/
+│       ├── tmp/
+│       ├── burp/
+│       ├── notes/
+│       │   └── summary.md
+│       ├── reports/
+│       ├── loot/
+│       └── meta/
+├── notes/
+├── scripts/
+└── templates/
 ```
 
 ## Setup inicial
@@ -24,18 +34,16 @@ cp -r ~/.dotfiles/hunting-template ~/hunting
 cd ~/hunting
 ```
 
-## Crear venv para proyecto
+## Flujo recomendado
 
 ```bash
-cd ~/hunting/scripts
-python3 -m venv venv
-source venv/bin/activate
-pip install requests httpx
+mktarget example.com
+scope example.com
+webmap example.com
+paramhunt-v2 example.com
 ```
 
-## Navegación rápida (aliases)
-
-Si aplicas los aliases de `~/.dotfiles/zsh/.config/zsh/aliases.zsh`:
+## Navegación rápida
 
 ```bash
 cdh        # cd ~/hunting
