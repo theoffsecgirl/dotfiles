@@ -7,13 +7,16 @@ Estructura para organizar bug bounty hunting.
 ```
 ~/hunting/
 ├── targets/
-│   └── example.com/
+│   └── example/
 │       ├── recon/
 │       ├── http/
 │       ├── fuzz/
 │       ├── js/
 │       ├── in/
-│       │   └── resolvers.txt
+│       │   ├── brief.txt
+│       │   ├── roots.txt
+│       │   ├── scope-web.txt
+│       │   └── out-of-scope.txt
 │       ├── out/
 │       ├── tmp/
 │       ├── burp/
@@ -34,7 +37,21 @@ cp -r ~/.dotfiles/hunting-template ~/hunting
 cd ~/hunting
 ```
 
-## Flujo recomendado
+## Flujo multi-dominio (recomendado para privados)
+
+```bash
+program-init example
+cd "$HUNTING_HOME/targets/example"
+
+nvim in/brief.txt
+program-import-brief example in/brief.txt
+
+scope-program example
+webmap example
+paramhunt-v2 example
+```
+
+## Flujo single-domain
 
 ```bash
 mktarget example.com
