@@ -85,145 +85,157 @@ if command -v docker >/dev/null 2>&1; then
 fi
 
 # -------------------------
-# Tips — cheatsheet interactivo de aliases y atajos
+# Tips — cheatsheet interactivo curado
 # -------------------------
 tips() {
   emulate -L zsh
-  setopt local_options extended_glob no_aliases
+  setopt local_options no_aliases
 
   local content=""
-  local all_aliases=""
-  local -a custom_functions
-  local fn
 
   _tips_section() {
     local title="$1"
-    content+="=== ${title} ===\n"
+    content+="\n=== ${title} ===\n"
+    content+="COMANDO\tTIPO\tDESCRIPCIÓN\n"
+  }
+
+  _tips_add() {
+    local name="$1"
+    local kind="$2"
+    local desc="$3"
+    content+="${name}\t${kind}\t${desc}\n"
   }
 
   _tips_alias() {
     local name="$1"
-    local note="$2"
+    local desc="$2"
     [[ -n "${aliases[$name]:-}" ]] || return 0
-    if [[ -n "$note" ]]; then
-      content+="${name}\t${aliases[$name]}\t# ${note}\n"
-    else
-      content+="${name}\t${aliases[$name]}\n"
-    fi
+    _tips_add "$name" "alias" "$desc"
   }
 
   _tips_func() {
     local name="$1"
-    local note="$2"
+    local desc="$2"
     (( $+functions[$name] )) || return 0
-    if [[ -n "$note" ]]; then
-      content+="${name}\tfunción\t# ${note}\n"
-    else
-      content+="${name}\tfunción\n"
+    _tips_add "$name" "función" "$desc"
+  }
+
+  _tips_cmd() {
+    local name="$1"
+    local desc="$2"
+    if (( $+commands[$name] )) || (( $+functions[$name] )) || [[ -n "${aliases[$name]:-}" ]]; then
+      _tips_add "$name" "comando" "$desc"
     fi
   }
 
   _tips_section "GIT"
-  _tips_alias gs "estado corto"
-  _tips_alias gl "log gráfico"
-  _tips_alias gd "diff actual"
-  _tips_alias gds "diff staged"
-  _tips_alias gc "commit rápido"
-  _tips_alias gca "amend último commit"
-  _tips_alias gst "stash"
-  _tips_alias gstp "stash pop"
-  _tips_alias gb "ramas verbosas"
-  _tips_alias glog "log global"
-  content+="\n"
+  _tips_alias gs "Ver estado corto del repositorio"
+  _tips_alias gl "Ver últimos commits en formato gráfico"
+  _tips_alias gp "Subir commits al remoto"
+  _tips_alias gpl "Traer cambios del remoto"
+  _tips_alias gd "Ver diff de cambios sin staged"
+  _tips_alias gds "Ver diff de cambios staged"
+  _tips_alias gc "Crear commit con mensaje"
+  _tips_alias gca "Rehacer el último commit sin cambiar mensaje"
+  _tips_alias gco "Cambiar de rama o checkout"
+  _tips_alias gcb "Crear y cambiar a una rama nueva"
+  _tips_alias grh "Reset hard al HEAD actual; destructivo"
+  _tips_alias gst "Guardar cambios en stash"
+  _tips_alias gstp "Recuperar último stash"
+  _tips_alias gb "Listar ramas con tracking"
+  _tips_alias glog "Ver grafo completo de ramas y commits"
 
   _tips_section "NAVEGACIÓN"
-  if (( $+commands[z] )) || (( $+functions[z] )); then
-    content+="z\tcomando\t# saltar a directorio frecuente (zoxide)\n"
-  fi
-  if (( $+commands[zi] )) || (( $+functions[zi] )); then
-    content+="zi\tcomando\t# selector interactivo de directorios\n"
-  fi
-  _tips_alias dotfiles "cd ~/.dotfiles"
-  _tips_alias hunting "cd $HUNTING_HOME"
-  _tips_alias .. "subir 1 nivel"
-  _tips_alias ... "subir 2 niveles"
-  _tips_alias .... "subir 3 niveles"
-  content+="\n"
+  _tips_cmd z "Saltar a directorios frecuentes con zoxide"
+  _tips_cmd zi "Abrir selector interactivo de zoxide"
+  _tips_alias dotfiles "Entrar en ~/.dotfiles"
+  _tips_alias hunting "Entrar en $HUNTING_HOME"
+  _tips_func cdh "Entrar en el workspace de hunting"
+  _tips_func cdt "Entrar en targets"
+  _tips_func cdn "Entrar en notas globales"
+  _tips_func cds "Entrar en scripts de hunting"
+  _tips_alias .. "Subir un nivel"
+  _tips_alias ... "Subir dos niveles"
+  _tips_alias .... "Subir tres niveles"
+  _tips_alias c "Limpiar pantalla"
+  _tips_alias q "Salir de la shell actual"
 
-  _tips_section "RECON"
-  _tips_func subenum "enumera subdominios"
-  _tips_func probe "httpx con tech detect"
-  _tips_func recon "pipeline rápido"
-  _tips_func inscope "filtra scope"
-  _tips_alias nuc "nuclei -silent"
-  _tips_func nucl "nuclei CVEs"
-  content+="\n"
+  _tips_section "BUG BOUNTY WORKFLOW"
+  _tips_cmd mktarget "Crear estructura de target en $HUNTING_HOME/targets/<target>"
+  _tips_cmd scope "Enumerar subdominios y descubrir HTTP vivos"
+  _tips_cmd webmap "Crawlear URLs, JS y candidatos API"
+  _tips_cmd paramhunt-v2 "Extraer URLs con parámetros y claves únicas"
+  _tips_cmd subscan "Enumeración rápida de subdominios"
+  _tips_func subenum "Helper legacy para enumerar subdominios"
+  _tips_func probe "Helper legacy para probar HTTP con httpx"
+  _tips_func recon "Pipeline legacy rápido de recon"
+  _tips_func inscope "Filtrar resultados por scope"
 
-  _tips_section "HTTP"
-  _tips_alias h "httpx básico"
-  _tips_alias hh "httpx + tech + status"
-  _tips_alias hhh "httpx + title + webserver"
-  _tips_alias ch "curl headers"
-  _tips_alias hget "HTTP GET"
-  _tips_alias hpost "HTTP POST"
-  _tips_alias f "ffuf base"
-  content+="\n"
+  _tips_section "HTTP Y FUZZING"
+  _tips_alias h "Ejecutar httpx básico"
+  _tips_alias hh "Ejecutar httpx con tecnología y status code"
+  _tips_alias hhh "Ejecutar httpx con title y webserver"
+  _tips_alias ch "Consultar cabeceras HTTP"
+  _tips_alias hget "Lanzar petición GET"
+  _tips_alias hpost "Lanzar petición POST"
+  _tips_alias f "Ejecutar ffuf base"
+  _tips_alias nuc "Ejecutar nuclei en modo silencioso"
+  _tips_func nucl "Ejecutar nuclei orientado a CVEs"
 
-  _tips_section "DOCKER"
-  _tips_alias dk "docker base"
-  _tips_alias dkps "docker ps"
-  _tips_alias dkpsa "docker ps -a"
-  _tips_alias dkimg "docker images"
-  _tips_alias dkexec "docker exec -it"
-  _tips_alias dklog "docker logs -f"
-  _tips_alias dkprune "docker system prune"
-  _tips_alias offsec "entrar al contenedor offsec-toolbox"
-  _tips_alias offsec-restart "reiniciar toolbox"
-  _tips_alias offsec-rebuild "rebuild toolbox"
-  content+="\n"
+  _tips_section "NOTAS"
+  _tips_func note "Añadir nota rápida global"
+  _tips_func notes "Abrir o listar notas del día"
+  _tips_func tnote "Crear nota rápida del target actual"
+  _tips_func tnotes "Listar notas del target actual"
 
-  _tips_section "UTILIDADES"
-  _tips_alias ll "ls largo"
-  _tips_alias la "ls ocultos"
-  _tips_alias duu "uso de disco ordenado"
-  _tips_alias ports "puertos activos"
-  _tips_alias myip "IP pública"
-  _tips_alias localip "IP local"
-  _tips_alias path "PATH línea por línea"
-  _tips_alias reload "recargar shell"
-  _tips_alias py "python3"
-  _tips_alias pip "pip3 fuera de venv"
-  _tips_func note "añadir nota rápida"
-  _tips_func notes "ver notas de hoy"
-  _tips_alias venv-create "crear venv"
-  _tips_alias venv-activate "activar venv"
-  _tips_alias venv-deactivate "desactivar venv"
-  _tips_func venv-auto "activar venv automático"
-  _tips_alias scope-filter "compat alias antiguo"
-  content+="\n"
+  _tips_section "PYTHON"
+  _tips_alias py "Ejecutar python3"
+  _tips_alias pip "Ejecutar pip3 fuera de venv"
+  _tips_alias venv-create "Crear entorno virtual"
+  _tips_alias venv-activate "Activar entorno virtual local"
+  _tips_alias venv-deactivate "Desactivar entorno virtual"
+  _tips_func venv-auto "Detectar y activar venv automáticamente"
 
-  _tips_section "TODOS LOS ALIASES CARGADOS"
-  all_aliases="$(alias | LC_ALL=C sort)"
-  if [[ -n "$all_aliases" ]]; then
-    content+="${all_aliases}\n"
-  else
-    content+="(sin aliases cargados)\n"
-  fi
-  content+="\n"
+  _tips_section "DOCKER / OFFSEC"
+  _tips_alias dk "Alias corto de docker"
+  _tips_alias dkps "Listar contenedores activos"
+  _tips_alias dkpsa "Listar todos los contenedores"
+  _tips_alias dkimg "Listar imágenes"
+  _tips_alias dkrm "Borrar contenedor"
+  _tips_alias dkrmi "Borrar imagen"
+  _tips_alias dkstop "Parar contenedor"
+  _tips_alias dkexec "Entrar en contenedor con shell interactiva"
+  _tips_alias dklog "Ver logs en streaming"
+  _tips_alias dkprune "Limpiar recursos Docker no usados"
+  _tips_alias offsec "Entrar al contenedor offsec"
+  _tips_alias offsec-up "Levantar contenedor offsec"
+  _tips_alias offsec-shell "Abrir shell dentro del contenedor offsec"
+  _tips_alias offsec-restart "Reiniciar contenedor offsec"
+  _tips_alias offsec-rebuild "Reconstruir contenedor offsec"
 
-  _tips_section "FUNCIONES CUSTOM"
-  custom_functions=(
-    cdh cdt cdn cds
-    subenum probe inscope recon
-    nucl note notes
-    venv-auto tips
-  )
-  for fn in "${custom_functions[@]}"; do
-    (( $+functions[$fn] )) && content+="${fn}\n"
-  done
+  _tips_section "SISTEMA Y UTILIDADES"
+  _tips_alias ll "Listar ficheros con detalles y ocultos"
+  _tips_alias la "Listar ficheros ocultos"
+  _tips_alias mkdir "Crear directorios intermedios automáticamente"
+  _tips_alias cp "Copiar mostrando ficheros"
+  _tips_alias mv "Mover mostrando ficheros"
+  _tips_alias rm "Borrar con confirmación interactiva"
+  _tips_alias grep "Buscar texto con color"
+  _tips_alias df "Ver espacio de disco en formato humano"
+  _tips_alias du "Ver tamaño en formato humano"
+  _tips_alias duu "Ver directorios/ficheros que más ocupan"
+  _tips_alias ports "Listar puertos abiertos"
+  _tips_alias myip "Mostrar IP pública"
+  _tips_alias localip "Mostrar IP local"
+  _tips_alias path "Mostrar PATH línea por línea"
+  _tips_alias reload "Recargar shell zsh"
+
+  content="${content#\n}"
 
   if command -v fzf >/dev/null 2>&1; then
-    printf '%b' "$content" | fzf --ansi --no-sort --reverse --header='tips — aliases y funciones cargadas · ESC para salir'
+    printf '%b' "$content" | column -ts $'\t' | fzf --ansi --no-sort --reverse --header='tips — comandos curados · busca por nombre, categoría o descripción · ESC para salir'
+  elif command -v column >/dev/null 2>&1; then
+    printf '%b' "$content" | column -ts $'\t' | less
   else
     printf '%b' "$content" | less
   fi
