@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+# program-init — inicializa un programa web multi-dominio en un único workspace
+# Uso: program-init <programa>
+set -euo pipefail
+
+[[ -z "${1:-}" ]] && { echo "Uso: program-init <programa>"; exit 1; }
+
+PROGRAM="$1"
+BASE="${HUNTING_HOME:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty}/targets/$PROGRAM"
+
+if command -v mktarget >/dev/null 2>&1; then
+  mktarget "$PROGRAM" >/dev/null 2>&1 || true
+else
+  mkdir -p "$BASE"/{recon,http,fuzz,js,in,out,tmp,burp,notes,reports,loot,meta}
+fi
+
+mkdir -p "$BASE"/{recon,http,fuzz,js,in,out,tmp,burp,notes,reports,loot,meta}
+
+_create_if_missing() {
+  local file="$1"
+  shift
+  if [[ ! -f "$file" ]]; then
+    cat > "$file" <<EOF
+$*
+EOF
+    echo "[+] Creado: $file"
+  else
+    echo "[=] Existe: $file"
+  fi
+}
+
+_create_if_missing "$BASE/in/roots.txt" "# Dominios raíz del programa, uno por línea, sin wildcards.
+# Ejemplo:
+# adidas.com
+# runtastic.com"
+
+_create_if_missing "$BASE/in/scope-web.txt" "# Hosts/URLs web in-scope confirmados.
+# Mantén aquí solo assets autorizados.
+# Ejemplo:
+# https://www.adidas.com/
+# https://www.runtastic.com/"
+
+_create_if_missing "$BASE/in/out-of-scope.txt" "# Assets fuera de scope.
+# Ejemplo:
+# mbs-*.adidas.com.cn"
+
+_create_if_missing "$BASE/in/user-agent.txt" "Bugcrowd-TU_USUARIO"
+
+_create_if_missing "$BASE/in/program.md" "# $PROGRAM program notes
+
+## Rules
+- Test only in-scope assets.
+- Use your own testing accounts only.
+- Do not access customer data.
+- Stop testing and report immediately if sensitive data appears.
+- Respect the program brief and rate limits.
+
+## In-scope web
+- Fill in: in/scope-web.txt
+
+## Roots for recon
+- Fill in: in/roots.txt
+
+## Out of scope
+- Fill in: in/out-of-scope.txt
+
+## Recommended flow
+\`\`\`bash
+program-init $PROGRAM
+scope-program $PROGRAM
+webmap $PROGRAM
+paramhunt-v2 $PROGRAM
+\`\`\`
+
+## Focus
+- Auth/account logic
+- IDOR/authz on your own accounts
+- Client-side routes
+- Redirects
+- API behavior
+"
+
+_create_if_missing "$BASE/notes/summary.md" "# $PROGRAM hunting notes
+
+## Scope summary
+
+## Recon summary
+
+## Interesting endpoints
+
+## Hypotheses
+- [ ] Auth/account logic
+- [ ] IDOR/authz
+- [ ] Redirects
+- [ ] Client-side issues
+- [ ] API behavior
+
+## Findings
+"
+
+echo "[+] Programa inicializado: $BASE"
+echo "[→] Edita primero: $BASE/in/roots.txt"
+echo "[→] Siguiente paso: scope-program $PROGRAM"
