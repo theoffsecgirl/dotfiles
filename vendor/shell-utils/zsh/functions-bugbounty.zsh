@@ -206,6 +206,7 @@ updateall() {
 # -------------------------
 # subscan: delega en el script externo si existe, si no ejecuta inline
 # -------------------------
+# Deprecated: kept only as a fallback. Official command: scripts/.local/bin/subscan
 subscan_legacy() {
     if command -v subscan >/dev/null 2>&1 && [[ "$(command -v subscan)" != "$0" ]]; then
         command subscan "$@"

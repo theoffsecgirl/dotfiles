@@ -78,6 +78,7 @@ _target_note_file() {
   esac
 }
 
+# Deprecated: kept only as a fallback. Official command: scripts/.local/bin/mktarget
 mktarget_legacy() {
   local domain="${1:-}"
   [[ -z "$domain" ]] && { echo "Uso: mktarget <dominio>"; return 1; }

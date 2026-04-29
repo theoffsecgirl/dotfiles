@@ -116,6 +116,7 @@ teardown() {
   [ -d "$TMP_DIR/hunting/targets/test.com/http" ]
   [ -d "$TMP_DIR/hunting/targets/test.com/fuzz" ]
   [ -d "$TMP_DIR/hunting/targets/test.com/in" ]
+  [ -d "$TMP_DIR/hunting/targets/test.com/meta" ]
   [ -f "$TMP_DIR/hunting/targets/test.com/in/resolvers.txt" ]
   [ -f "$TMP_DIR/hunting/targets/test.com/notes/summary.md" ]
 }
