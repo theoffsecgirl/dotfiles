@@ -7,7 +7,7 @@ set -euo pipefail
 TARGET="$1"
 BASE="${HUNTING_HOME:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty}/targets/$TARGET"
 
-mkdir -p "$BASE"/{recon,http,fuzz,js,in,out,tmp,burp,notes,reports,loot}
+mkdir -p "$BASE"/{recon,http,fuzz,js,in,out,tmp,burp,notes,reports,loot,meta}
 
 if [[ ! -f "$BASE/in/resolvers.txt" ]]; then
   cat > "$BASE/in/resolvers.txt" <<'EOF'
