@@ -57,6 +57,7 @@ alias df='df -h'
 alias du='du -h'
 alias duu='du -sh * | sort -rh | head -20'
 alias ports='ss -tulanp 2>/dev/null || netstat -tulanp'
+unalias myip localip grh 2>/dev/null || true
 myip() {
   local ip
   for _url in https://api.ipify.org https://ifconfig.me https://icanhazip.com; do
