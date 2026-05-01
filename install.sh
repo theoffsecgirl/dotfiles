@@ -6,6 +6,7 @@ cd "$ROOT"
 
 NONINTERACTIVE=0
 CHANGE_SHELL="ask"
+DRY_RUN=0
 
 usage() {
   cat <<'EOF'
@@ -15,6 +16,7 @@ Opciones:
   --yes, --non-interactive   No pedir confirmaciones
   --change-shell             Cambiar shell a zsh si procede
   --no-shell-change          No cambiar shell
+  --dry-run                  Mostrar qué haría stow sin aplicar cambios
   -h, --help                 Mostrar ayuda
 EOF
 }
@@ -31,6 +33,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --no-shell-change)
       CHANGE_SHELL="no"
+      shift
+      ;;
+    --dry-run)
+      DRY_RUN=1
       shift
       ;;
     -h|--help)
@@ -93,8 +99,12 @@ apply_stow() {
   for d in zsh tmux git nvim ghostty scripts; do
     [[ -d "$d" ]] && packages+=("$d")
   done
-  info "Preflight de stow"
-  stow -nv -t "$HOME" "${packages[@]}" >/dev/null
+  info "Preflight de stow (simulación)"
+  stow -nv -t "$HOME" "${packages[@]}"
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    warn "Modo --dry-run: no se han aplicado cambios"
+    return 0
+  fi
   info "Aplicando stow"
   stow --restow -t "$HOME" "${packages[@]}"
   ok "Symlinks aplicados"
@@ -142,13 +152,16 @@ main() {
   ensure_local_dirs
   fix_exec_bits
 
-  case "$(detect_os)" in
-    macos) install_macos_base ;;
+  if [[ "$DRY_RUN" -eq 0 ]]; then
+    case "$(detect_os)" in
+        macos) install_macos_base ;;
     linux) install_linux_base ;;
-    *) warn "SO no soportado para bootstrap automático" ;;
-  esac
+      *) warn "SO no soportado para bootstrap automático" ;;
+    esac
+  fi
 
   apply_stow
+  [[ "$DRY_RUN" -eq 1 ]] && return 0
   maybe_change_shell
 
   # Instalar herramientas de theoffsecgirl

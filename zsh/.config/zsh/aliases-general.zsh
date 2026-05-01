@@ -14,7 +14,13 @@ alias gco='git checkout'
 alias gcb='git checkout -b'
 alias gd='git diff'
 alias gds='git diff --staged'
-alias grh='git reset --hard HEAD'
+grh() {
+  print -r -- "[!] git reset --hard HEAD — se perderán todos los cambios sin stage/commit en:"
+  git diff --stat HEAD
+  read -r -q "reply?¿Continuar? [s/N] " || { echo; return 1 }
+  echo
+  git reset --hard HEAD
+}
 alias gst='git stash'
 alias gstp='git stash pop'
 alias gb='git branch -vv'
@@ -42,12 +48,26 @@ else
   alias rm='rm -i'
 fi
 alias grep='grep --color=auto'
+if command -v bat >/dev/null 2>&1; then
+  alias cat='bat --paging=never'
+elif command -v batcat >/dev/null 2>&1; then
+  alias cat='batcat --paging=never'
+fi
 alias df='df -h'
 alias du='du -h'
 alias duu='du -sh * | sort -rh | head -20'
 alias ports='ss -tulanp 2>/dev/null || netstat -tulanp'
-alias myip='curl -s https://api.ipify.org && echo'
-alias localip="ipconfig getifaddr en0 2>/dev/null || ip -4 addr show | grep -oP '(?<=inet\s)\d+(\.\d+){3}'"
+myip() {
+  local ip
+  for _url in https://api.ipify.org https://ifconfig.me https://icanhazip.com; do
+    ip="$(curl -s --max-time 3 "$_url")" && { echo "$ip"; return 0; }
+  done
+  echo "[!] No se pudo obtener la IP pública" >&2; return 1
+}
+localip() {
+  ipconfig getifaddr en0 2>/dev/null && return
+  ip -4 addr show scope global | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -1
+}
 alias c='clear'
 alias q='exit'
 alias path='echo $PATH | tr ":" "\n"'
@@ -153,7 +173,7 @@ tips() {
   _tips_alias gca "Rehacer el último commit sin cambiar mensaje"
   _tips_alias gco "Cambiar de rama o checkout"
   _tips_alias gcb "Crear y cambiar a una rama nueva"
-  _tips_alias grh "Reset hard al HEAD actual; destructivo"
+  _tips_func grh "Reset hard al HEAD actual; pide confirmación"
   _tips_alias gst "Guardar cambios en stash"
   _tips_alias gstp "Recuperar último stash"
   _tips_alias gb "Listar ramas con tracking"
@@ -242,8 +262,8 @@ tips() {
   _tips_alias du "Ver tamaño en formato humano"
   _tips_alias duu "Ver directorios/ficheros que más ocupan"
   _tips_alias ports "Listar puertos abiertos"
-  _tips_alias myip "Mostrar IP pública"
-  _tips_alias localip "Mostrar IP local"
+  _tips_func myip "Mostrar IP pública"
+  _tips_func localip "Mostrar IP local"
   _tips_alias path "Mostrar PATH línea por línea"
   _tips_alias reload "Recargar shell zsh"
 

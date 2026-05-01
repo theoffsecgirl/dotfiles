@@ -8,6 +8,7 @@ setup() {
   BIN="$REPO_ROOT/scripts/.local/bin"
   TMP_DIR="$(mktemp -d)"
   export HOME="$TMP_DIR"
+  export HUNTING_HOME="$TMP_DIR/hunting"
 }
 
 teardown() {
@@ -112,13 +113,13 @@ teardown() {
 @test "mktarget: crea la estructura de directorios" {
   run bash "$BIN/mktarget" "test.com"
   [ "$status" -eq 0 ]
-  [ -d "$TMP_DIR/hunting/targets/test.com/recon" ]
-  [ -d "$TMP_DIR/hunting/targets/test.com/http" ]
-  [ -d "$TMP_DIR/hunting/targets/test.com/fuzz" ]
-  [ -d "$TMP_DIR/hunting/targets/test.com/in" ]
-  [ -d "$TMP_DIR/hunting/targets/test.com/meta" ]
-  [ -f "$TMP_DIR/hunting/targets/test.com/in/resolvers.txt" ]
-  [ -f "$TMP_DIR/hunting/targets/test.com/notes/summary.md" ]
+  [ -d "$HUNTING_HOME/targets/test.com/recon" ]
+  [ -d "$HUNTING_HOME/targets/test.com/http" ]
+  [ -d "$HUNTING_HOME/targets/test.com/fuzz" ]
+  [ -d "$HUNTING_HOME/targets/test.com/in" ]
+  [ -d "$HUNTING_HOME/targets/test.com/meta" ]
+  [ -f "$HUNTING_HOME/targets/test.com/in/resolvers.txt" ]
+  [ -f "$HUNTING_HOME/targets/test.com/notes/summary.md" ]
 }
 
 # ------------------------------------------------
@@ -148,4 +149,30 @@ teardown() {
   run bash "$BIN/subscan"
   [ "$status" -eq 1 ]
   [[ "$output" == *"Uso:"* ]]
+}
+
+# ------------------------------------------------
+# program-init
+# ------------------------------------------------
+@test "program-init: falla sin argumentos" {
+  run bash "$BIN/program-init"
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"Uso:"* ]]
+}
+
+@test "program-init: crea estructura multi-dominio" {
+  run bash "$BIN/program-init" "acme-bb"
+  [ "$status" -eq 0 ]
+  [ -d "$HUNTING_HOME/targets/acme-bb/recon" ]
+  [ -d "$HUNTING_HOME/targets/acme-bb/in" ]
+  [ -f "$HUNTING_HOME/targets/acme-bb/in/roots.txt" ]
+  [ -f "$HUNTING_HOME/targets/acme-bb/in/scope-web.txt" ]
+}
+
+@test "program-init: no sobreescribe ficheros existentes" {
+  bash "$BIN/program-init" "acme-bb" >/dev/null
+  echo "adidas.com" > "$HUNTING_HOME/targets/acme-bb/in/roots.txt"
+  run bash "$BIN/program-init" "acme-bb"
+  [ "$status" -eq 0 ]
+  grep -q "adidas.com" "$HUNTING_HOME/targets/acme-bb/in/roots.txt"
 }

@@ -18,20 +18,17 @@ for cmd in scope webmap; do
 done
 
 # Homebrew (Apple Silicon / Intel) — sin subshells por arranque
+BREW_PREFIX=""
 if [[ -d /opt/homebrew ]]; then
-  export HOMEBREW_PREFIX=/opt/homebrew
-  export PATH="$HOMEBREW_PREFIX/bin:$HOMEBREW_PREFIX/sbin:$PATH"
-  export MANPATH="$HOMEBREW_PREFIX/share/man:${MANPATH:-}"
-  export INFOPATH="$HOMEBREW_PREFIX/share/info:${INFOPATH:-}"
-  BREW_PREFIX="$HOMEBREW_PREFIX"
+  BREW_PREFIX=/opt/homebrew
 elif [[ -x /usr/local/bin/brew ]]; then
-  export HOMEBREW_PREFIX=/usr/local
-  export PATH="$HOMEBREW_PREFIX/bin:$HOMEBREW_PREFIX/sbin:$PATH"
-  export MANPATH="$HOMEBREW_PREFIX/share/man:${MANPATH:-}"
-  export INFOPATH="$HOMEBREW_PREFIX/share/info:${INFOPATH:-}"
-  BREW_PREFIX="$HOMEBREW_PREFIX"
-else
-  BREW_PREFIX=""
+  BREW_PREFIX=/usr/local
+fi
+if [[ -n "$BREW_PREFIX" ]]; then
+  export HOMEBREW_PREFIX="$BREW_PREFIX"
+  export PATH="$BREW_PREFIX/bin:$BREW_PREFIX/sbin:$PATH"
+  export MANPATH="$BREW_PREFIX/share/man:${MANPATH:-}"
+  export INFOPATH="$BREW_PREFIX/share/info:${INFOPATH:-}"
 fi
 
 # Completion
@@ -113,25 +110,28 @@ if command -v atuin >/dev/null 2>&1; then
   eval "$(atuin init zsh)"
 fi
 
-# Completions dinámicas para herramientas de seguridad
+# Completions dinámicas — añadir entradas en el array para extender
+# Formato: "herramienta:comando que genera la completion zsh"
+_TOOL_COMPLETIONS=(
+  "gh:gh completion -s zsh"
+  "docker:docker completion zsh"
+  "kubectl:kubectl completion zsh"
+  "helm:helm completion zsh"
+  "terraform:terraform -install-autocomplete 2>/dev/null; terraform completion zsh"
+)
 _load_tool_completion() {
-  local tool="$1"
+  local tool="$1" gencmd="$2"
   local cache="$HOME/.cache/zsh/_${tool}"
-  if command -v "$tool" >/dev/null 2>&1; then
-    if [[ ! -f "$cache" || "$cache" -ot "$(command -v "$tool")" ]]; then
-      case "$tool" in
-        gh)      gh completion -s zsh > "$cache" 2>/dev/null ;;
-        docker)  docker completion zsh > "$cache" 2>/dev/null ;;
-        kubectl) kubectl completion zsh > "$cache" 2>/dev/null ;;
-      esac
-    fi
-    [[ -f "$cache" ]] && source "$cache"
+  command -v "$tool" >/dev/null 2>&1 || return 0
+  if [[ ! -f "$cache" || "$cache" -ot "$(command -v "$tool")" ]]; then
+    eval "$gencmd" > "$cache" 2>/dev/null || rm -f "$cache"
   fi
+  [[ -f "$cache" ]] && source "$cache"
 }
-for _t in gh docker kubectl; do
-  _load_tool_completion "$_t"
+for _entry in "${_TOOL_COMPLETIONS[@]}"; do
+  _load_tool_completion "${_entry%%:*}" "${_entry#*:}"
 done
-unset _t
+unset _entry _TOOL_COMPLETIONS
 
 # Aliases generales de productividad
 [[ -f "$HOME/.config/zsh/aliases-general.zsh" ]] && source "$HOME/.config/zsh/aliases-general.zsh"

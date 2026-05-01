@@ -28,3 +28,23 @@ find "$ROOT" -type f \( -name "*.sh" -o -name "*.zsh" -o -path "*/bin/*" -o -pat
     bash -n "$f" || echo "[BASH-ERR] $f"
   fi
 done
+echo
+
+echo "[6] Sintaxis zsh"
+if command -v zsh >/dev/null 2>&1; then
+  find "$ROOT" -type f -name "*.zsh" | while read -r f; do
+    zsh -n "$f" || echo "[ZSH-ERR] $f"
+  done
+else
+  echo "zsh no disponible, omitido"
+fi
+echo
+
+echo "[7] Shellcheck"
+if command -v shellcheck >/dev/null 2>&1; then
+  find "$ROOT" -type f \( -name "*.sh" -o -path "*/.local/bin/*" \) \
+    ! -path '*/.git/*' ! -path '*/vendor/*' \
+    -exec shellcheck --severity=warning --shell=bash {} \;
+else
+  echo "shellcheck no instalado — 'apt install shellcheck' o 'brew install shellcheck'"
+fi
