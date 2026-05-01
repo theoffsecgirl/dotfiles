@@ -41,9 +41,12 @@ Smoke tests para `scripts/.local/bin/`:
 - `paramhunt` — sin args, sin `urls.txt`
 - `webmap` — sin args, sin `live.txt`
 - `race-run` — sin args, fichero inexistente
-- `mktarget` — sin args, creación de estructura
+- `mktarget` — sin args, creación de estructura de directorios
+- `program-init` — sin args, creación multi-dominio, idempotencia (no sobreescribe)
 - `scope` — sin args, check de dependencias
 - `subscan` — sin args
+
+> `HUNTING_HOME` se fija a un directorio temporal en cada test para evitar escribir en rutas de iCloud o en el sistema real.
 
 ### `test_zsh.bats`
 Verificación de sintaxis zsh:

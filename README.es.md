@@ -38,6 +38,12 @@ cd ~/.dotfiles
 exec zsh
 ```
 
+Para ver qué haría stow sin aplicar cambios:
+
+```bash
+./install.sh --dry-run
+```
+
 Si algo falla:
 
 ```bash
@@ -137,6 +143,18 @@ cds        # cd $HUNTING_HOME/scripts
 ```bash
 tips
 ```
+
+---
+
+## Utilidades generales
+
+| Comando | Comportamiento |
+|---|---|
+| `grh` | `git reset --hard HEAD` — muestra el diff y pide confirmación antes de ejecutar |
+| `cat` | Usa `bat` automáticamente si está instalado (resaltado de sintaxis, sin paginación) |
+| `myip` | Prueba tres servicios con timeout de 3s cada uno |
+| `localip` | Funciona en macOS (`en0`) y Linux (`ip addr`) |
+| `git wip` | Solo stagea ficheros ya rastreados (`add -u`), nunca ficheros nuevos sin seguimiento |
 
 ---
 

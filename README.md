@@ -39,6 +39,12 @@ cd ~/.dotfiles
 exec zsh
 ```
 
+Preview what stow would link before committing:
+
+```bash
+./install.sh --dry-run
+```
+
 If something breaks:
 
 ```bash
@@ -183,6 +189,18 @@ tips
 ```
 
 Opens an fzf cheatsheet. Selecting an entry with ENTER copies the command to the clipboard.
+
+---
+
+## General utilities
+
+| Command | Behaviour |
+|---|---|
+| `grh` | `git reset --hard HEAD` — shows a diff summary and asks for confirmation first |
+| `cat` | Automatically uses `bat` if installed (syntax highlighting, no paging) |
+| `myip` | Tries three public IP services with a 3s timeout each |
+| `localip` | Works on both macOS (`en0`) and Linux (`ip addr`) |
+| `git wip` | Stages only tracked files (`add -u`), never untracked secrets |
 
 ---
 
