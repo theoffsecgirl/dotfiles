@@ -9,6 +9,32 @@ window-padding-x = 10
 window-padding-y = 10
 background-opacity = 1.0
 
+# Colors - pastel pink/purple/green/blue
+background = #1e1e2e
+foreground = #cdd6f4
+cursor-color = #f5c2e7
+cursor-text = #1e1e2e
+selection-background = #45475a
+selection-foreground = #f5e0dc
+minimum-contrast = 1.1
+
+palette = 0=#45475a
+palette = 1=#f38ba8
+palette = 2=#a6e3a1
+palette = 3=#f9e2af
+palette = 4=#89b4fa
+palette = 5=#cba6f7
+palette = 6=#94e2d5
+palette = 7=#bac2de
+palette = 8=#585b70
+palette = 9=#f2a0b3
+palette = 10=#b7efb2
+palette = 11=#fae8b9
+palette = 12=#9dc1fb
+palette = 13=#d7b8fa
+palette = 14=#a8e8de
+palette = 15=#dce0e8
+
 # Cursor
 cursor-style = block
 
