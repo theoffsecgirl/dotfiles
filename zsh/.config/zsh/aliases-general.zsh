@@ -270,47 +270,47 @@ tips() {
 
 
   _tips_section "TMUX"
-  _tips_cmd "Ctrl+a" "Prefix de tmux (en lugar de Ctrl+b)"
-  _tips_cmd "prefix r" "Recargar config de tmux"
-  _tips_cmd "prefix |" "Split vertical (panel derecho)"
-  _tips_cmd "prefix -" "Split horizontal (panel abajo)"
-  _tips_cmd "prefix h/j/k/l" "Navegar entre paneles (vim-like)"
-  _tips_cmd "prefix H/J/K/L" "Redimensionar panel"
-  _tips_cmd "prefix c" "Nueva ventana"
-  _tips_cmd "prefix 1-9" "Ir a ventana por numero"
-  _tips_cmd "prefix </>" "Mover ventana izquierda/derecha"
-  _tips_cmd "prefix x" "Cerrar panel"
-  _tips_cmd "prefix X" "Cerrar ventana"
-  _tips_cmd "prefix g" "Popup flotante en directorio actual"
-  _tips_cmd "prefix Ctrl+n" "Abrir nota rapida en nvim"
-  _tips_cmd "prefix f" "tmux-sessionizer"
-  _tips_cmd "prefix b" "Toggle status bar"
-  _tips_cmd "prefix Space" "tmux-thumbs: copiar URL/IP/hash de pantalla"
+  _tips_add 'Ctrl+a' "keybind" 'Prefix de tmux (en lugar de Ctrl+b)'
+  _tips_add 'prefix r' "keybind" 'Recargar config de tmux'
+  _tips_add 'prefix |' "keybind" 'Split vertical (panel derecho)'
+  _tips_add 'prefix -' "keybind" 'Split horizontal (panel abajo)'
+  _tips_add 'prefix h/j/k/l' "keybind" 'Navegar entre paneles (vim-like)'
+  _tips_add 'prefix H/J/K/L' "keybind" 'Redimensionar panel'
+  _tips_add 'prefix c' "keybind" 'Nueva ventana'
+  _tips_add 'prefix 1-9' "keybind" 'Ir a ventana por numero'
+  _tips_add 'prefix </>' "keybind" 'Mover ventana izquierda/derecha'
+  _tips_add 'prefix x' "keybind" 'Cerrar panel'
+  _tips_add 'prefix X' "keybind" 'Cerrar ventana'
+  _tips_add 'prefix g' "keybind" 'Popup flotante en directorio actual'
+  _tips_add 'prefix Ctrl+n' "keybind" 'Abrir nota rapida en nvim'
+  _tips_add 'prefix f' "keybind" 'tmux-sessionizer'
+  _tips_add 'prefix b' "keybind" 'Toggle status bar'
+  _tips_add 'prefix Space' "keybind" 'tmux-thumbs: copiar URL/IP/hash de pantalla'
 
   _tips_section "NVIM"
-  _tips_cmd "Space" "Leader key"
-  _tips_cmd "<leader>ff" "Telescope: buscar ficheros"
-  _tips_cmd "<leader>fg" "Telescope: grep en proyecto"
-  _tips_cmd "<leader>fr" "Telescope: ficheros recientes"
-  _tips_cmd "<leader>fn" "Telescope: notas de hunting"
-  _tips_cmd "<leader>e" "Toggle arbol de ficheros (nvim-tree)"
-  _tips_cmd "<leader>ha" "Harpoon: anadir fichero"
-  _tips_cmd "<leader>hh" "Harpoon: abrir menu"
-  _tips_cmd "Ctrl+h/t/n/s" "Harpoon: saltar a fichero 1-4"
-  _tips_cmd "s" "Flash: saltar a cualquier posicion"
-  _tips_cmd "<leader>gg" "Neogit: panel de git"
-  _tips_cmd "<leader>gd" "Diffview: ver diff"
-  _tips_cmd "<leader>xx" "Trouble: diagnosticos del proyecto"
-  _tips_cmd "<leader>ca" "LSP: code action"
-  _tips_cmd "<leader>rn" "LSP: renombrar simbolo"
-  _tips_cmd "gd" "LSP: ir a definicion"
-  _tips_cmd "K" "LSP: documentacion hover"
-  _tips_cmd "Shift+h/l" "Navegar entre buffers"
-  _tips_cmd "<leader>w/q" "Guardar / Cerrar"
-  _tips_cmd "<leader>tt" "Abrir terminal integrada"
-  _tips_cmd "Ctrl+h/j/k/l" "Navegar entre splits"
-  _tips_cmd ":Lazy" "Abrir gestor de plugins"
-  _tips_cmd "f/r/g/n" "Dashboard: find/recent/grep/notes"
+  _tips_add 'Space' "keybind" 'Leader key'
+  _tips_add '<leader>ff' "keybind" 'Telescope: buscar ficheros'
+  _tips_add '<leader>fg' "keybind" 'Telescope: grep en proyecto'
+  _tips_add '<leader>fr' "keybind" 'Telescope: ficheros recientes'
+  _tips_add '<leader>fn' "keybind" 'Telescope: notas de hunting'
+  _tips_add '<leader>e' "keybind" 'Toggle arbol de ficheros (nvim-tree)'
+  _tips_add '<leader>ha' "keybind" 'Harpoon: anadir fichero'
+  _tips_add '<leader>hh' "keybind" 'Harpoon: abrir menu'
+  _tips_add 'Ctrl+h/t/n/s' "keybind" 'Harpoon: saltar a fichero 1-4'
+  _tips_add 's' "keybind" 'Flash: saltar a cualquier posicion'
+  _tips_add '<leader>gg' "keybind" 'Neogit: panel de git'
+  _tips_add '<leader>gd' "keybind" 'Diffview: ver diff'
+  _tips_add '<leader>xx' "keybind" 'Trouble: diagnosticos del proyecto'
+  _tips_add '<leader>ca' "keybind" 'LSP: code action'
+  _tips_add '<leader>rn' "keybind" 'LSP: renombrar simbolo'
+  _tips_add 'gd' "keybind" 'LSP: ir a definicion'
+  _tips_add 'K' "keybind" 'LSP: documentacion hover'
+  _tips_add 'Shift+h/l' "keybind" 'Navegar entre buffers'
+  _tips_add '<leader>w/q' "keybind" 'Guardar / Cerrar'
+  _tips_add '<leader>tt' "keybind" 'Abrir terminal integrada'
+  _tips_add 'Ctrl+h/j/k/l' "keybind" 'Navegar entre splits'
+  _tips_add ':Lazy' "keybind" 'Abrir gestor de plugins'
+  _tips_add 'f/r/g/n' "keybind" 'Dashboard: find/recent/grep/notes'
 
 
   content="${content#\n}"
