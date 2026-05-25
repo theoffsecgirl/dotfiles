@@ -423,6 +423,49 @@ require("lazy").setup({
     options = { try_as_border = true },
   }},
 
+  -- Dashboard
+  {
+    "glepnir/alpha-nvim",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    config = function()
+      local alpha = require("alpha")
+      local dash  = require("alpha.themes.dashboard")
+      dash.section.header.val = {
+        "  ████████╗██╗  ██╗███████╗ ",
+        "  ╚══██╔══╝██║  ██║██╔════╝ ",
+        "     ██║   ███████║█████╗   ",
+        "     ██║   ██╔══██║██╔══╝   ",
+        "     ██║   ██║  ██║███████╗ ",
+        "     ╚═╝   ╚═╝  ╚═╝╚══════╝ ",
+        "                             ",
+        "  ██████╗ ███████╗███████╗███████╗███████╗ ",
+        " ██╔═══██╗██╔════╝██╔════╝██╔════╝██╔════╝ ",
+        " ██║   ██║█████╗  █████╗  ███████╗█████╗   ",
+        " ██║   ██║██╔══╝  ██╔══╝  ╚════██║██╔══╝   ",
+        " ╚██████╔╝██║     ██║     ███████║███████╗ ",
+        "  ╚═════╝ ╚═╝     ╚═╝     ╚══════╝╚══════╝ ",
+        "                                            ",
+        "  ██████╗ ██╗██████╗ ██╗                   ",
+        " ██╔════╝ ██║██╔══██╗██║                   ",
+        " ██║  ███╗██║██████╔╝██║                   ",
+        " ██║   ██║██║██╔══██╗██║                   ",
+        " ╚██████╔╝██║██║  ██║███████╗              ",
+        "  ╚═════╝ ╚═╝╚═╝  ╚═╝╚══════╝              ",
+      }
+      dash.section.header.opts.hl = "@keyword"
+      dash.section.buttons.val = {
+        dash.button("f", "  Find file",    "<cmd>Telescope find_files<cr>"),
+        dash.button("r", "  Recent",       "<cmd>Telescope oldfiles<cr>"),
+        dash.button("g", "  Grep",         "<cmd>Telescope live_grep<cr>"),
+        dash.button("n", "  Notes",        "<cmd>Telescope find_files cwd=~/targets/notes<cr>"),
+        dash.button("l", "  Lazy",         "<cmd>Lazy<cr>"),
+        dash.button("q", "  Quit",         "<cmd>qa<cr>"),
+      }
+      dash.section.footer.val = { "  theoffsecgirl · bug hunter · teacher" }
+      dash.section.footer.opts.hl = "@comment"
+      alpha.setup(dash.config)
+    end,
+  },
 }, {
   ui = { border = "rounded" },
   checker = { enabled = true, notify = false },
