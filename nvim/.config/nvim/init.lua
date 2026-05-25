@@ -425,7 +425,7 @@ require("lazy").setup({
 
   -- Dashboard
   {
-    "glepnir/alpha-nvim",
+    "nvimdev/alpha-nvim",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
       local alpha = require("alpha")
