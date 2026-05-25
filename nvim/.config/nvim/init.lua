@@ -454,7 +454,7 @@ require("lazy").setup({
     end,
   },
   ui = { border = "rounded" },
-  checker = { enabled = true, notify = false },
+  checker = { enabled = false },
 })
 
 -- ── Window navigation ────────────────────────────────────────
