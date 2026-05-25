@@ -45,3 +45,5 @@
 # Override por directorio — crea ~/.gitconfig.work con user.email de trabajo
 [includeIf "gitdir:~/work/"]
   path = ~/.gitconfig.work
+[credential]
+	helper = osxkeychain

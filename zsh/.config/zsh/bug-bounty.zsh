@@ -3,8 +3,8 @@ if [[ -n "${OFFSEC_CONTAINER:-}" ]]; then
   export HUNTING_HOME="/work"
 else
   export ICLOUD_HOME="${ICLOUD_HOME:-$HOME/Library/Mobile Documents/com~apple~CloudDocs}"
-  export PROFESIONAL_HOME="${PROFESIONAL_HOME:-$ICLOUD_HOME/02_PROFESIONAL}"
-  export HUNTING_HOME="${HUNTING_HOME:-$PROFESIONAL_HOME/bugbounty}"
+  export PROFESIONAL_HOME="${PROFESIONAL_HOME:-$ICLOUD_HOME/Desktop/☁️ Mi iCloud/💼 Profesional}"
+  export HUNTING_HOME="${HUNTING_HOME:-$HOME/targets}"
 fi
 
 export GLOBAL_NOTES_HOME="${GLOBAL_NOTES_HOME:-$HUNTING_HOME/notes}"
