@@ -272,7 +272,9 @@ def main() -> int:
     dst_brief = in_dir / "brief.txt"
 
     if brief_file.resolve() != dst_brief.resolve():
-        shutil.copyfile(brief_file, dst_brief)write_lines(in_dir / "scope-web.txt", in_scope, "# In-scope web assets extracted from brief")
+        shutil.copyfile(brief_file, dst_brief)
+    
+    write_lines(in_dir / "scope-web.txt", in_scope, "# In-scope web assets extracted from brief")
     write_lines(in_dir / "out-of-scope.txt", out_scope, "# Out-of-scope assets extracted from brief")
     write_lines(in_dir / "roots.txt", roots, "# Root domains inferred from in-scope web assets")
 
