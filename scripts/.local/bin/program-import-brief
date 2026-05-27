@@ -25,6 +25,16 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 
+MULTIPART_PUBLIC_SUFFIXES = {
+    "co.uk", "org.uk", "ac.uk", "gov.uk",
+    "com.au", "net.au", "org.au",
+    "com.br", "com.mx", "com.ar",
+    "com.tr", "com.cn", "com.hk", "co.jp", "co.kr",
+    "co.in", "com.sg", "com.my",
+    "co.nz",
+}
+
+
 def die(msg: str, code: int = 1) -> None:
     print(f"[!] {msg}", file=sys.stderr)
     raise SystemExit(code)
@@ -34,7 +44,7 @@ def hunting_home() -> Path:
     return Path(os.environ.get(
         "HUNTING_HOME",
         str(Path.home() / "Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty"),
-    ))
+    )).expanduser()
 
 
 def clean_line(line: str) -> str:
@@ -47,19 +57,24 @@ def normalize_host(value: str) -> str:
         return ""
     if value.startswith(("http://", "https://")):
         parsed = urlparse(value)
-        return parsed.netloc.lower().strip()
-    return value.lower().strip().strip("/")
+        value = parsed.netloc
+    value = value.split("@")[-1]
+    value = value.split(":")[0]
+    return value.lower().strip().strip("/").strip(".")
 
 
 def root_from_pattern(value: str) -> str:
     host = normalize_host(value)
-    host = host.replace("*.", "").replace("*", "")
-    host = host.strip(".")
+    host = host.replace("*.", "").replace("*", "").strip(".")
     parts = [p for p in host.split(".") if p]
     if len(parts) < 2:
         return ""
     if parts[0] == "www" and len(parts) >= 3:
-        return ".".join(parts[1:])
+        parts = parts[1:]
+
+    suffix2 = ".".join(parts[-2:])
+    if suffix2 in MULTIPART_PUBLIC_SUFFIXES and len(parts) >= 3:
+        return ".".join(parts[-3:])
     return ".".join(parts[-2:])
 
 
@@ -68,27 +83,45 @@ def unique(items: list[str]) -> list[str]:
     out: list[str] = []
     for item in items:
         item = clean_line(item)
-        if not item or item in seen:
+        key = normalize_host(item) if re.search(r"https?://|\.", item) else item.lower()
+        if not item or key in seen:
             continue
-        seen.add(item)
+        seen.add(key)
         out.append(item)
     return out
+
+
+def looks_like_heading(line: str) -> bool:
+    stripped = line.strip()
+    if not stripped:
+        return False
+    if stripped.startswith(("#", "##", "###")):
+        return True
+    if stripped.endswith(":") and len(stripped) <= 80:
+        return True
+    if re.match(r"^\s*\|?\s*(in[-\s]?scope|out[-\s]?of[-\s]?scope|scope|rules|known issues|exclusions|rewards)\b", stripped, re.I):
+        return True
+    return False
 
 
 def extract_section(text: str, start_patterns: list[str], stop_patterns: list[str]) -> str:
     lines = text.splitlines()
     start = None
+    start_re = re.compile("|".join(start_patterns), re.I)
+    stop_re = re.compile("|".join(stop_patterns), re.I)
+
     for i, line in enumerate(lines):
         lower = line.lower().strip()
-        if any(p in lower for p in start_patterns):
+        if start_re.search(lower):
             start = i
             break
     if start is None:
         return ""
+
     end = len(lines)
     for j in range(start + 1, len(lines)):
         lower = lines[j].lower().strip()
-        if any(p in lower for p in stop_patterns):
+        if stop_re.search(lower) and looks_like_heading(lines[j]):
             end = j
             break
     return "\n".join(lines[start:end])
@@ -96,16 +129,18 @@ def extract_section(text: str, start_patterns: list[str], stop_patterns: list[st
 
 def extract_urls_and_patterns(section: str) -> list[str]:
     values: list[str] = []
-    url_re = re.compile(r"https?://[^\s)\]}>]+", re.I)
+    url_re = re.compile(r"https?://[^\s)\]}>|]+", re.I)
     wildcard_re = re.compile(r"(?<![A-Za-z0-9_-])(?:[A-Za-z0-9_-]+\.)*\*\.[A-Za-z0-9_.-]+|(?<![A-Za-z0-9_-])(?:www\.)?[A-Za-z0-9_-]+\.[A-Za-z0-9_.-]*\*", re.I)
-    host_re = re.compile(r"(?<![@/A-Za-z0-9_-])(?:www\.)?[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)+(?=$|[\s,;)\]>])", re.I)
+    host_re = re.compile(r"(?<![@/A-Za-z0-9_-])(?:www\.)?[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)+(?=$|[\s,;)\]}>|])", re.I)
 
     values.extend(url_re.findall(section))
     values.extend(wildcard_re.findall(section))
 
     for host in host_re.findall(section):
-        lower = host.lower()
-        if lower.endswith((".md", ".txt", ".png", ".jpg", ".jpeg", ".gif", ".pdf")):
+        lower = host.lower().rstrip(".,;")
+        if lower.endswith((".md", ".txt", ".png", ".jpg", ".jpeg", ".gif", ".pdf", ".json", ".yaml", ".yml")):
+            continue
+        if "@" in lower:
             continue
         values.append(host)
 
@@ -117,23 +152,32 @@ def extract_urls_and_patterns(section: str) -> list[str]:
     return unique(cleaned)
 
 
+def host_matches_pattern(host: str, pattern: str) -> bool:
+    h = normalize_host(host)
+    p = normalize_host(pattern).replace("*.", "").replace("*", "").strip(".")
+    if not h or not p:
+        return False
+    return h == p or h.endswith("." + p)
+
+
+def collapse_wildcard_duplicates(values: list[str]) -> list[str]:
+    wildcards = [normalize_host(v).replace("*.", "").strip(".") for v in values if "*" in v]
+    out = []
+    for v in values:
+        hv = normalize_host(v)
+        if "*" not in v and any(hv == w for w in wildcards):
+            continue
+        out.append(v)
+    return unique(out)
+
+
 def extract_rules(text: str) -> list[str]:
     interesting = []
     patterns = [
-        "automated tools",
-        "scanner",
-        "user agent",
-        "bugcrowd-",
-        "customer data",
-        "personally identifiable",
-        "pii",
-        "pivot",
-        "post-exploitation",
-        "own account",
-        "safe harbor",
-        "public disclosure",
-        "social engineering",
-        "phishing",
+        "automated tools", "scanner", "rate limit", "user agent", "bugcrowd-",
+        "customer data", "personally identifiable", "pii", "pivot",
+        "post-exploitation", "own account", "safe harbor", "public disclosure",
+        "social engineering", "phishing", "denial of service", "dos", "ddos",
     ]
     for raw in text.splitlines():
         line = clean_line(raw.lstrip("-•*0123456789. "))
@@ -169,25 +213,58 @@ def main() -> int:
         d.mkdir(parents=True, exist_ok=True)
 
     text = brief_file.read_text(encoding="utf-8", errors="replace")
-    normalized = text.replace("\r\n", "\n")
+    normalized = text.replace("\r\n", "\n").replace("\r", "\n")
 
     in_scope_section = extract_section(
         normalized,
-        ["in scope targets", "in-scope targets", "in scope", "scope and rewards"],
-        ["out of scope targets", "out-of-scope targets", "known issues", "things to know", "rules", "exclusions"],
+        [
+            r"\bin[-\s]?scope targets\b",
+            r"\bin[-\s]?scope\b",
+            r"\bscope and rewards\b",
+            r"\bassets? in scope\b",
+            r"\bwithin scope\b",
+            r"\btargets? in scope\b",
+            r"\bdentro de alcance\b",
+            r"\ben alcance\b",
+        ],
+        [
+            r"\bout[-\s]?of[-\s]?scope targets\b",
+            r"\bout[-\s]?of[-\s]?scope\b",
+            r"\bfuera de alcance\b",
+            r"\bknown issues\b",
+            r"\bthings to know\b",
+            r"\brules\b",
+            r"\bexclusions\b",
+            r"\bnot eligible\b",
+        ],
     )
     out_scope_section = extract_section(
         normalized,
-        ["out of scope targets", "out-of-scope targets", "out of scope"],
-        ["known issues", "things to know", "vulnerabilities rewarded", "rules", "public disclosure", "safe harbor"],
+        [
+            r"\bout[-\s]?of[-\s]?scope targets\b",
+            r"\bout[-\s]?of[-\s]?scope\b",
+            r"\bfuera de alcance\b",
+            r"\bexclusions\b",
+        ],
+        [
+            r"\bknown issues\b",
+            r"\bthings to know\b",
+            r"\bvulnerabilities rewarded\b",
+            r"\brules\b",
+            r"\bpublic disclosure\b",
+            r"\bsafe harbor\b",
+            r"\bnot eligible\b",
+        ],
     )
 
-    in_scope = extract_urls_and_patterns(in_scope_section or normalized)
-    out_scope = extract_urls_and_patterns(out_scope_section)
+    in_scope = collapse_wildcard_duplicates(extract_urls_and_patterns(in_scope_section or normalized))
+    out_scope = collapse_wildcard_duplicates(extract_urls_and_patterns(out_scope_section))
 
-    # Evitar que un out-of-scope aparezca como in-scope si la extracción global lo capturó.
-    out_norm = {normalize_host(x) for x in out_scope}
-    in_scope = [x for x in in_scope if normalize_host(x) not in out_norm]
+    # Evita que out-of-scope exacto o por wildcard/patrón acabe en scope-web.
+    in_scope = [
+        x for x in in_scope
+        if not any(host_matches_pattern(x, o) or host_matches_pattern(o, x) for o in out_scope)
+    ]
 
     roots = unique([r for r in (root_from_pattern(x) for x in in_scope) if r])
     rules = extract_rules(normalized)
@@ -221,7 +298,7 @@ def main() -> int:
         "## Recommended flow",
         "",
         "```bash",
-        f"cd \"$HUNTING_HOME/targets/{program}\"",
+        f'cd "$HUNTING_HOME/targets/{program}"',
         f"scope-program {program}",
         f"webmap {program}",
         f"paramhunt-v2 {program}",
@@ -263,7 +340,7 @@ def main() -> int:
     print(f"[+] Out-of-scope: {len(out_scope)} → {in_dir / 'out-of-scope.txt'}")
     print(f"[+] Roots: {len(roots)} → {in_dir / 'roots.txt'}")
     print(f"[+] Program notes → {in_dir / 'program.md'}")
-    print(f"[→] Revisa manualmente los ficheros antes de lanzar recon")
+    print("[→] Revisa manualmente los ficheros antes de lanzar recon")
     return 0
 
 
