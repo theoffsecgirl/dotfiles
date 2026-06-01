@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+# scope-program — recon web multi-dominio dentro de un único target/programa
+# Uso: scope-program <programa>
+# Lee: $HUNTING_HOME/targets/<programa>/in/roots.txt
+set -euo pipefail
+
+[[ -z "${1:-}" ]] && { echo "Uso: scope-program <programa>"; exit 1; }
+
+PROGRAM="$1"
+BASE="${HUNTING_HOME:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty}/targets/$PROGRAM"
+ROOTS_FILE="$BASE/in/roots.txt"
+
+if command -v mktarget >/dev/null 2>&1; then
+  mktarget "$PROGRAM" >/dev/null 2>&1 || true
+else
+  mkdir -p "$BASE"/{recon,http,fuzz,js,in,out,tmp,burp,notes,reports,loot,meta}
+fi
+
+mkdir -p "$BASE"/{recon,http,meta,tmp} "$BASE/recon/roots" "$BASE/http/roots" "$BASE/meta/roots"
+
+if [[ ! -f "$ROOTS_FILE" ]]; then
+  cat > "$ROOTS_FILE" <<'EOF'
+# One root domain per line, without wildcards.
+# Example:
+# adidas.com
+# runtastic.com
+EOF
+  echo "[!] No existe $ROOTS_FILE"
+  echo "[+] Plantilla creada. Añade los dominios raíz y vuelve a ejecutar: scope-program $PROGRAM"
+  exit 1
+fi
+
+for dep in subfinder httpx anew jq; do
+  command -v "$dep" >/dev/null 2>&1 || { echo "[!] Falta: $dep"; exit 1; }
+done
+
+ROOTS_TMP="$BASE/tmp/roots.clean.txt"
+grep -Ev '^\s*#|^\s*$' "$ROOTS_FILE" | sed 's/^\*\.//' | sort -u > "$ROOTS_TMP"
+
+if [[ ! -s "$ROOTS_TMP" ]]; then
+  echo "[!] $ROOTS_FILE no contiene dominios raíz válidos"
+  exit 1
+fi
+
+: > "$BASE/recon/subdomains.txt"
+: > "$BASE/http/live.txt"
+: > "$BASE/http/httpx.jsonl"
+: > "$BASE/http/httpx_table.tsv"
+
+while IFS= read -r ROOT; do
+  [[ -z "$ROOT" ]] && continue
+
+  echo "[*] Enumerando raíz: $ROOT"
+  ROOT_SAFE="${ROOT//[^A-Za-z0-9_.-]/_}"
+  ROOT_RECON="$BASE/recon/roots/$ROOT_SAFE.subdomains.txt"
+  ROOT_HTTP_JSON="$BASE/http/roots/$ROOT_SAFE.httpx.jsonl"
+  ROOT_HTTP_LIVE="$BASE/http/roots/$ROOT_SAFE.live.txt"
+  ROOT_META="$BASE/meta/roots/$ROOT_SAFE.scope.json"
+
+  : > "$ROOT_RECON"
+  : > "$ROOT_HTTP_JSON"
+  : > "$ROOT_HTTP_LIVE"
+
+  subfinder -d "$ROOT" -silent -all -recursive \
+    | sed 's/^\*\.//' \
+    | sort -u \
+    | anew "$ROOT_RECON" >/dev/null
+
+  cat "$ROOT_RECON" | anew "$BASE/recon/subdomains.txt" >/dev/null
+
+  echo "[*] Descubriendo HTTP(S): $ROOT"
+  httpx \
+    -silent \
+    -l "$ROOT_RECON" \
+    -json \
+    -title \
+    -tech-detect \
+    -status-code \
+    -follow-redirects \
+    -ip \
+    -cdn \
+    -ports 80,443,8080,8443 \
+    | tee "$ROOT_HTTP_JSON" \
+    | tee -a "$BASE/http/httpx.jsonl" \
+    | jq -r 'select(.url != null) | .url' \
+    | anew "$ROOT_HTTP_LIVE" \
+    | anew "$BASE/http/live.txt" >/dev/null
+
+  jq -n \
+    --arg root "$ROOT" \
+    --arg generated_at "$(date -u +%FT%TZ)" \
+    --arg sub_count "$(wc -l < "$ROOT_RECON" | tr -d ' ')" \
+    --arg live_count "$(wc -l < "$ROOT_HTTP_LIVE" | tr -d ' ')" \
+    '{root:$root, generated_at:$generated_at, subdomains:($sub_count|tonumber), live_hosts:($live_count|tonumber)}' \
+    > "$ROOT_META"
+done < "$ROOTS_TMP"
+
+sort -u "$BASE/recon/subdomains.txt" -o "$BASE/recon/subdomains.txt"
+sort -u "$BASE/http/live.txt" -o "$BASE/http/live.txt"
+
+jq -r 'select(.url != null) | [.input, .url, (.status_code|tostring), (.webserver // ""), (.title // "")] | @tsv' "$BASE/http/httpx.jsonl" \
+  > "$BASE/http/httpx_table.tsv"
+
+jq -n \
+  --arg program "$PROGRAM" \
+  --arg generated_at "$(date -u +%FT%TZ)" \
+  --argjson roots "$(jq -Rsc 'split("\n") | map(select(length > 0))' "$ROOTS_TMP")" \
+  --arg sub_count "$(wc -l < "$BASE/recon/subdomains.txt" | tr -d ' ')" \
+  --arg live_count "$(wc -l < "$BASE/http/live.txt" | tr -d ' ')" \
+  '{program:$program, generated_at:$generated_at, roots:$roots, subdomains:($sub_count|tonumber), live_hosts:($live_count|tonumber)}' \
+  > "$BASE/meta/scope-program.json"
+
+echo "[+] Programa: $PROGRAM"
+echo "[+] Raíces: $(wc -l < "$ROOTS_TMP" | tr -d ' ')"
+echo "[+] Subdominios: $(wc -l < "$BASE/recon/subdomains.txt" | tr -d ' ') → $BASE/recon/subdomains.txt"
+echo "[+] Hosts vivos: $(wc -l < "$BASE/http/live.txt" | tr -d ' ') → $BASE/http/live.txt"
+echo "[+] httpx JSONL → $BASE/http/httpx.jsonl"
+echo "[+] metadata → $BASE/meta/scope-program.json"
+echo "[→] Siguiente paso: webmap $PROGRAM"

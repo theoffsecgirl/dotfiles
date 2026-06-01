@@ -1,28 +1,12 @@
 # Ghostty config — Ari
-
 font-family = JetBrainsMono Nerd Font
-font-size = 17
-
+font-size = 14
 macos-option-as-alt = true
 
-# Comodidad visual
-window-padding-x = 12
-window-padding-y = 10
-
-# Cursor
-cursor-style = block
-cursor-style-blink = false
-
-# Selección
-copy-on-select = true
-
 # Catppuccin Mocha
-
 background = 1e1e2e
 foreground = cdd6f4
-
 cursor-color = f5e0dc
-
 selection-background = 585b70
 selection-foreground = cdd6f4
 
@@ -34,7 +18,6 @@ palette = 4=#89b4fa
 palette = 5=#f5c2e7
 palette = 6=#94e2d5
 palette = 7=#bac2de
-
 palette = 8=#585b70
 palette = 9=#f38ba8
 palette = 10=#a6e3a1
