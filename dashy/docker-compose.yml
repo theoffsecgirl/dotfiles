@@ -1,0 +1,9 @@
+services:
+  dashy:
+    image: lissy93/dashy:4.2.1
+    container_name: dashy
+    restart: unless-stopped
+    ports:
+      - "4001:8080"
+    volumes:
+      - /Users/theoffsecgirl/.dotfiles/dashy:/app/user-data

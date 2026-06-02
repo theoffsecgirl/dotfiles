@@ -1,0 +1,75 @@
+pageInfo:
+  title: Bug Bounty
+  description: Startpage
+
+appConfig:
+  theme: nord-frost
+  layout: horizontal
+  iconSize: small
+  language: es
+  disableConfiguration: false
+  hideComponents:
+    hideHeading: false
+    hideSearch: true
+    hideSettings: true
+    hideFooter: true
+
+sections:
+  - name: Activo
+    items:
+      - title: Programa principal
+        url: https://hackerone.com/
+      - title: Scope
+        url: https://hackerone.com/
+      - title: Reports
+        url: https://hackerone.com/
+
+  - name: Plataformas
+    items:
+      - title: HackerOne
+        url: https://hackerone.com/
+      - title: Bugcrowd
+        url: https://bugcrowd.com/
+      - title: Hacktivity
+        url: https://hackerone.com/hacktivity
+      - title: Bugcrowd VRT
+        url: https://bugcrowd.com/vulnerability-rating-taxonomy/
+
+  - name: Recon
+    items:
+      - title: crt.sh
+        url: https://crt.sh/
+      - title: urlscan
+        url: https://urlscan.io/
+      - title: Wayback
+        url: https://web.archive.org/
+      - title: Shodan
+        url: https://www.shodan.io/
+      - title: Censys
+        url: https://search.censys.io/
+
+  - name: Testing
+    items:
+      - title: CyberChef
+        url: https://gchq.github.io/CyberChef/
+      - title: JWT.io
+        url: https://jwt.io/
+      - title: Webhook.site
+        url: https://webhook.site/
+      - title: Caido Docs
+        url: https://docs.caido.io/
+      - title: mitmproxy
+        url: https://docs.mitmproxy.org/
+
+  - name: Referencia
+    items:
+      - title: PortSwigger
+        url: https://portswigger.net/web-security
+      - title: Business Logic
+        url: https://portswigger.net/web-security/logic-flaws
+      - title: Access Control
+        url: https://portswigger.net/web-security/access-control
+      - title: HackTricks
+        url: https://book.hacktricks.wiki/
+      - title: BBLabs
+        url: https://bblabs.es/
