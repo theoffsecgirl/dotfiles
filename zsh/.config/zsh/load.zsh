@@ -136,6 +136,10 @@ unset _entry _TOOL_COMPLETIONS
 # Aliases generales de productividad
 [[ -f "$HOME/.config/zsh/aliases-general.zsh" ]] && source "$HOME/.config/zsh/aliases-general.zsh"
 
+# Local overrides (no se versiona) — debe cargarse ANTES de bug-bounty.zsh
+# para que HUNTING_HOME esté definido cuando bug-bounty.zsh calcule GLOBAL_NOTES_HOME
+[[ -f "$HOME/.config/zsh/local.zsh" ]] && source "$HOME/.config/zsh/local.zsh"
+
 # Bug bounty workspace
 [[ -f "$HOME/.config/zsh/bug-bounty.zsh" ]] && source "$HOME/.config/zsh/bug-bounty.zsh"
 
@@ -148,6 +152,3 @@ do
   [[ -f "$_plugin" ]] && source "$_plugin"
 done
 unset _plugin
-
-# Local overrides (no se versiona)
-[[ -f "$HOME/.config/zsh/local.zsh" ]] && source "$HOME/.config/zsh/local.zsh"
