@@ -6,7 +6,7 @@
 ![Status](https://img.shields.io/badge/Status-Stable-brightgreen?style=flat-square)
 
 ---
-**Dotfiles for bug bounty and pentesting**  
+**Dotfiles for bug bounty and pentesting**
 *by [TheOffSecGirl](https://github.com/theoffsecgirl)*
 
 > 🇪🇸 [Versión en español](README.es.md)
@@ -19,7 +19,7 @@
 
 These are not "pretty dotfiles".
 
-This is my real bug bounty working environment.
+This is my real bug bounty working environment — macOS-first, terminal-centric, built around a reproducible workflow.
 
 Designed to:
 
@@ -36,10 +36,15 @@ Designed to:
 git clone git@github.com:theoffsecgirl/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ./install.sh
+```
+
+After install, set your real workspace path (see [Configuration](#configuration)), then:
+
+```bash
 exec zsh
 ```
 
-Preview what stow would link before committing:
+Preview what stow would link without applying:
 
 ```bash
 ./install.sh --dry-run
@@ -53,11 +58,26 @@ hunt-doctor
 
 ---
 
+## Configuration
+
+All real configuration lives in `~/.config/zsh/load.zsh` (not `.zshrc`, which is intentionally minimal).
+
+Machine-specific overrides go in `~/.config/zsh/local.zsh` — this file is **not versioned**. The installer creates a template automatically.
+
+The most important override is `HUNTING_HOME`:
+
+```zsh
+# ~/.config/zsh/local.zsh
+export HUNTING_HOME="$HOME/Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty"
+```
+
+If `HUNTING_HOME` is not set here, it falls back to `~/targets` — which works but won't point to iCloud.
+
+---
+
 ## Bug bounty workflow
 
 ### Single-domain target
-
-Use this when one domain maps to one workspace.
 
 ```bash
 mktarget example.com
@@ -66,7 +86,7 @@ webmap example.com
 paramhunt-v2 example.com
 ```
 
-Official target layout:
+Target layout:
 
 ```text
 $HUNTING_HOME/targets/example.com/
@@ -104,21 +124,21 @@ meta/*.json
 
 ### Multi-domain program
 
-Use this when one private/public program has several web scopes but you want one workspace.
+Use when a private/public program has multiple web scopes but you want one workspace.
 
 ```bash
 program-init example
 cd "$HUNTING_HOME/targets/example"
 ```
 
-Paste/export the brief:
+Import the brief:
 
 ```bash
 nvim in/brief.txt
 program-import-brief example in/brief.txt
 ```
 
-Review the extracted scope before recon:
+Review extracted scope before recon:
 
 ```bash
 nvim in/roots.txt
@@ -126,7 +146,7 @@ nvim in/scope-web.txt
 nvim in/out-of-scope.txt
 ```
 
-Run the multi-domain flow:
+Run multi-domain flow:
 
 ```bash
 scope-program example
@@ -134,19 +154,7 @@ webmap example
 paramhunt-v2 example
 ```
 
-`scope-program` reads:
-
-```text
-in/roots.txt
-```
-
-and keeps everything inside:
-
-```text
-$HUNTING_HOME/targets/example/
-```
-
-It does not create one folder per domain.
+`scope-program` reads `in/roots.txt` and keeps everything inside `$HUNTING_HOME/targets/example/` — no per-domain subdirectories.
 
 Expected multi-domain outputs:
 
@@ -161,13 +169,13 @@ meta/scope-program.json
 meta/roots/<root>.scope.json
 ```
 
-### Command validation
+### Validate commands
 
 ```bash
 type -a program-init scope-program program-import-brief scope webmap mktarget subscan
 ```
 
-Expected commands should resolve to `~/.local/bin/*`; `tips` is a shell function.
+Expected: everything resolves to `~/.local/bin/*`. `tips` is a shell function.
 
 ---
 
@@ -182,13 +190,24 @@ cds        # cd $HUNTING_HOME/scripts
 
 ---
 
+## Proxy (Burp Suite)
+
+```bash
+setproxy      # activates http_proxy + https_proxy → 127.0.0.1:8080
+              # also sets no_proxy=localhost,127.0.0.1 so CLI tools
+              # don't route local traffic through Burp
+unsetproxy    # clears all three variables
+```
+
+---
+
 ## Interactive cheatsheet
 
 ```bash
 tips
 ```
 
-Opens an fzf cheatsheet. Selecting an entry with ENTER copies the command to the clipboard.
+Opens an fzf cheatsheet. Press ENTER to copy the selected command to the clipboard.
 
 ---
 
@@ -196,40 +215,27 @@ Opens an fzf cheatsheet. Selecting an entry with ENTER copies the command to the
 
 | Command | Behaviour |
 |---|---|
-| `grh` | `git reset --hard HEAD` — shows a diff summary and asks for confirmation first |
+| `grh` | `git reset --hard HEAD` — shows a diff summary and asks for confirmation |
 | `cat` | Automatically uses `bat` if installed (syntax highlighting, no paging) |
 | `myip` | Tries three public IP services with a 3s timeout each |
 | `localip` | Works on both macOS (`en0`) and Linux (`ip addr`) |
 | `git wip` | Stages only tracked files (`add -u`), never untracked secrets |
+| `setproxy` / `unsetproxy` | Toggle Burp proxy with `no_proxy` for localhost |
+| `purge_outputs` | Removes `output/` dirs and `.log` files — asks for confirmation |
 
 ---
 
 ## Tools
 
-Tool installers live in:
-
-```text
-tools/install-tools.sh
-tools/update-tools.sh
+```bash
+bash ~/.dotfiles/tools/install-tools.sh   # install Go tools (ProjectDiscovery, tomnomnom)
+bash ~/.dotfiles/tools/update-tools.sh    # update them
 ```
 
-Generated binaries and cloned sources are intentionally ignored:
-
-```text
-tools/bin/
-tools/src/
-```
-
-Rebuild local tools with:
+Brew dependencies are managed via `brew/Brewfile` — the single source of truth for macOS packages:
 
 ```bash
-bash ~/.dotfiles/tools/install-tools.sh
-```
-
-Update them with:
-
-```bash
-bash ~/.dotfiles/tools/update-tools.sh
+brew bundle --file=~/.dotfiles/brew/Brewfile
 ```
 
 ---
@@ -237,10 +243,24 @@ bash ~/.dotfiles/tools/update-tools.sh
 ## Offsec container (optional)
 
 ```bash
-offsec-up       # start container
-offsec-shell    # enter container
-offsec          # exec directly into zsh in container
+offsec-build    # build the Debian container image
+offsec-up       # start container (alias: offsec-start)
+offsec-shell    # exec into zsh in the container
+offsec          # offsec-init + exec in one command
+offsec-rebuild  # stop → remove → rebuild → start
 ```
+
+The container mounts `$HUNTING_HOME` at `/work`.
+
+---
+
+## Dotfiles audit
+
+```bash
+bash ~/.dotfiles/audit_dotfiles.sh ~/.dotfiles
+```
+
+Checks: merge conflicts, CRLF, `sh` bashisms, bash/zsh syntax errors, shellcheck (requires `shellcheck` — included in the Brewfile).
 
 ---
 
@@ -249,19 +269,29 @@ offsec          # exec directly into zsh in container
 ```text
 ~/.dotfiles/
 ├── zsh/
+│   ├── .zshrc                    # minimal — loads load.zsh
+│   └── .config/zsh/
+│       ├── load.zsh              # modular entry point
+│       ├── aliases-general.zsh   # git, nav, system
+│       └── bug-bounty.zsh        # hunting workspace
 ├── tmux/
 ├── nvim/
 ├── git/
 ├── ghostty/
 ├── scripts/
-│   └── .local/bin/
+│   └── .local/bin/               # all hunting scripts
+├── vendor/
+│   └── shell-utils/zsh/          # cross-platform helpers
+├── brew/
+│   └── Brewfile                  # macOS package source of truth
 ├── tools/
 │   ├── install-tools.sh
 │   └── update-tools.sh
+├── audit_dotfiles.sh
 └── install.sh
 ```
 
-Managed with stow — clean, reversible symlinks.
+Managed with [GNU Stow](https://www.gnu.org/software/stow/) — clean, reversible symlinks.
 
 ---
 

@@ -1,8 +1,13 @@
 # =========================
 # Aliases builtin (cross-platform)
 # =========================
+# Cargado desde load.zsh como primer archivo de vendor.
+# Solo define lo que NO está en aliases-general.zsh ni bug-bounty.zsh.
 
+
+# -------------------------
 # Detección de plataforma
+# -------------------------
 case "$(uname)" in
   Darwin) export PLATFORM="macos" ;;
   Linux)  export PLATFORM="linux" ;;
@@ -13,8 +18,16 @@ esac
 # -------------------------
 # Historial
 # -------------------------
-alias clrhist=": > ~/.zsh_history"
-alias rmhist="rm ~/.zsh_history"
+# clrhist vacía sin borrar el fichero (safer que rmhist)
+alias clrhist=": > ~/.cache/zsh/history"
+# rmhist para borrado completo — con confirmación
+rmhist() {
+  echo "[!] Esto borrará permanentemente ~/.cache/zsh/history"
+  read -r -q "reply?¿Continuar? [s/N] " || { echo; return 1; }
+  echo
+  rm -f "$HOME/.cache/zsh/history"
+  echo "[+] Historial eliminado"
+}
 
 
 # -------------------------
@@ -62,24 +75,16 @@ fi
 
 
 # -------------------------
-# Navegación rápida
+# Operaciones de archivo (safe)
 # -------------------------
-alias c='clear'
-alias ..='cd ..'
-alias ...='cd ../..'
-alias ....='cd ../../..'
-alias docs='cd ~/Documents'
-alias desk='cd ~/Desktop'
-alias mkdir='mkdir -p'
-
-
-# -------------------------
-# Operaciones destructivas (safe)
-# -------------------------
-alias rm='rm -i'
-alias rmrf='rm -rf'
+# rm: -I en GNU (un prompt para 3+ ficheros), -i en BSD/macOS (prompt siempre)
+# aliases-general.zsh ya gestiona esto — NO redefinir rm aquí.
+# mv con confirmación
 alias mv='mv -i'
 alias chmodx='chmod +x'
+
+# rmrf: eliminado como alias directo — demasiado peligroso sin confirmación.
+# Si necesitas rm -rf, escríbelo explícitamente.
 
 
 # -------------------------
@@ -116,6 +121,7 @@ alias wgetr='wget --continue'
 # -------------------------
 # cat / bat con fallback
 # -------------------------
+# realcat/rcat: acceso al cat real sin alias (útil en scripts)
 realcat() { command cat "$@"; }
 alias rcat='realcat'
 
@@ -156,7 +162,8 @@ elif [[ "$PLATFORM" == "macos" ]]; then
   alias sniff='sudo tcpdump -i en0 -nn -s0 -w capture.pcap'
 fi
 
-alias myip='curl -s ifconfig.me'
+# myip: eliminado — aliases-general.zsh define myip() con fallback a 3 servicios.
+# Aquí solo se define lo que aliases-general.zsh NO cubre.
 alias pingfast='ping -c 5 -i 0.2 google.com'
 alias dnslookup='dig +short'
 
@@ -174,7 +181,7 @@ alias httproot='python3 -m http.server 8080'
 # -------------------------
 if [[ "$PLATFORM" == "macos" ]]; then
   alias finder='open .'
-  alias brewup='brew update && brew upgrade'
+  alias brewup='brew update && brew upgrade && brew cleanup'
   alias showfiles='defaults write com.apple.finder AppleShowAllFiles YES; killall Finder'
   alias hidefiles='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder'
   alias flushdns='sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder'

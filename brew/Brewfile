@@ -1,4 +1,8 @@
-# Base
+# brew/Brewfile — fuente de verdad para herramientas macOS
+# Instalar: brew bundle --file=brew/Brewfile
+# Actualizar: brew bundle --file=brew/Brewfile (idempotente)
+
+# ── Base ─────────────────────────────────────────────────────────────────────
 brew "git"
 brew "gnupg"
 brew "coreutils"
@@ -15,14 +19,18 @@ brew "tmux"
 brew "neovim"
 brew "stow"
 
-# Zsh extras
+# ── Zsh extras ───────────────────────────────────────────────────────────────
 brew "zsh-autosuggestions"
 brew "zsh-syntax-highlighting"
 brew "starship"
 brew "zoxide"
 brew "atuin"
 
-# Web / bug bounty (herramientas de sistema)
+# ── Auditoría y desarrollo ────────────────────────────────────────────────────
+# shellcheck: necesario para audit_dotfiles.sh (sección 7)
+brew "shellcheck"
+
+# ── Web / bug bounty (herramientas de sistema) ────────────────────────────────
 brew "nmap"
 brew "masscan"
 brew "ffuf"
@@ -31,12 +39,10 @@ brew "wget"
 brew "curl"
 brew "openssl@3"
 
-# Go (necesario para instalar herramientas de ProjectDiscovery y tomnomnom)
+# ── Go (necesario para herramientas ProjectDiscovery y tomnomnom) ─────────────
 brew "go"
 
-# ProjectDiscovery y tomnomnom
-# El tap oficial falla con autenticacion HTTPS en algunos entornos.
-# Instalar con go install despues de brew bundle:
+# ProjectDiscovery y tomnomnom — instalar con go install tras brew bundle:
 #
 #   go install github.com/projectdiscovery/httpx/cmd/httpx@latest
 #   go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
@@ -50,17 +56,17 @@ brew "go"
 #   go install github.com/tomnomnom/assetfinder@latest
 #   go install github.com/d3mondev/puredns/v2@latest
 #
-# O usar el script: scripts/.local/bin/install-go-tools
+# O usar: scripts/.local/bin/install-go-tools
 
-# Containers (alternativa a Docker Desktop)
+# ── Contenedores ─────────────────────────────────────────────────────────────
 brew "colima"
 brew "docker"
 brew "docker-compose"
 
-# Python tooling
+# ── Python tooling ────────────────────────────────────────────────────────────
 brew "pipx"
 brew "python@3.12"
 
-# Opcional (descomenta si lo usas)
+# ── Opcional (descomenta si lo usas) ─────────────────────────────────────────
 # brew "wireshark"
 # brew "--cask burp-suite-community"

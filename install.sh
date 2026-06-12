@@ -65,8 +65,8 @@ need_cmd() {
 detect_os() {
   case "$(uname -s)" in
     Darwin) echo "macos" ;;
-    Linux) echo "linux" ;;
-    *) echo "other" ;;
+    Linux)  echo "linux" ;;
+    *)      echo "other" ;;
   esac
 }
 
@@ -77,34 +77,53 @@ install_linux_base() {
   fi
 
   info "Instalando dependencias base en Linux"
-  sudo apt-get update
+  sudo apt-get update -qq
   sudo apt-get install -y \
     zsh tmux neovim stow git curl wget jq fzf ripgrep fd-find \
-    bat xclip python3 python3-venv
+    bat xclip python3 python3-venv shellcheck
 }
 
 install_macos_base() {
   if ! command -v brew >/dev/null 2>&1; then
     warn "Homebrew no está instalado; omito instalación automática"
+    warn "Instala Homebrew: https://brew.sh"
     return 0
   fi
 
-  info "Instalando dependencias base en macOS"
-  brew install stow zsh tmux neovim jq fzf ripgrep fd bat zoxide atuin
+  # stow primero — lo necesitamos para apply_stow
+  command -v stow >/dev/null 2>&1 || brew install stow
+
+  if [[ -f "$ROOT/brew/Brewfile" ]]; then
+    info "Instalando desde brew/Brewfile (fuente de verdad)"
+    brew bundle --file="$ROOT/brew/Brewfile" || warn "Algunas fórmulas fallaron — revisa la salida anterior"
+  else
+    warn "brew/Brewfile no encontrado; instalando conjunto mínimo"
+    brew install stow zsh tmux neovim jq fzf ripgrep fd bat zoxide atuin shellcheck
+  fi
 }
 
 apply_stow() {
   need_cmd stow
+
   local packages=()
   for d in zsh tmux git nvim ghostty scripts; do
     [[ -d "$d" ]] && packages+=("$d")
   done
+
+  if [[ ${#packages[@]} -eq 0 ]]; then
+    warn "No se encontraron paquetes stow — ¿estás ejecutando desde el directorio correcto?"
+    return 1
+  fi
+
+  info "Paquetes a enlazar: ${packages[*]}"
   info "Preflight de stow (simulación)"
   stow -nv -t "$HOME" "${packages[@]}"
+
   if [[ "$DRY_RUN" -eq 1 ]]; then
     warn "Modo --dry-run: no se han aplicado cambios"
     return 0
   fi
+
   info "Aplicando stow"
   stow --restow -t "$HOME" "${packages[@]}"
   ok "Symlinks aplicados"
@@ -114,7 +133,8 @@ fix_exec_bits() {
   info "Ajustando permisos de scripts del repo"
   while IFS= read -r -d '' f; do
     chmod +x "$f"
-  done < <(find "$ROOT" \( -path '*/.git/*' -o -path '*/vendor/*' \) -prune -o -type f \( -name '*.sh' -o -path '*/.local/bin/*' \) -print0)
+  done < <(find "$ROOT" \( -path '*/.git/*' -o -path '*/vendor/*' \) -prune \
+    -o -type f \( -name '*.sh' -o -path '*/.local/bin/*' \) -print0)
   ok "Permisos ajustados"
 }
 
@@ -144,7 +164,23 @@ maybe_change_shell() {
 
   if [[ "${SHELL:-}" != "$zsh_path" ]]; then
     info "Cambiando shell por defecto a $zsh_path"
-    chsh -s "$zsh_path" || warn "No se pudo cambiar la shell automáticamente"
+    chsh -s "$zsh_path" || warn "No se pudo cambiar la shell automáticamente — hazlo manualmente: chsh -s $zsh_path"
+  fi
+}
+
+suggest_local_zsh() {
+  local local_cfg="$HOME/.config/zsh/local.zsh"
+  if [[ ! -f "$local_cfg" ]]; then
+    info "Creando ~/.config/zsh/local.zsh con plantilla de HUNTING_HOME"
+    cat > "$local_cfg" <<'LOCAL'
+# ~/.config/zsh/local.zsh — overrides locales (no versionado)
+# Ajusta HUNTING_HOME a tu workspace real:
+#
+# export HUNTING_HOME="$HOME/Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty"
+#
+# Otras variables de entorno específicas de esta máquina van aquí.
+LOCAL
+    ok "Plantilla creada → $local_cfg (edítala para ajustar HUNTING_HOME)"
   fi
 }
 
@@ -154,26 +190,28 @@ main() {
 
   if [[ "$DRY_RUN" -eq 0 ]]; then
     case "$(detect_os)" in
-        macos) install_macos_base ;;
-    linux) install_linux_base ;;
-      *) warn "SO no soportado para bootstrap automático" ;;
+      macos) install_macos_base ;;
+      linux) install_linux_base ;;
+      *)     warn "SO no soportado para bootstrap automático" ;;
     esac
   fi
 
   apply_stow
   [[ "$DRY_RUN" -eq 1 ]] && return 0
-  maybe_change_shell
 
-  # Instalar herramientas de theoffsecgirl
+  maybe_change_shell
+  suggest_local_zsh
+
   if [[ -f "$ROOT/tools/install-tools.sh" ]]; then
-    info "Instalando herramientas de seguridad"
-    bash "$ROOT/tools/install-tools.sh" || warn "Algunas herramientas no se instalaron correctamente"
+    info "Instalando herramientas de seguridad (Go tools)"
+    bash "$ROOT/tools/install-tools.sh" || warn "Algunas herramientas no se instalaron — revisa la salida anterior"
   fi
 
   ok "Instalación completada"
   echo
   echo "Siguiente paso:"
-  echo "  exec zsh"
+  echo "  1. Edita ~/.config/zsh/local.zsh y ajusta HUNTING_HOME"
+  echo "  2. exec zsh"
 }
 
 main "$@"

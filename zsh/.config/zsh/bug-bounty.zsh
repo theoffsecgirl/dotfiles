@@ -1,16 +1,24 @@
+# bug-bounty.zsh — workspace y helpers de bug bounty
+# Cargado automáticamente desde load.zsh
+#
+# HUNTING_HOME: define la raíz de tu workspace.
+# El valor real debe estar en ~/.config/zsh/local.zsh (no versionado):
+#
+#   export HUNTING_HOME="$HOME/Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty"
+#
+# El fallback aquí es solo para el contenedor offsec y para máquinas
+# sin local.zsh configurado. No depende de rutas con espacios ni emojis.
+
 if [[ -n "${OFFSEC_CONTAINER:-}" ]]; then
   unsetopt CORRECT
   export HUNTING_HOME="/work"
 else
   export ICLOUD_HOME="${ICLOUD_HOME:-$HOME/Library/Mobile Documents/com~apple~CloudDocs}"
-  export PROFESIONAL_HOME="${PROFESIONAL_HOME:-$ICLOUD_HOME/Desktop/☁️ Mi iCloud/💼 Profesional}"
+  # Fallback seguro: ~/targets — sin emojis, sin espacios, funciona en todos los tools
   export HUNTING_HOME="${HUNTING_HOME:-$HOME/targets}"
 fi
 
 export GLOBAL_NOTES_HOME="${GLOBAL_NOTES_HOME:-$HUNTING_HOME/notes}"
-
-# Bug Bounty aliases y funciones
-# Se carga automáticamente desde load.zsh
 
 # ==========================================
 # Wordlists — variables de entorno
@@ -388,7 +396,7 @@ tnote() {
         shift
         break
         ;;
-      -* )
+      -*)
         echo "[!] Flag no soportado: $1"
         return 1
         ;;

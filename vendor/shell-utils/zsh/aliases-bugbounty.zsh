@@ -1,18 +1,30 @@
 # =========================
-# Bug Bounty helpers
+# Bug Bounty helpers (vendor/shell-utils)
 # =========================
+# Cargado desde load.zsh antes de aliases-general.zsh y bug-bounty.zsh.
+# Regla: este archivo NO debe definir aliases que ya existen en
+# aliases-general.zsh o bug-bounty.zsh (evita conflictos de orden).
+
 
 # -------------------------
-# Mostrar aliases
+# Mostrar aliases — introspección rápida
 # -------------------------
 showaliases() {
   alias | sed 's/^alias //' | column -t -s'=' | less
+}
+
+# Buscador interactivo de aliases
+aliases() {
+  [[ -z "${1:-}" ]] && alias | sort || alias | grep -i --color "$1"
 }
 
 
 # -------------------------
 # Navegación de trabajo
 # -------------------------
+# proj/bounty/ctf: shortcuts para directorios de proyectos
+# Si usas $HUNTING_HOME para bounty, 'bounty' se puede ignorar,
+# pero se mantiene como fallback para quien no tenga $HUNTING_HOME definido.
 alias proj='cd ~/proyectos'
 alias bounty='cd ~/bugbounty'
 alias ctf='cd ~/ctf'
@@ -21,33 +33,21 @@ alias ctf='cd ~/ctf'
 # -------------------------
 # Edición rápida de configuración
 # -------------------------
-alias ezsh='nvim ~/.zshrc'
+# ezsh abre el directorio zsh de los dotfiles, no el .zshrc (que está casi vacío)
+alias ezsh='nvim "${DOTFILES_DIR:-$HOME/.dotfiles}/zsh/.config/zsh/"'
+alias dalias='nvim "${DOTFILES_DIR:-$HOME/.dotfiles}/vendor/shell-utils/zsh/aliases-bugbounty.zsh"'
+alias dfunctions='nvim "${DOTFILES_DIR:-$HOME/.dotfiles}/vendor/shell-utils/zsh/functions-bugbounty.zsh"'
 
 reloadzsh() {
-  source ~/.zshrc && echo '[zsh recargado]'
+  exec zsh
 }
-
-alias dalias='nvim ${DOTFILES_DIR:-~/.dotfiles}/vendor/shell-utils/zsh/aliases-bugbounty.zsh'
-alias dfunctions='nvim ${DOTFILES_DIR:-~/.dotfiles}/vendor/shell-utils/zsh/functions-bugbounty.zsh'
-
-
-# -------------------------
-# Git
-# -------------------------
-alias gst='git status'
-alias gco='git checkout'
-alias gaa='git add .'
-alias gcm='git commit -m'
-alias gpush='git push'
-alias gpull='git pull'
-alias ghist='git log --oneline --graph --decorate'
 
 
 # -------------------------
 # Hacking básico
 # -------------------------
+# nuclei: sin -duc (obsoleto desde v3, el check es asíncrono y no bloquea)
 alias nmapl='nmap -sC -sV -p-'
-alias nuclei='nuclei -duc'
 
 
 # -------------------------
@@ -82,7 +82,7 @@ alias findpcap='find . -type f -name "*.pcap"'
 
 
 # -------------------------
-# Credenciales / secretos
+# Credenciales / secretos en ficheros locales
 # -------------------------
 findcreds() {
   local target="${1:-.}"
@@ -120,11 +120,11 @@ bigfiles() {
 # -------------------------
 # Clipboard helpers
 # -------------------------
-if [[ "$PLATFORM" == "macos" ]]; then
-  alias copyip='curl -s ifconfig.me | pbcopy'
+if [[ "${PLATFORM:-}" == "macos" ]]; then
+  alias copyip='curl -s --max-time 5 ifconfig.me | pbcopy'
   alias wheremi='pwd | pbcopy && pwd'
 else
-  alias copyip='curl -s ifconfig.me | xclip -selection clipboard'
+  alias copyip='curl -s --max-time 5 ifconfig.me | xclip -selection clipboard'
   alias wheremi='pwd | xclip -selection clipboard && pwd'
 fi
 
@@ -141,24 +141,20 @@ gword() {
 
 
 # -------------------------
-# Fuzzing — requiere $WORDLISTS
+# Proxy Burp Suite
 # -------------------------
-ffufdirs() {
-  [[ -z "${WORDLISTS:-}" ]] && { echo "[!] \$WORDLISTS no definida"; return 1; }
-  local wordlist="$WORDLISTS/fuzz4bounty/fuzz4bounty/dirsearch.txt"
-  [[ ! -f "$wordlist" ]] && { echo "[!] Wordlist no encontrada: $wordlist"; return 1; }
-  ffuf -u "https://${1:?Uso: ffufdirs <dominio>}/FUZZ" \
-       -w "$wordlist" \
-       -of md -o "ffuf_DIRS_$(date +%F_%H%M).md"
+# setproxy/unsetproxy: activa/desactiva proxy para herramientas CLI
+# no_proxy evita que tráfico a localhost pase por Burp (rompería health checks)
+setproxy() {
+  export http_proxy='http://127.0.0.1:8080'
+  export https_proxy='http://127.0.0.1:8080'
+  export no_proxy='localhost,127.0.0.1,::1'
+  echo "[+] Proxy activo → 127.0.0.1:8080 (no_proxy: localhost,127.0.0.1)"
 }
 
-ffufparams() {
-  [[ -z "${WORDLISTS:-}" ]] && { echo "[!] \$WORDLISTS no definida"; return 1; }
-  local wordlist="$WORDLISTS/fuzz4bounty/discovery/parameter.txt"
-  [[ ! -f "$wordlist" ]] && { echo "[!] Wordlist no encontrada: $wordlist"; return 1; }
-  ffuf -u "https://${1:?Uso: ffufparams <dominio>}/page.php?FUZZ=1" \
-       -w "$wordlist" \
-       -of md -o "ffuf_PARAMS_$(date +%F_%H%M).md"
+unsetproxy() {
+  unset http_proxy https_proxy no_proxy
+  echo "[-] Proxy desactivado"
 }
 
 
@@ -167,16 +163,16 @@ ffufparams() {
 # -------------------------
 alias err='grep -i --color error'
 alias serve='python3 -m http.server 8000'
-alias purge_outputs='find . -type d -name output -exec rm -rf {} +; find . -name "*.log" -delete'
 
-setproxy() {
-  export http_proxy='http://127.0.0.1:8080'
-  export https_proxy='http://127.0.0.1:8080'
-  echo "[+] Proxy activo → 127.0.0.1:8080"
-}
-unsetproxy() {
-  unset http_proxy https_proxy
-  echo "[-] Proxy desactivado"
+# purge_outputs: limpia directorios de output y logs del workspace actual
+# Úsalo con cuidado — no opera fuera del directorio actual
+purge_outputs() {
+  echo "[!] Borrando directorios 'output' y ficheros .log bajo $(pwd)"
+  read -r -q "reply?¿Continuar? [s/N] " || { echo; return 1; }
+  echo
+  find . -type d -name output -exec rm -rf {} + 2>/dev/null || true
+  find . -name "*.log" -delete 2>/dev/null || true
+  echo "[+] Limpieza completada"
 }
 
 alias wshk='wireshark &'
