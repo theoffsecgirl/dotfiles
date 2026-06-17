@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# DEPRECADO — sin sucesor activo. Ver claude-hypotheses-v2 / claude-recon-v2.
 # chatgpt-recon — genera prompt listo para pegar en ChatGPT
 # Uso: chatgpt-recon <dominio>
 set -euo pipefail

@@ -86,62 +86,6 @@ _target_note_file() {
   esac
 }
 
-# Deprecated: kept only as a fallback. Official command: scripts/.local/bin/mktarget
-mktarget_legacy() {
-  local domain="${1:-}"
-  [[ -z "$domain" ]] && { echo "Uso: mktarget <dominio>"; return 1; }
-
-  local slug base
-  slug="$(target_slug "$domain")"
-  base="$(_target_base "$domain")"
-
-  mkdir -p \
-    "$GLOBAL_NOTES_HOME" \
-    "$HUNTING_HOME/scripts" \
-    "$base/notes" \
-    "$base/recon" \
-    "$base/traffic" \
-    "$base/artifacts/js" \
-    "$base/artifacts/responses" \
-    "$base/artifacts/screenshots" \
-    "$base/artifacts/exports" \
-    "$base/ai" \
-    "$base/reports"
-
-  [[ -f "$base/README.md" ]] || cat > "$base/README.md" <<README
-# $slug
-
-## Scope
-- $domain
-
-## Priority
-1. authz / IDOR
-2. business logic
-3. API inconsistencies
-
-## Current focus
-
-## Next step
-README
-
-  for f in overview shortlist hypotheses findings decisions; do
-    [[ -f "$base/notes/$f.md" ]] || : > "$base/notes/$f.md"
-  done
-
-  [[ -f "$base/recon/resolvers.txt" ]] || cat > "$base/recon/resolvers.txt" <<'RESOLVERS'
-1.1.1.1
-1.0.0.1
-8.8.8.8
-8.8.4.4
-9.9.9.9
-149.112.112.112
-208.67.222.222
-208.67.220.220
-RESOLVERS
-
-  echo "[+] Target creado → $base"
-}
-
 
 # ==========================================
 # Contenedores (Apple Container)

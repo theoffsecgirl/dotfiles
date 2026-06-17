@@ -1,53 +1,7 @@
 #!/usr/bin/env bash
-# claude-hypotheses — genera hipótesis de ataque desde dataset de recon
-# Uso: claude-hypotheses <dominio>
+# DEPRECADO — este script ya no se mantiene.
+# Usa: claude-hypotheses-v2
 set -euo pipefail
 
-[[ -z "${1:-}" ]] && { echo "Uso: claude-hypotheses <dominio>"; exit 1; }
-
-TARGET="$1"
-BASE="${HUNTING_HOME:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty}/targets/$TARGET"
-OUTDIR="$BASE/ai"
-mkdir -p "$OUTDIR"
-
-INPUT=$(cat <<EOF
-TARGET: $TARGET
-
-FILES:
-- http/httpx.jsonl
-- http/api_candidates.txt
-- http/graphql.txt
-- js/files.txt
-- fuzz/params_by_host.jsonl
-- fuzz/sensitive_params.txt
-
-OBJECTIVE:
-- generar hipótesis reales de bug bounty
-- priorizar por impacto y probabilidad
-- evitar ruido y falsos positivos
-
-OUTPUT (JSON):
-{
-  "hypotheses": [
-    {
-      "title": "",
-      "type": "IDOR | Auth Bypass | Business Logic | SSRF | Open Redirect | File Read | Race Condition",
-      "endpoint": "",
-      "params": [],
-      "why": "",
-      "preconditions": "",
-      "test": "",
-      "expected_signal": "",
-      "impact": "",
-      "confidence": "high|medium|low"
-    }
-  ]
-}
-EOF
-)
-
-claude <<EOF > "$OUTDIR/hypotheses.json"
-$INPUT
-EOF
-
-echo "[+] Hipótesis guardadas en $OUTDIR/hypotheses.json"
+printf '\033[1;33m[!]\033[0m %s\n' "DEPRECADO: claude-hypotheses → usa claude-hypotheses-v2" >&2
+exec "$(dirname "${BASH_SOURCE[0]}")/claude-hypotheses-v2" "$@"

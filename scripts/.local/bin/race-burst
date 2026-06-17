@@ -12,9 +12,12 @@ HOST=$(grep -i '^Host:' "$REQ" | awk '{print $2}' | tr -d '\r')
 
 [[ -n "$HOST" ]] || { echo "[!] No Host header"; exit 1; }
 
+warn() { printf '[!] %s\n' "$*"; }
+warn "AVISO: nc no habla TLS. Este script solo funciona en HTTP plano (puerto 80)."
+warn "Para race conditions sobre HTTPS usa race-run (curl) o Turbo Intruder."
 echo "[*] Lanzando $NUM requests contra $HOST"
 
-for i in $(seq 1 "$NUM"); do
+for _ in $(seq 1 "$NUM"); do
   (cat "$REQ" | nc "$HOST" 443 >/dev/null 2>&1 &)
 done
 
