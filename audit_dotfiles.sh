@@ -42,9 +42,15 @@ echo
 
 echo "[7] Shellcheck"
 if command -v shellcheck >/dev/null 2>&1; then
-  find "$ROOT" -type f \( -name "*.sh" -o -path "*/.local/bin/*" \) \
-    ! -path '*/.git/*' ! -path '*/vendor/*' \
-    -exec shellcheck --severity=warning --shell=bash {} \;
+  find "$ROOT" -type f ! -path '*/.git/*' ! -path '*/vendor/*' | while IFS= read -r f; do
+    shebang=$(head -1 "$f" 2>/dev/null)
+    case "$shebang" in
+      '#!/bin/bash'*|'#!/usr/bin/env bash'*|'#!/bin/zsh'*|'#!/usr/bin/env zsh'*)
+        shellcheck --severity=warning --shell=bash "$f" ;;
+      '#!/bin/sh'*|'#!/usr/bin/env sh'*)
+        shellcheck --severity=warning --shell=sh "$f" ;;
+    esac
+  done
 else
-  echo "shellcheck no instalado — 'apt install shellcheck' o 'brew install shellcheck'"
+  echo "shellcheck no instalado — 'brew install shellcheck'"
 fi

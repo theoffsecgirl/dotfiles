@@ -11,7 +11,6 @@ resolve_input() {
 
   if [[ -f "$arg" ]]; then
     MODE="file"
-    TARGET="$(basename "$arg")"
     TARGET="${TARGET%.*}"
     BASE="$BASE_ROOT/_adhoc/$TARGET"
     URLFILE="$arg"
@@ -20,7 +19,6 @@ resolve_input() {
 
   if [[ "$arg" =~ ^https?:// ]]; then
     MODE="url"
-    TARGET="$(printf '%s' "$arg" | sed -E 's#https?://##; s#/.*$##; s#[^A-Za-z0-9._-]#_#g')"
     BASE="$BASE_ROOT/_adhoc/$TARGET"
     URLFILE="$(mktemp)"
     printf '%s\n' "$arg" > "$URLFILE"
@@ -29,7 +27,6 @@ resolve_input() {
 
   MODE="target"
   TARGET="$arg"
-  BASE="$BASE_ROOT/$TARGET"
   URLFILE="$BASE/http/urls_clean.txt"
   [[ -f "$URLFILE" ]] || URLFILE="$BASE/http/urls.txt"
   [[ -f "$URLFILE" ]] || { echo "[!] No URLs"; exit 1; }
