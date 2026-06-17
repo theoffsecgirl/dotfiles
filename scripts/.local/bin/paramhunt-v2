@@ -10,7 +10,6 @@ resolve_input() {
   [[ -z "$arg" ]] && { echo "Uso: paramhunt-v2 <dominio|urls.txt|url>"; exit 1; }
 
   if [[ -f "$arg" ]]; then
-    MODE="file"
     TARGET="${TARGET%.*}"
     BASE="$BASE_ROOT/_adhoc/$TARGET"
     URLFILE="$arg"
@@ -18,14 +17,12 @@ resolve_input() {
   fi
 
   if [[ "$arg" =~ ^https?:// ]]; then
-    MODE="url"
     BASE="$BASE_ROOT/_adhoc/$TARGET"
     URLFILE="$(mktemp)"
     printf '%s\n' "$arg" > "$URLFILE"
     return
   fi
 
-  MODE="target"
   TARGET="$arg"
   URLFILE="$BASE/http/urls_clean.txt"
   [[ -f "$URLFILE" ]] || URLFILE="$BASE/http/urls.txt"
