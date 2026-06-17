@@ -49,7 +49,7 @@ else
 fi
 alias grep='grep --color=auto'
 if command -v bat >/dev/null 2>&1; then
-  alias cat='bat --paging=never'
+  alias cat='bat --paging=never --style=plain'
 elif command -v batcat >/dev/null 2>&1; then
   alias cat='batcat --paging=never'
 fi
@@ -326,3 +326,6 @@ tips() {
     printf '%b' "$content" | less
   fi
 }
+
+# bbref — cheatsheet interactivo de bug bounty
+[[ -f "$HOME/.config/zsh/bbref.zsh" ]] && source "$HOME/.config/zsh/bbref.zsh"
