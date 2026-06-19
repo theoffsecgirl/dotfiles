@@ -55,6 +55,8 @@ Si algo falla:
 hunt-doctor
 ```
 
+`hunt-doctor` valida el entorno completo: herramientas requeridas (subfinder, httpx, katana, dnsx, nuclei, jq, unfurl, anew), todos los scripts del pipeline, los wrappers estables, y herramientas opcionales referenciadas en `bbref` (uro, dalfox, gau, waybackurls, gowitness, trufflehog, subjs, ffuf, feroxbuster, amass, assetfinder, subjack).
+
 ---
 
 ## Configuración
@@ -221,6 +223,8 @@ Cheatsheet de shell general (git, proxy, navegación). También se abre con fzf 
 | Comando | Comportamiento |
 |---|---|
 | `grh` | `git reset --hard HEAD` — muestra el diff y pide confirmación antes de ejecutar |
+| `rmrf` | `rm -rf` con preview de lo que se va a borrar y confirmación — mismo patrón que `grh` |
+| `ll` / `la` | Usa `eza` o `lsd` si están instalados, si no cae a `ls -lAh` / `ls -A` |
 | `cat` | Usa `bat --style=plain` automáticamente si está instalado (resaltado de sintaxis, sin paginación, sin decoraciones) |
 | `myip` | Prueba tres servicios con timeout de 3s cada uno |
 | `localip` | Funciona en macOS (`en0`) y Linux (`ip addr`) |
