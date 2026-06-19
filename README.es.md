@@ -282,7 +282,6 @@ Comprueba: conflictos de merge, CRLF, bashismos en scripts `sh`, errores de sint
 │       └── bbref.zsh             # cheatsheet interactivo de bug bounty
 ├── tmux/
 ├── nvim/
-├── git/
 ├── ghostty/
 ├── scripts/
 │   └── .local/bin/               # todos los scripts de hunting

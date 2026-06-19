@@ -24,10 +24,7 @@ BASE="${HUNTING_HOME:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/02_PROF
 
 if command -v mktarget >/dev/null 2>&1; then
   mktarget "$PROGRAM" >/dev/null 2>&1 || true
-else
-  mkdir -p "$BASE"/{recon,http,fuzz,js,in,out,tmp,burp,notes,reports,loot,meta}
 fi
-
 mkdir -p "$BASE"/{recon,http,fuzz,js,in,out,tmp,burp,notes,reports,loot,meta}
 
 _create_if_missing() {

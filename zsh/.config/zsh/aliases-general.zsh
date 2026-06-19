@@ -34,8 +34,16 @@ alias glog='git log --oneline --graph --all --decorate'
 # -------------------------
 # Utilidades generales
 # -------------------------
-alias ll='ls -lAh'
-alias la='ls -A'
+if command -v eza >/dev/null 2>&1; then
+  alias ll='eza -la --group-directories-first'
+  alias la='eza -a'
+elif command -v lsd >/dev/null 2>&1; then
+  alias ll='lsd -la --group-dirs=first'
+  alias la='lsd -a'
+else
+  alias ll='ls -lAh'
+  alias la='ls -A'
+fi
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
@@ -221,8 +229,7 @@ tips() {
   _tips_func nucl "Ejecutar nuclei orientado a CVEs"
 
   _tips_section "NOTAS"
-  _tips_func note "Añadir nota rápida global"
-  _tips_func notes "Abrir o listar notas del día"
+  _tips_func note "Añadir nota rápida global (append a archivo diario)"
   _tips_func tnote "Crear nota rápida del target actual"
   _tips_func tnotes "Listar notas del target actual"
 
@@ -245,11 +252,10 @@ tips() {
   _tips_alias dkexec "Entrar en contenedor con shell interactiva"
   _tips_alias dklog "Ver logs en streaming"
   _tips_alias dkprune "Limpiar recursos Docker no usados"
-  _tips_alias offsec "Entrar al contenedor offsec"
-  _tips_alias offsec-up "Levantar contenedor offsec"
-  _tips_alias offsec-shell "Abrir shell dentro del contenedor offsec"
-  _tips_alias offsec-restart "Reiniciar contenedor offsec"
-  _tips_alias offsec-rebuild "Reconstruir contenedor offsec"
+  _tips_func offsec "Entrar al contenedor offsec (init + exec zsh)"
+  _tips_cmd offsec-up "Levantar contenedor offsec (Raycast/script)"
+  _tips_cmd offsec-shell "Abrir shell dentro del contenedor offsec (Raycast/script)"
+  _tips_func offsec-rebuild "Parar → eliminar → reconstruir → arrancar contenedor"
 
   _tips_section "SISTEMA Y UTILIDADES"
   _tips_alias ll "Listar ficheros con detalles y ocultos"
@@ -313,7 +319,7 @@ tips() {
   _tips_add 'f/r/g/n' "keybind" 'Dashboard: find/recent/grep/notes'
 
 
-  content="${content#\n}"
+  content="${content#\\n}"
 
   if command -v fzf >/dev/null 2>&1; then
     selected="$(printf '%b' "$content" | column -ts $'\t' | fzf --ansi --no-sort --reverse --header='tips — ENTER copia el comando · busca por nombre/categoría/descripción · ESC para salir')" || return 0

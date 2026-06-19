@@ -283,7 +283,6 @@ Checks: merge conflicts, CRLF, `sh` bashisms, bash/zsh syntax errors, shellcheck
 │       └── bbref.zsh             # interactive bug bounty cheatsheet
 ├── tmux/
 ├── nvim/
-├── git/
 ├── ghostty/
 ├── scripts/
 │   └── .local/bin/               # all hunting scripts
