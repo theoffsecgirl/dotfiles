@@ -74,6 +74,17 @@ for s in "${_deprecated[@]}"; do
 done
 [[ $_dep_found -eq 0 ]] && ok "Ningún script deprecated detectado en PATH"
 
+# ── Herramientas opcionales (referenciadas en bbref) ─────────────────────────
+hdr "Herramientas opcionales (bbref)"
+for t in uro dalfox gau waybackurls gowitness trufflehog subjs ffuf feroxbuster amass assetfinder subjack; do
+  if command -v "$t" >/dev/null 2>&1; then
+    ver="$(_tool_ver "$t")"
+    ok "$t  ($ver)"
+  else
+    warn "$t  (no encontrado — opcional)"
+  fi
+done
+
 # ── claude ───────────────────────────────────────────────────────────────────
 hdr "Claude Code"
 if command -v claude >/dev/null 2>&1; then

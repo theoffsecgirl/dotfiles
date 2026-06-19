@@ -9,7 +9,7 @@ source "$SCRIPT_DIR/../lib/offsec.sh"
 trap 'printf "[!] Error en linea %d — %s\n" "$LINENO" "$BASH_COMMAND" >&2
       printf "[!] Si falló una tool externa, revisa sus flags con -h o -version\n" >&2' ERR
 
-BASE_ROOT="${HUNTING_HOME:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty}/targets"
+BASE_ROOT="${HUNTING_HOME:-$HOME/targets}/targets"
 
 case "${1:-}" in
   -h|--help)

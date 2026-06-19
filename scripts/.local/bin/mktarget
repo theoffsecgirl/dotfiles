@@ -18,7 +18,7 @@ esac
 _reject_flag_as_target "$1"
 
 TARGET="$1"
-BASE="${HUNTING_HOME:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty}/targets/$TARGET"
+BASE="${HUNTING_HOME:-$HOME/targets}/targets/$TARGET"
 
 mkdir -p "$BASE"/{recon,http,fuzz,js,in,out,tmp,burp,notes,reports,loot,meta}
 

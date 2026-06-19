@@ -40,6 +40,7 @@ mkproject() {
   domain="${domain:l}"
 
   local base="${HUNTING_HOME:-$HOME/targets}/targets/$domain"
+  # NOTA: HUNTING_HOME debe apuntar al workspace raíz (ej: ~/bugbounty), no a targets/.
 
   mkdir -p "$base"/{in,out,tmp,notes,recon,http,fuzz,js,burp,reports,loot}
 

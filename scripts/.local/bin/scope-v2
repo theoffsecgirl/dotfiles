@@ -22,7 +22,7 @@ esac
 _reject_flag_as_target "$1"
 
 TARGET="$1"
-BASE="${HUNTING_HOME:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty}/targets/$TARGET"
+BASE="${HUNTING_HOME:-$HOME/targets}/targets/$TARGET"
 mkdir -p "$BASE"/{recon,http,meta,ai,tmp}
 
 if command -v mktarget >/dev/null 2>&1; then
@@ -70,4 +70,4 @@ jq -n \
 echo "[+] Hosts vivos: $(wc -l < "$BASE/http/live.txt" | tr -d ' ') → $BASE/http/live.txt"
 echo "[+] httpx JSONL → $BASE/http/httpx.jsonl"
 echo "[+] metadata → $BASE/meta/scope.json"
-echo "[→] Siguiente paso: webmap-v2 $TARGET"
+echo "[→] Siguiente paso: webmap $TARGET"

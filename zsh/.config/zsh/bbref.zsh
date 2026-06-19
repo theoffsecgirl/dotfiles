@@ -93,7 +93,7 @@ bbref() {
   _bb_add "js-desde-httpx"     "js"      'cat $HTTPX | jq -r "select(.content_type != null) | select(.content_type | contains(\"javascript\")) | .url" > $T/js/files.txt'
   _bb_add "js-desde-katana"    "js"      'cat $T/recon/katana.txt $T/http/urls-historical.txt | grep -iE "\.js(\?|$)" | sort -u | anew $T/js/files.txt'
   _bb_add "js-subjs"           "js"      'cat $LIVE | subjs -c 20 | anew $T/js/files.txt'
-  _bb_add "js-download"        "js"      'mkdir -p $T/js/content; while IFS= read -r url; do fname=$(printf "%s" "$url" | md5 | cut -c1-8); curl -sk --max-time 10 "$url" -o "$T/js/content/${fname}.js"; done < $T/js/files.txt'
+  _bb_add "js-download"        "js"      'mkdir -p $T/js/content; while IFS= read -r url; do fname=$(printf "%s" "$url" | openssl sha1 | awk "{print \$NF}" | cut -c1-8); curl -sk --max-time 10 "$url" -o "$T/js/content/${fname}.js"; done < $T/js/files.txt'
   _bb_add "js-endpoints"       "js"      'grep -rhoE "[a-zA-Z0-9_./-]{3,}" $T/js/content/ | grep "^/" | grep -v "\.png\|\.jpg\|\.css\|\.woff" | sort -u > $T/js/endpoints-found.txt'
   _bb_add "js-secrets"         "js"      'grep -rhoiE "(api[_-]?key|apikey|secret[_-]?key|access[_-]?token|client[_-]?secret|aws_access)[=:]+[A-Za-z0-9+/=_.-]{8,}" $T/js/content/ > $T/js/secrets-candidates.txt'
   _bb_add "js-urls"            "js"      'grep -rhoE "https?://[a-zA-Z0-9._/:-]+" $T/js/content/ | grep -viE "cdn|fonts|google|analytics|facebook|twitter|jquery|bootstrap" | sort -u > $T/js/urls-found.txt'

@@ -20,7 +20,7 @@ esac
 _reject_flag_as_target "$1"
 
 PROGRAM="$1"
-BASE="${HUNTING_HOME:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty}/targets/$PROGRAM"
+BASE="${HUNTING_HOME:-$HOME/targets}/targets/$PROGRAM"
 
 if command -v mktarget >/dev/null 2>&1; then
   mktarget "$PROGRAM" >/dev/null 2>&1 || true

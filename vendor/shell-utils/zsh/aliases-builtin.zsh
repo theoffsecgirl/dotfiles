@@ -54,33 +54,27 @@ fi
 # Listado (ls mejorado)
 # -------------------------
 if command -v lsd &>/dev/null; then
-  alias ll='lsd -la --group-dirs=first'
   alias l='lsd'
   alias cl='clear && lsd'
 elif command -v eza &>/dev/null; then
-  alias ll='eza -la --group-directories-first'
   alias l='eza'
   alias cl='clear && eza'
 else
   if [[ "$PLATFORM" == "linux" ]]; then
-    alias ll='ls -alh --group-directories-first --color=auto'
     alias l='ls --color=auto'
     alias cl='clear && ls --color=auto'
   else
-    alias ll='ls -alh'
     alias l='ls -G'
     alias cl='clear && ls -G'
   fi
 fi
+# ll y la los gestiona aliases-general.zsh (detecta eza/lsd también)
 
 
 # -------------------------
 # Operaciones de archivo (safe)
 # -------------------------
-# rm: -I en GNU (un prompt para 3+ ficheros), -i en BSD/macOS (prompt siempre)
-# aliases-general.zsh ya gestiona esto — NO redefinir rm aquí.
-# mv con confirmación
-alias mv='mv -i'
+# rm y mv los gestiona aliases-general.zsh — NO redefinir aquí.
 alias chmodx='chmod +x'
 
 # rmrf: eliminado como alias directo — demasiado peligroso sin confirmación.
@@ -124,14 +118,7 @@ alias wgetr='wget --continue'
 # realcat/rcat: acceso al cat real sin alias (útil en scripts)
 realcat() { command cat "$@"; }
 alias rcat='realcat'
-
-if command -v bat >/dev/null 2>&1; then
-  alias cat='bat --paging=never --style=plain'
-elif command -v batcat >/dev/null 2>&1; then
-  alias cat='batcat --paging=never --style=plain'
-else
-  alias cat='realcat'
-fi
+# alias cat='bat...' lo gestiona aliases-general.zsh
 
 
 # -------------------------
