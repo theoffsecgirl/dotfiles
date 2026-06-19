@@ -41,3 +41,5 @@ build/
 
 # Local zsh overrides
 local.zsh
+
+**/.claude/settings.local.json

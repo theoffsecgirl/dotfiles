@@ -25,6 +25,9 @@ bats tests/test_scripts.bats
 # Solo zsh
 bats tests/test_zsh.bats
 
+# Solo bbref (cobertura de cheatsheet)
+bats tests/test_bbref.bats
+
 # Con output detallado
 bats --verbose-run tests/
 
@@ -53,6 +56,12 @@ Verificación de sintaxis zsh:
 - `load.zsh`, `aliases-builtin.zsh`, `aliases-bugbounty.zsh`
 - `functions-bugbounty.zsh`, `bug-bounty.zsh`, `wrapper-exegol.zsh`
 - `$PLATFORM` se define correctamente al sourcear
+
+### `test_bbref.bats`
+Cobertura del cheatsheet interactivo:
+- Todos los scripts ejecutables de `scripts/.local/bin/` tienen una entrada en `bbref.zsh` o están en la lista de exclusión explícita (deprecated, wrappers de infraestructura).
+- `bbref.zsh` tiene sintaxis zsh válida.
+- Entradas críticas (`program-import-brief`, `tmux-recon`) existen en el cheatsheet.
 
 ## Convenciones
 

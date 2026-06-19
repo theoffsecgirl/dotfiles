@@ -204,10 +204,16 @@ unsetproxy    # clears all three variables
 ## Interactive cheatsheet
 
 ```bash
+bbref
+```
+
+Opens an fzf cheatsheet of bug bounty commands organised by category (setup, recon, http, fuzz, params, JS, secrets, wordlists, tmux, findings). Press ENTER to copy the selected snippet to the clipboard.
+
+```bash
 tips
 ```
 
-Opens an fzf cheatsheet. Press ENTER to copy the selected command to the clipboard.
+General shell tips cheatsheet (git, proxy, navigation). Also opens with fzf + copy.
 
 ---
 
@@ -216,7 +222,7 @@ Opens an fzf cheatsheet. Press ENTER to copy the selected command to the clipboa
 | Command | Behaviour |
 |---|---|
 | `grh` | `git reset --hard HEAD` — shows a diff summary and asks for confirmation |
-| `cat` | Automatically uses `bat` if installed (syntax highlighting, no paging) |
+| `cat` | Automatically uses `bat --style=plain` if installed (syntax highlighting, no paging, no decorations) |
 | `myip` | Tries three public IP services with a 3s timeout each |
 | `localip` | Works on both macOS (`en0`) and Linux (`ip addr`) |
 | `git wip` | Stages only tracked files (`add -u`), never untracked secrets |
@@ -260,7 +266,7 @@ The container mounts `$HUNTING_HOME` at `/work`.
 bash ~/.dotfiles/audit_dotfiles.sh ~/.dotfiles
 ```
 
-Checks: merge conflicts, CRLF, `sh` bashisms, bash/zsh syntax errors, shellcheck (requires `shellcheck` — included in the Brewfile).
+Checks: merge conflicts, CRLF, `sh` bashisms, bash/zsh syntax errors, shellcheck (requires `shellcheck` — included in the Brewfile), and duplicate zsh functions across all files loaded from `load.zsh`.
 
 ---
 
@@ -273,7 +279,8 @@ Checks: merge conflicts, CRLF, `sh` bashisms, bash/zsh syntax errors, shellcheck
 │   └── .config/zsh/
 │       ├── load.zsh              # modular entry point
 │       ├── aliases-general.zsh   # git, nav, system
-│       └── bug-bounty.zsh        # hunting workspace
+│       ├── bug-bounty.zsh        # hunting workspace
+│       └── bbref.zsh             # interactive bug bounty cheatsheet
 ├── tmux/
 ├── nvim/
 ├── git/

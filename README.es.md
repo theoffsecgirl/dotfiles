@@ -200,13 +200,19 @@ unsetproxy    # elimina las tres variables
 
 ---
 
-## Tips interactivos
+## Cheatsheet interactivo
+
+```bash
+bbref
+```
+
+Abre un cheatsheet de comandos de bug bounty organizado por categoría (setup, recon, http, fuzz, params, JS, secrets, wordlists, tmux, findings). ENTER copia el snippet seleccionado al portapapeles.
 
 ```bash
 tips
 ```
 
-Abre un cheatsheet con fzf. ENTER copia el comando seleccionado al portapapeles.
+Cheatsheet de shell general (git, proxy, navegación). También se abre con fzf + copia.
 
 ---
 
@@ -215,7 +221,7 @@ Abre un cheatsheet con fzf. ENTER copia el comando seleccionado al portapapeles.
 | Comando | Comportamiento |
 |---|---|
 | `grh` | `git reset --hard HEAD` — muestra el diff y pide confirmación antes de ejecutar |
-| `cat` | Usa `bat` automáticamente si está instalado (resaltado de sintaxis, sin paginación) |
+| `cat` | Usa `bat --style=plain` automáticamente si está instalado (resaltado de sintaxis, sin paginación, sin decoraciones) |
 | `myip` | Prueba tres servicios con timeout de 3s cada uno |
 | `localip` | Funciona en macOS (`en0`) y Linux (`ip addr`) |
 | `git wip` | Solo stagea ficheros ya rastreados (`add -u`), nunca ficheros nuevos sin seguimiento |
@@ -259,7 +265,7 @@ El contenedor monta `$HUNTING_HOME` en `/work`.
 bash ~/.dotfiles/audit_dotfiles.sh ~/.dotfiles
 ```
 
-Comprueba: conflictos de merge, CRLF, bashismos en scripts `sh`, errores de sintaxis bash/zsh, shellcheck (requiere `shellcheck` — incluido en el Brewfile).
+Comprueba: conflictos de merge, CRLF, bashismos en scripts `sh`, errores de sintaxis bash/zsh, shellcheck (requiere `shellcheck` — incluido en el Brewfile), y funciones zsh duplicadas entre todos los ficheros cargados desde `load.zsh`.
 
 ---
 
@@ -272,7 +278,8 @@ Comprueba: conflictos de merge, CRLF, bashismos en scripts `sh`, errores de sint
 │   └── .config/zsh/
 │       ├── load.zsh              # punto de entrada modular
 │       ├── aliases-general.zsh   # git, navegación, sistema
-│       └── bug-bounty.zsh        # workspace de hunting
+│       ├── bug-bounty.zsh        # workspace de hunting
+│       └── bbref.zsh             # cheatsheet interactivo de bug bounty
 ├── tmux/
 ├── nvim/
 ├── git/

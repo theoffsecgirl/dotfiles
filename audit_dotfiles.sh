@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="${1:-.}"
 
 echo "[1] Conflictos de merge"
-grep -RInE '<<<<<<<|=======|>>>>>>>' "$ROOT" || true
+grep -RInE '^<{7}( |$)|^={7}$|^>{7}( |$)' --exclude-dir='.git' "$ROOT" || true
 echo
 
 echo "[2] CRLF"
@@ -13,13 +13,13 @@ xargs -0 file 2>/dev/null | grep CRLF || true
 echo
 
 echo "[3] Scripts sh"
-grep -RIEn '^#!/bin/sh|^#!/usr/bin/env sh' "$ROOT" || true
+grep -RIEn --exclude-dir='.git' '^#!/bin/sh|^#!/usr/bin/env sh' "$ROOT" || true
 echo
 
 echo "[4] Bashismos en scripts sh"
 while read -r f; do
   grep -nE '\[\[|<<<|< <\(|function |mapfile|readarray|declare -A|&>' "$f" 2>/dev/null | sed "s|^|$f:|"
-done < <(grep -RIEl '^#!/bin/sh|^#!/usr/bin/env sh' "$ROOT") || true
+done < <(grep -RIEl --exclude-dir='.git' '^#!/bin/sh|^#!/usr/bin/env sh' "$ROOT") || true
 echo
 
 echo "[5] Sintaxis bash"
