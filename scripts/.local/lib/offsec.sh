@@ -46,10 +46,10 @@ first_available_cmd() {
 # Llamar DESPUÉS de haber manejado -h/--help.
 _reject_flag_as_target() {
   local val="$1"
-  [[ "$val" == -* ]] && {
+  if [[ "$val" == -* ]]; then
     printf '[!] Argumento inválido: '"'"'%s'"'"' parece una flag, no un target/programa\n' "$val" >&2
     exit 1
-  }
+  fi
 }
 
 # Envuelve una llamada a una tool externa e imprime un mensaje claro si falla.

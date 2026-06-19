@@ -68,7 +68,7 @@ teardown() {
 @test "paramhunt: falla si urls.txt no existe" {
   run bash "$BIN/paramhunt" "target.com"
   [ "$status" -eq 1 ]
-  [[ "$output" == *"scope"* || "$output" == *"No se encontró"* ]]
+  [[ "$output" == *"webmap"* || "$output" == *"URLs"* || "$output" == *"DEPRECADO"* ]]
 }
 
 # ------------------------------------------------
