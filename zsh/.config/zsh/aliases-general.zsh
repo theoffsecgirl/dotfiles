@@ -55,6 +55,17 @@ if rm --version 2>/dev/null | grep -q GNU; then
 else
   alias rm='rm -i'
 fi
+rmrf() {
+  [[ $# -eq 0 ]] && { echo "Uso: rmrf <path> [path2 ...]"; return 1; }
+  print -r -- "[!] rm -rf — se eliminarán permanentemente:"
+  local _p
+  for _p in "$@"; do
+    ls -lad -- "$_p" 2>/dev/null || print -r -- "  (no existe: $_p)"
+  done
+  read -r -q "reply?¿Continuar? [s/N] " || { echo; return 1; }
+  echo
+  command rm -rf -- "$@"
+}
 alias grep='grep --color=auto'
 if command -v bat >/dev/null 2>&1; then
   alias cat='bat --paging=never --style=plain'
@@ -65,7 +76,7 @@ alias df='df -h'
 alias du='du -h'
 alias duu='du -sh * | sort -rh | head -20'
 alias ports='ss -tulanp 2>/dev/null || netstat -tulanp'
-unalias myip localip grh 2>/dev/null || true
+unalias myip localip grh rmrf 2>/dev/null || true
 myip() {
   local ip
   for _url in https://api.ipify.org https://ifconfig.me https://icanhazip.com; do
@@ -264,6 +275,7 @@ tips() {
   _tips_alias cp "Copiar mostrando ficheros"
   _tips_alias mv "Mover mostrando ficheros"
   _tips_alias rm "Borrar con confirmación interactiva"
+  _tips_func rmrf "rm -rf con preview de lo que se borra y confirmación"
   _tips_alias grep "Buscar texto con color"
   _tips_alias df "Ver espacio de disco en formato humano"
   _tips_alias du "Ver tamaño en formato humano"
