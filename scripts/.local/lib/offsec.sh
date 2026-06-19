@@ -41,3 +41,27 @@ first_available_cmd() {
   done
   return 1
 }
+
+# Rechaza un argumento que parezca una flag (empieza por '-') cuando se espera un target/programa.
+# Llamar DESPUÉS de haber manejado -h/--help.
+_reject_flag_as_target() {
+  local val="$1"
+  [[ "$val" == -* ]] && {
+    printf '[!] Argumento inválido: '"'"'%s'"'"' parece una flag, no un target/programa\n' "$val" >&2
+    exit 1
+  }
+}
+
+# Envuelve una llamada a una tool externa e imprime un mensaje claro si falla.
+# Apta para uso como primer comando de una tubería.
+run_or_explain() {
+  local tool="$1"; shift
+  local rc=0
+  "$tool" "$@" || rc=$?
+  if [[ $rc -ne 0 ]]; then
+    printf '[!] Falló: %s %s\n' "$tool" "$*" >&2
+    printf '[!] Exit code: %d — revisa flags vs '"'"'%s -h'"'"' o '"'"'%s -version'"'"'\n' \
+      "$rc" "$tool" "$tool" >&2
+    return $rc
+  fi
+}

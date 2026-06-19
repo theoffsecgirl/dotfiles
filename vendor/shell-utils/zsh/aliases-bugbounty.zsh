@@ -13,10 +13,7 @@ showaliases() {
   alias | sed 's/^alias //' | column -t -s'=' | less
 }
 
-# Buscador interactivo de aliases
-aliases() {
-  [[ -z "${1:-}" ]] && alias | sort || alias | grep -i --color "$1"
-}
+# aliases() definida en functions-bugbounty.zsh (se carga después y gana por orden).
 
 
 # -------------------------

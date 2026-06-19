@@ -3,7 +3,23 @@
 # Uso: scope-v2 <dominio>
 set -euo pipefail
 
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=/dev/null
+source "$SCRIPT_DIR/../lib/offsec.sh"
+
+trap 'printf "[!] Error en linea %d — %s\n" "$LINENO" "$BASH_COMMAND" >&2
+      printf "[!] Si falló una tool externa, revisa sus flags con -h o -version\n" >&2' ERR
+
+case "${1:-}" in
+  -h|--help)
+    echo "Uso: scope-v2 <dominio>  (o usa el wrapper estable: scope <dominio>)"
+    echo "  Subdominios + httpx JSONL + live.txt para un único dominio raíz."
+    echo "  Siguiente paso: webmap <dominio>"
+    exit 0 ;;
+esac
+
 [[ -z "${1:-}" ]] && { echo "Uso: scope-v2 <dominio>"; exit 1; }
+_reject_flag_as_target "$1"
 
 TARGET="$1"
 BASE="${HUNTING_HOME:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty}/targets/$TARGET"
@@ -18,13 +34,14 @@ for dep in subfinder httpx anew jq; do
 done
 
 echo "[*] Enumerando subdominios para $TARGET..."
-subfinder -d "$TARGET" -silent -all -recursive | sed 's/^\*\.//' | sort -u | anew "$BASE/recon/subdomains.txt" >/dev/null
+run_or_explain subfinder -d "$TARGET" -silent -all -recursive \
+  | sed 's/^\*\.//' | sort -u | anew "$BASE/recon/subdomains.txt" >/dev/null
 
 SUB_COUNT=$(wc -l < "$BASE/recon/subdomains.txt" | tr -d ' ')
 echo "[+] Subdominios: $SUB_COUNT"
 
 echo "[*] Enriqueciendo hosts HTTP con httpx..."
-httpx \
+run_or_explain httpx \
   -silent \
   -l "$BASE/recon/subdomains.txt" \
   -json \

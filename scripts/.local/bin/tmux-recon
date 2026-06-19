@@ -6,11 +6,20 @@ set -euo pipefail
 force=0
 args=()
 for arg in "$@"; do
-  if [[ "$arg" == "--force" ]]; then
-    force=1
-  else
-    args+=("$arg")
-  fi
+  case "$arg" in
+    --force)
+      force=1 ;;
+    -h|--help)
+      echo "Uso: tmux-recon [nombre-sesión] [workdir] [--force]"
+      echo "  Abre una sesión tmux con 4 panes para recon en workdir."
+      echo "  --force   Sobrescribe panes existentes sin preguntar"
+      exit 0 ;;
+    --*|-*)
+      printf '[!] Flag desconocida: '"'"'%s'"'"'. Flags válidas: --force, --help\n' "$arg" >&2
+      exit 1 ;;
+    *)
+      args+=("$arg") ;;
+  esac
 done
 
 SESSION="${args[0]:-recon}"

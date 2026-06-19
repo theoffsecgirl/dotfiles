@@ -3,7 +3,21 @@
 # Uso: program-init <programa>
 set -euo pipefail
 
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=/dev/null
+source "$SCRIPT_DIR/../lib/offsec.sh"
+
+case "${1:-}" in
+  -h|--help)
+    echo "Uso: program-init <programa>"
+    echo "  Inicializa workspace multi-dominio para un programa de bug bounty."
+    echo "  Crea: in/roots.txt, in/scope-web.txt, in/out-of-scope.txt, in/program.md, notes/summary.md"
+    echo "  Siguiente paso: scope-program <programa>"
+    exit 0 ;;
+esac
+
 [[ -z "${1:-}" ]] && { echo "Uso: program-init <programa>"; exit 1; }
+_reject_flag_as_target "$1"
 
 PROGRAM="$1"
 BASE="${HUNTING_HOME:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty}/targets/$PROGRAM"

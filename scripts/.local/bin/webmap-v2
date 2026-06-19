@@ -8,6 +8,17 @@ LIB_DIR="$(cd -- "$SCRIPT_DIR/../lib" && pwd)"
 # shellcheck source=/dev/null
 source "$LIB_DIR/offsec.sh"
 
+trap 'printf "[!] Error en linea %d — %s\n" "$LINENO" "$BASH_COMMAND" >&2
+      printf "[!] Si falló una tool externa, revisa sus flags con -h o -version\n" >&2' ERR
+
+case "${1:-}" in
+  -h|--help)
+    echo "Uso: webmap-v2 <dominio|lista.txt|url>  (o usa el wrapper estable: webmap <...>)"
+    echo "  Crawling con katana + separación de endpoints JS/API/GraphQL."
+    echo "  Anterior: scope <dominio>   Siguiente: paramhunt-v2 <dominio>"
+    exit 0 ;;
+esac
+
 resolve_input() {
   local arg="${1:-}"
 
@@ -33,6 +44,7 @@ resolve_input() {
     return
   fi
 
+  _reject_flag_as_target "$arg"
   INPUT_MODE="target"
   TARGET="$arg"
   BASE="${HUNTING_HOME:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty}/targets/$TARGET"
@@ -51,7 +63,7 @@ ensure_dir "$BASE/http" "$BASE/js" "$BASE/meta"
 : > "$BASE/http/graphql.txt"
 : > "$BASE/js/files.txt"
 
-katana \
+run_or_explain katana \
   -list "$LIVEFILE" \
   -silent \
   -jc \

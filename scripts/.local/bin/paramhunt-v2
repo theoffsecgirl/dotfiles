@@ -2,7 +2,22 @@
 # paramhunt-v2 — soporta dominio | fichero | URL
 set -euo pipefail
 
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=/dev/null
+source "$SCRIPT_DIR/../lib/offsec.sh"
+
+trap 'printf "[!] Error en linea %d — %s\n" "$LINENO" "$BASH_COMMAND" >&2
+      printf "[!] Si falló una tool externa, revisa sus flags con -h o -version\n" >&2' ERR
+
 BASE_ROOT="${HUNTING_HOME:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty}/targets"
+
+case "${1:-}" in
+  -h|--help)
+    echo "Uso: paramhunt-v2 <dominio|urls.txt|url>"
+    echo "  Extrae parámetros de URLs crawleadas. Requiere haber ejecutado webmap antes."
+    echo "  Anterior: webmap <dominio>"
+    exit 0 ;;
+esac
 
 resolve_input() {
   local arg="${1:-}"
@@ -10,6 +25,7 @@ resolve_input() {
   [[ -z "$arg" ]] && { echo "Uso: paramhunt-v2 <dominio|urls.txt|url>"; exit 1; }
 
   if [[ -f "$arg" ]]; then
+    TARGET="$(basename "$arg")"
     TARGET="${TARGET%.*}"
     BASE="$BASE_ROOT/_adhoc/$TARGET"
     URLFILE="$arg"
@@ -17,25 +33,28 @@ resolve_input() {
   fi
 
   if [[ "$arg" =~ ^https?:// ]]; then
+    TARGET="$(printf '%s' "$arg" | sed -E 's#https?://##; s#/.*$##; s#[^A-Za-z0-9._-]#_#g')"
     BASE="$BASE_ROOT/_adhoc/$TARGET"
     URLFILE="$(mktemp)"
     printf '%s\n' "$arg" > "$URLFILE"
     return
   fi
 
+  _reject_flag_as_target "$arg"
   TARGET="$arg"
+  BASE="$BASE_ROOT/$TARGET"
   URLFILE="$BASE/http/urls_clean.txt"
   [[ -f "$URLFILE" ]] || URLFILE="$BASE/http/urls.txt"
-  [[ -f "$URLFILE" ]] || { echo "[!] No URLs"; exit 1; }
+  [[ -f "$URLFILE" ]] || { echo "[!] No URLs — ejecuta primero: webmap $TARGET"; exit 1; }
 }
 
-resolve_input "$1"
+resolve_input "${1:-}"
 
 command -v unfurl >/dev/null 2>&1 || { echo "[!] Falta: unfurl"; exit 1; }
 
 mkdir -p "$BASE/fuzz" "$BASE/meta"
 
 grep '=' "$URLFILE" | sort -u > "$BASE/fuzz/urls_with_params.txt" || true
-unfurl keys < "$BASE/fuzz/urls_with_params.txt" | sort -u > "$BASE/fuzz/params.txt" || true
+run_or_explain unfurl keys < "$BASE/fuzz/urls_with_params.txt" | sort -u > "$BASE/fuzz/params.txt" || true
 
 echo "[+] Params → $BASE/fuzz/params.txt"

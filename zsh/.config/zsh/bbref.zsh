@@ -42,6 +42,7 @@ bbref() {
   _bb_add "export-vars"        "setup"   'export TARGET="ejemplo"; export T="$HUNTING_HOME/targets/$TARGET"; export DOMAIN="ejemplo.com"; export LIVE="$T/http/live.txt"; export HTTPX="$T/http/httpx.jsonl"'
   _bb_add "mkdir-estructura"   "setup"   'mkdir -p $T/{recon,http,fuzz,js/{content,endpoints},in,out,tmp,burp,notes,reports,loot,meta}'
   _bb_add "program-init"       "setup"   'program-init <programa>'
+  _bb_add "program-import-brief" "setup" 'program-import-brief <programa> <brief.txt>'
   _bb_add "scope-program"      "setup"   'scope-program <programa>'
   _bb_add "mktarget"           "setup"   'mktarget <dominio>'
   _bb_add "scope"              "setup"   'scope <dominio>'
@@ -276,6 +277,13 @@ bbref() {
   _bb_add "gcp-metadata"       "cloud"   'curl -sk -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/ | jq .'
   _bb_add "azure-metadata"     "cloud"   'curl -sk -H "Metadata: true" "http://169.254.169.254/metadata/instance?api-version=2019-06-01" | jq .'
   _bb_add "env-file-probe"     "cloud"   'for f in .env .env.local .env.production .env.backup config.json appsettings.json; do code=$(curl -sk -o /dev/null -w "%{http_code}" "https://TARGET/$f"); [[ $code == "200" ]] && echo "HIT → $f"; done'
+
+  # ─────────────────────────────────────────────────────────────
+  _bb_section "TMUX / SESIONES"
+  _bb_add "tmux-recon"         "tmux"    'tmux-recon [nombre-sesión] [workdir] [--force]'
+  _bb_add "tmux-recon-forzar"  "tmux"    'tmux-recon recon-$TARGET $T --force'
+  _bb_add "tmux-sessionizer"   "tmux"    'tmux-sessionizer'
+  _bb_add "tmux-popup"         "tmux"    'tmux-popup'
 
   # ─────────────────────────────────────────────────────────────
   _bb_section "REPORTE / DOCUMENTACIÓN"

@@ -1,8 +1,21 @@
 #!/usr/bin/env bash
 # mktarget — crea estructura de directorios para un target
+# Uso: mktarget <dominio>
 set -euo pipefail
 
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=/dev/null
+source "$SCRIPT_DIR/../lib/offsec.sh"
+
+case "${1:-}" in
+  -h|--help)
+    echo "Uso: mktarget <dominio>"
+    echo "  Crea la estructura de directorios para un target en \$HUNTING_HOME/targets/<dominio>."
+    exit 0 ;;
+esac
+
 [[ -z "${1:-}" ]] && { echo "Uso: mktarget <dominio>"; exit 1; }
+_reject_flag_as_target "$1"
 
 TARGET="$1"
 BASE="${HUNTING_HOME:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty}/targets/$TARGET"

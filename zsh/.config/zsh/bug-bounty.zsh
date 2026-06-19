@@ -235,7 +235,9 @@ alias f='ffuf -c -mc all -fc 404'
 # ==========================================
 # Recon rápido
 # ==========================================
+# DEPRECADO — usa: scope <dominio> (pipeline v2: http/httpx.jsonl + http/live.txt)
 subenum() {
+  printf '\033[1;33m[!]\033[0m %s\n' "DEPRECADO: subenum → usa scope <dominio> o scope-program <programa>" >&2
   local domain="${1:-}"
   [[ -z "$domain" ]] && { echo "Uso: subenum <dominio.com>"; return 1; }
 
@@ -262,7 +264,9 @@ subenum() {
   echo "[+] Subdominios guardados → $outfile"
 }
 
+# DEPRECADO — genera recon/probed.txt; el pipeline v2 espera http/httpx.jsonl + http/live.txt
 probe() {
+  printf '\033[1;33m[!]\033[0m %s\n' "DEPRECADO: probe → el pipeline v2 usa httpx via scope/scope-program (salida en http/httpx.jsonl)" >&2
   local input="${1:-}"
   [[ -z "$input" ]] && { echo "Uso: probe <urls.txt>"; return 1; }
   [[ ! -f "$input" ]] && { echo "[!] Fichero no encontrado: $input"; return 1; }
@@ -282,7 +286,9 @@ inscope() {
   grep -Ff "$scope_file" "$subs_file"
 }
 
+# DEPRECADO — usa: scope <dominio> o program-init + scope-program para programas multi-dominio
 recon() {
+  printf '\033[1;33m[!]\033[0m %s\n' "DEPRECADO: recon → usa scope <dominio> (o program-init + scope-program para programas)" >&2
   local domain="${1:-}"
   [[ -z "$domain" ]] && { echo "Uso: recon <dominio.com>"; return 1; }
   mktarget "$domain" >/dev/null

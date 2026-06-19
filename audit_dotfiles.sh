@@ -54,3 +54,39 @@ if command -v shellcheck >/dev/null 2>&1; then
 else
   echo "shellcheck no instalado — 'brew install shellcheck'"
 fi
+
+echo
+echo "[8] Funciones zsh duplicadas entre ficheros cargados desde load.zsh"
+if command -v zsh >/dev/null 2>&1; then
+  _ZSH_FILES=(
+    "$ROOT/vendor/shell-utils/zsh/aliases-builtin.zsh"
+    "$ROOT/vendor/shell-utils/zsh/aliases-bugbounty.zsh"
+    "$ROOT/vendor/shell-utils/zsh/aliases-mac-containers.zsh"
+    "$ROOT/vendor/shell-utils/zsh/functions-bugbounty.zsh"
+    "$ROOT/vendor/shell-utils/zsh/wrapper-exegol.zsh"
+    "$ROOT/zsh/.config/zsh/aliases-general.zsh"
+    "$ROOT/zsh/.config/zsh/bug-bounty.zsh"
+  )
+  declare -A _FN_SEEN
+  _dups=0
+  for _f in "${_ZSH_FILES[@]}"; do
+    [[ -f "$_f" ]] || continue
+    while IFS= read -r _fn; do
+      [[ -z "$_fn" ]] && continue
+      if [[ -n "${_FN_SEEN[$_fn]:-}" ]]; then
+        echo "[DUPLICADO] '${_fn}' definida en:"
+        echo "            ${_FN_SEEN[$_fn]}"
+        echo "            $_f"
+        _dups=$((_dups + 1))
+      else
+        _FN_SEEN[$_fn]="$_f"
+      fi
+    done < <(grep -E '^[[:space:]]*[a-zA-Z_][a-zA-Z0-9_-]*[[:space:]]*\(\)' "$_f" \
+               | sed -E 's/[[:space:]]*\(\).*//' | sed -E 's/^[[:space:]]*//')
+  done
+  unset _FN_SEEN _f _fn
+  [[ $_dups -eq 0 ]] && echo "(ninguna duplicada)" || echo "[!] $_dups función(es) duplicadas"
+  unset _dups _ZSH_FILES
+else
+  echo "zsh no disponible, omitido"
+fi

@@ -195,6 +195,13 @@ def write_lines(path: Path, lines: list[str], header: str) -> None:
 
 
 def main() -> int:
+    if len(sys.argv) > 1 and sys.argv[1] in ("-h", "--help"):
+        print("Uso: program-import-brief <programa> <brief.txt>")
+        print("  Importa un brief de programa (H1/Bugcrowd/Intigriti) en el workspace.")
+        print("  Genera: in/scope-web.txt, in/out-of-scope.txt, in/roots.txt, in/program.md")
+        print("  Anterior: program-init <programa>   Siguiente: scope-program <programa>")
+        return 0
+
     if len(sys.argv) != 3:
         die("Uso: program-import-brief <programa> <brief.txt>")
 
@@ -202,6 +209,8 @@ def main() -> int:
     brief_file = Path(sys.argv[2]).expanduser()
     if not program:
         die("Programa vacío")
+    if program.startswith("-"):
+        die(f"Argumento inválido: '{program}' parece una flag, no un programa")
     if not brief_file.is_file():
         die(f"No existe el brief: {brief_file}")
 
