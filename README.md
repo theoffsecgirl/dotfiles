@@ -253,11 +253,8 @@ brew bundle --file=~/.dotfiles/brew/Brewfile
 ## Offsec container (optional)
 
 ```bash
-offsec-build    # build the Debian container image
 offsec-up       # start container (alias: offsec-start)
 offsec-shell    # exec into zsh in the container
-offsec          # offsec-init + exec in one command
-offsec-rebuild  # stop → remove → rebuild → start
 ```
 
 The container mounts `$HUNTING_HOME` at `/work`.

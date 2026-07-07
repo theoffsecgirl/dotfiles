@@ -67,26 +67,35 @@ if command -v zsh >/dev/null 2>&1; then
     "$ROOT/zsh/.config/zsh/aliases-general.zsh"
     "$ROOT/zsh/.config/zsh/bug-bounty.zsh"
   )
-  declare -A _FN_SEEN
-  _dups=0
-  for _f in "${_ZSH_FILES[@]}"; do
-    [[ -f "$_f" ]] || continue
-    while IFS= read -r _fn; do
-      [[ -z "$_fn" ]] && continue
-      if [[ -n "${_FN_SEEN[$_fn]:-}" ]]; then
-        echo "[DUPLICADO] '${_fn}' definida en:"
-        echo "            ${_FN_SEEN[$_fn]}"
-        echo "            $_f"
-        _dups=$((_dups + 1))
-      else
-        _FN_SEEN[$_fn]="$_f"
-      fi
-    done < <(grep -E '^[[:space:]]*[a-zA-Z_][a-zA-Z0-9_-]*[[:space:]]*\(\)' "$_f" \
-               | sed -E 's/[[:space:]]*\(\).*//' | sed -E 's/^[[:space:]]*//')
-  done
-  unset _FN_SEEN _f _fn
-  [[ $_dups -eq 0 ]] && echo "(ninguna duplicada)" || echo "[!] $_dups función(es) duplicadas"
-  unset _dups _ZSH_FILES
+  {
+    for _f in "${_ZSH_FILES[@]}"; do
+      [[ -f "$_f" ]] || continue
+      while IFS= read -r _fn; do
+        [[ -z "$_fn" ]] && continue
+        printf '%s\t%s\n' "$_fn" "$_f"
+      done < <(grep -E '^[[:space:]]*[a-zA-Z_][a-zA-Z0-9_-]*[[:space:]]*\(\)' "$_f" \
+                 | sed -E 's/[[:space:]]*\(\).*//' | sed -E 's/^[[:space:]]*//')
+    done
+  } | awk -F '\t' '
+    seen[$1] {
+      print "[DUPLICADO] '\''" $1 "'\'' definida en:"
+      print "            " seen[$1]
+      print "            " $2
+      dups++
+      next
+    }
+    {
+      seen[$1] = $2
+    }
+    END {
+      if (dups == 0) {
+        print "(ninguna duplicada)"
+      } else {
+        printf "[!] %d función(es) duplicadas\n", dups
+      }
+    }
+  '
+  unset _ZSH_FILES _f _fn
 else
   echo "zsh no disponible, omitido"
 fi

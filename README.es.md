@@ -252,11 +252,8 @@ brew bundle --file=~/.dotfiles/brew/Brewfile
 ## Contenedor offsec (opcional)
 
 ```bash
-offsec-build    # construye la imagen Debian
 offsec-up       # arranca el contenedor (alias: offsec-start)
 offsec-shell    # entra en zsh dentro del contenedor
-offsec          # offsec-init + exec en un comando
-offsec-rebuild  # para → elimina → reconstruye → arranca
 ```
 
 El contenedor monta `$HUNTING_HOME` en `/work`.

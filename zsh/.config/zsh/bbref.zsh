@@ -46,6 +46,14 @@ bbref() {
   _bb_add "scope-program"      "setup"   'scope-program <programa>'
   _bb_add "mktarget"           "setup"   'mktarget <dominio>'
   _bb_add "scope"              "setup"   'scope <dominio>'
+  _bb_add "offsec"             "setup"   'offsec <init|import|scope|webmap|params|recon|doctor> <programa>'
+  _bb_add "offsec-init"        "setup"   'offsec init <programa>'
+  _bb_add "offsec-import"      "setup"   'offsec import <programa>'
+  _bb_add "offsec-scope"       "setup"   'offsec scope <programa>'
+  _bb_add "offsec-webmap"      "setup"   'offsec webmap <programa>'
+  _bb_add "offsec-params"      "setup"   'offsec params <programa>'
+  _bb_add "offsec-recon"       "setup"   'offsec recon <programa>'
+  _bb_add "offsec-doctor"      "setup"   'offsec doctor'
 
   # ─────────────────────────────────────────────────────────────
   _bb_section "RECON — SUBDOMINIOS"
