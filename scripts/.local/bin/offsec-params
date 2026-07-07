@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+target="${1:-}"
+[[ -n "$target" ]] || { echo "Uso: offsec params <programa>" >&2; exit 1; }
+
+paramhunt-v2 "$target"

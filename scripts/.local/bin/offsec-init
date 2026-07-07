@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+target="${1:-}"
+[[ -n "$target" ]] || { echo "Uso: offsec init <programa>" >&2; exit 1; }
+
+program-init "$target"
