@@ -180,7 +180,7 @@ offsec-init() {
     sleep infinity
 }
 
-offsec() {
+offsec-container() {
   container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
   offsec-init || return 1
   container exec -it "${OFFSEC_CONTAINER_NAME}" zsh
