@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+# offsec — interfaz principal para el workflow de bug bounty
+# Uso: offsec <comando> [args...]
+
+set -euo pipefail
+
+usage() {
+  cat <<'HELP'
+Uso:
+  offsec <comando> [args...]
+
+Comandos:
+  init <programa>       Inicializa workspace de programa
+  scope <programa>      Ejecuta scope-program
+  webmap <programa>     Ejecuta webmap
+  params <programa>     Ejecuta paramhunt-v2
+  recon <programa>      Ejecuta scope + webmap + params
+  doctor                Ejecuta hunt-doctor
+  help                  Muestra esta ayuda
+
+Ejemplos:
+  offsec init nike
+  offsec recon nike
+  offsec webmap nike
+HELP
+}
+
+need_arg() {
+  local value="${1:-}"
+  local usage_line="$2"
+
+  if [[ -z "$value" ]]; then
+    printf '[x] Falta argumento\n' >&2
+    printf 'Uso: %s\n' "$usage_line" >&2
+    exit 1
+  fi
+}
+
+cmd="${1:-help}"
+shift || true
+
+case "$cmd" in
+  init)
+    target="${1:-}"
+    need_arg "$target" "offsec init <programa>"
+    program-init "$target"
+    ;;
+
+  scope)
+    target="${1:-}"
+    need_arg "$target" "offsec scope <programa>"
+    scope-program "$target"
+    ;;
+
+  webmap)
+    target="${1:-}"
+    need_arg "$target" "offsec webmap <programa>"
+    webmap "$target"
+    ;;
+
+  params)
+    target="${1:-}"
+    need_arg "$target" "offsec params <programa>"
+    paramhunt-v2 "$target"
+    ;;
+
+  recon)
+    target="${1:-}"
+    need_arg "$target" "offsec recon <programa>"
+
+    printf '[*] offsec recon: scope-program %s\n' "$target"
+    scope-program "$target"
+
+    printf '[*] offsec recon: webmap %s\n' "$target"
+    webmap "$target"
+
+    printf '[*] offsec recon: paramhunt-v2 %s\n' "$target"
+    paramhunt-v2 "$target"
+
+    printf '[+] Recon completo: %s\n' "$target"
+    ;;
+
+  doctor)
+    hunt-doctor
+    ;;
+
+  help|-h|--help)
+    usage
+    ;;
+
+  *)
+    printf '[x] Comando desconocido: %s\n\n' "$cmd" >&2
+    usage >&2
+    exit 1
+    ;;
+esac
