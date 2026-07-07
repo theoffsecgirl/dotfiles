@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# offsec — dispatcher principal del workflow de bug bounty
+set -euo pipefail
+
+VERSION="0.5.0"
+
+usage() {
+  cat <<'HELP'
+Uso:
+  offsec <comando> [args...]
+
+Comandos:
+  init <programa>       Inicializa workspace de programa
+  import <programa>     Importa scope desde in/brief.txt
+  scope <programa>      Ejecuta scope-program
+  webmap <programa>     Ejecuta webmap
+  params <programa>     Ejecuta paramhunt-v2
+  recon <programa>      Ejecuta scope + webmap + params
+  doctor                Ejecuta hunt-doctor
+  version               Muestra versión
+  help                  Muestra esta ayuda
+
+Ejemplos:
+  offsec init nike
+  offsec import nike
+  offsec recon nike
+HELP
+}
+
+cmd="${1:-help}"
+shift || true
+
+case "$cmd" in
+  help|-h|--help)
+    usage
+    ;;
+
+  version|-v|--version)
+    printf 'offsec %s\n' "$VERSION"
+    ;;
+
+  init|import|scope|webmap|params|recon|doctor)
+    subcmd="offsec-$cmd"
+    if ! command -v "$subcmd" >/dev/null 2>&1; then
+      printf '[x] Subcomando no encontrado: %s\n' "$subcmd" >&2
+      exit 1
+    fi
+    exec "$subcmd" "$@"
+    ;;
+
+  *)
+    printf '[x] Comando desconocido: %s\n\n' "$cmd" >&2
+    usage >&2
+    exit 1
+    ;;
+esac

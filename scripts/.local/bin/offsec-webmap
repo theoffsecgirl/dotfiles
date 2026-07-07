@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+target="${1:-}"
+[[ -n "$target" ]] || { echo "Uso: offsec webmap <programa>" >&2; exit 1; }
+
+webmap "$target"

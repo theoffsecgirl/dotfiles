@@ -105,12 +105,12 @@ offsec-system-start() {
   container system start
 }
 
-offsec-status() {
+offsec-container-status() {
   container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
   container ls
 }
 
-offsec-build() {
+offsec-container-build() {
   container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
 
   local tmpdir dockerfile
@@ -152,7 +152,7 @@ EOF
   return $rc
 }
 
-offsec-init() {
+offsec-container-init() {
   container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
 
   local running exists
@@ -180,33 +180,33 @@ offsec-init() {
     sleep infinity
 }
 
-offsec() {
+offsec-container() {
   container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
   offsec-init || return 1
   container exec -it "${OFFSEC_CONTAINER_NAME}" zsh
 }
 
-offsec-start() {
+offsec-container-start() {
   container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
   offsec-init
 }
 
-offsec-stop() {
+offsec-container-stop() {
   container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
   container stop "${OFFSEC_CONTAINER_NAME}"
 }
 
-offsec-logs() {
+offsec-container-logs() {
   container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
   container logs "${OFFSEC_CONTAINER_NAME}"
 }
 
-offsec-rm() {
+offsec-container-rm() {
   container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
   container rm "${OFFSEC_CONTAINER_NAME}"
 }
 
-offsec-rebuild() {
+offsec-container-rebuild() {
   container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
   offsec-stop >/dev/null 2>&1 || true
   offsec-rm >/dev/null 2>&1 || true

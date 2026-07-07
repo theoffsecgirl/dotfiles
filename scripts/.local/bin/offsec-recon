@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+target="${1:-}"
+[[ -n "$target" ]] || { echo "Uso: offsec recon <programa>" >&2; exit 1; }
+
+printf '[*] offsec recon: scope-program %s\n' "$target"
+scope-program "$target"
+
+printf '[*] offsec recon: webmap %s\n' "$target"
+webmap "$target"
+
+printf '[*] offsec recon: paramhunt-v2 %s\n' "$target"
+paramhunt-v2 "$target"
+
+printf '[+] Recon completo: %s\n' "$target"
