@@ -16,8 +16,23 @@ case "${1:-}" in
     echo "Uso: webmap-v2 <dominio|lista.txt|url>  (o usa el wrapper estable: webmap <...>)"
     echo "  Crawling con katana + separación de endpoints JS/API/GraphQL."
     echo "  Anterior: scope <dominio>   Siguiente: paramhunt-v2 <dominio>"
+    echo
+    echo "Variables opcionales para controlar carga:"
+    echo "  KATANA_DEPTH=2"
+    echo "  KATANA_CONCURRENCY=15"
+    echo "  KATANA_PARALLELISM=15"
+    echo "  KATANA_TIMEOUT=10"
+    echo "  KATANA_RATE_LIMIT=5"
     exit 0 ;;
 esac
+
+TMP_LIVEFILE=""
+
+cleanup() {
+  [[ -n "${TMP_LIVEFILE:-}" && -f "$TMP_LIVEFILE" ]] && rm -f "$TMP_LIVEFILE"
+}
+
+trap cleanup EXIT
 
 resolve_input() {
   local arg="${1:-}"
@@ -39,7 +54,8 @@ resolve_input() {
     INPUT_SOURCE="$arg"
     TARGET="$(printf '%s' "$arg" | sed -E 's#https?://##; s#/.*$##; s#[^A-Za-z0-9._-]#_#g')"
     BASE="${HUNTING_HOME:-$HOME/targets}/targets/_adhoc/$TARGET"
-    LIVEFILE="$(mktemp)"
+    TMP_LIVEFILE="$(mktemp)"
+    LIVEFILE="$TMP_LIVEFILE"
     printf '%s\n' "$arg" > "$LIVEFILE"
     return
   fi
@@ -54,6 +70,12 @@ resolve_input() {
 
 resolve_input "${1:-}"
 
+KATANA_DEPTH="${KATANA_DEPTH:-2}"
+KATANA_CONCURRENCY="${KATANA_CONCURRENCY:-15}"
+KATANA_PARALLELISM="${KATANA_PARALLELISM:-15}"
+KATANA_TIMEOUT="${KATANA_TIMEOUT:-10}"
+KATANA_RATE_LIMIT="${KATANA_RATE_LIMIT:-5}"
+
 need_cmd katana anew grep jq
 ensure_dir "$BASE/http" "$BASE/js" "$BASE/meta"
 
@@ -67,11 +89,21 @@ run_or_explain katana \
   -list "$LIVEFILE" \
   -silent \
   -jc \
+  -d "$KATANA_DEPTH" \
+  -c "$KATANA_CONCURRENCY" \
+  -p "$KATANA_PARALLELISM" \
+  -timeout "$KATANA_TIMEOUT" \
+  -rl "$KATANA_RATE_LIMIT" \
   -kf all \
-  2>/dev/null \
   | tee "$BASE/http/katana.raw" \
-  | { command -v uro >/dev/null 2>&1 && uro || cat; } \
-  | anew "$BASE/http/urls.txt" >/dev/null || true
+  | {
+      if command -v uro >/dev/null 2>&1; then
+        uro
+      else
+        cat
+      fi
+    } \
+  | anew "$BASE/http/urls.txt" >/dev/null
 
 grep -Ei '\.js($|\?)' "$BASE/http/urls.txt" | anew "$BASE/js/files.txt" >/dev/null || true
 grep -Ei '/api(/|$)|/v[0-9]+/|graphql|rest|swagger|openapi|/rpc(/|$)|/query($|[/?])|/mutation($|[/?])|/internal(/|$)' "$BASE/http/urls.txt" | anew "$BASE/http/api_candidates.txt" >/dev/null || true
@@ -88,7 +120,12 @@ jq -n \
   --arg api "$api_count" \
   --arg mode "$INPUT_MODE" \
   --arg source "${INPUT_SOURCE:-$LIVEFILE}" \
-  '{urls:($urls|tonumber), js:($js|tonumber), api_candidates:($api|tonumber), input_mode:$mode, input_source:$source}' \
+  --arg depth "$KATANA_DEPTH" \
+  --arg concurrency "$KATANA_CONCURRENCY" \
+  --arg parallelism "$KATANA_PARALLELISM" \
+  --arg timeout "$KATANA_TIMEOUT" \
+  --arg rate_limit "$KATANA_RATE_LIMIT" \
+  '{urls:($urls|tonumber), js:($js|tonumber), api_candidates:($api|tonumber), input_mode:$mode, input_source:$source, katana:{depth:($depth|tonumber), concurrency:($concurrency|tonumber), parallelism:($parallelism|tonumber), timeout:($timeout|tonumber), rate_limit:($rate_limit|tonumber)}}' \
   > "$BASE/meta/webmap.json"
 
 log_ok "Modo: $INPUT_MODE"
@@ -96,3 +133,4 @@ log_ok "URLs totales: $urls_count"
 log_ok "JS: $js_count"
 log_ok "API candidates: $api_count"
 log_ok "Raw crawl → $BASE/http/katana.raw"
+log_ok "Katana limits: d=$KATANA_DEPTH c=$KATANA_CONCURRENCY p=$KATANA_PARALLELISM timeout=$KATANA_TIMEOUT rl=$KATANA_RATE_LIMIT"
