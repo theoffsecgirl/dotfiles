@@ -41,11 +41,14 @@ bbref() {
   _bb_section "SETUP / VARIABLES"
   _bb_add "export-vars"        "setup"   'export TARGET="ejemplo"; export T="$HUNTING_HOME/targets/$TARGET"; export DOMAIN="ejemplo.com"; export LIVE="$T/http/live.txt"; export HTTPX="$T/http/httpx.jsonl"'
   _bb_add "mkdir-estructura"   "setup"   'mkdir -p $T/{recon,http,fuzz,js/{content,endpoints},in,out,tmp,burp,notes,reports,loot,meta}'
-  _bb_add "program-init"       "setup"   'program-init <programa>'
-  _bb_add "program-import-brief" "setup" 'program-import-brief <programa> <brief.txt>'
-  _bb_add "scope-program"      "setup"   'scope-program <programa>'
-  _bb_add "mktarget"           "setup"   'mktarget <dominio>'
-  _bb_add "scope"              "setup"   'scope <dominio>'
+  _bb_add "offsec-init"        "setup"   'offsec init <programa>'
+  _bb_add "offsec-import"      "setup"   'offsec import <programa>'
+  _bb_add "offsec-scope"       "setup"   'offsec scope <programa>'
+  _bb_add "offsec-webmap"      "setup"   'offsec webmap <programa>'
+  _bb_add "offsec-params"      "setup"   'offsec params <programa>'
+  _bb_add "offsec-recon"       "setup"   'offsec recon <programa>'
+  _bb_add "offsec-doctor"      "setup"   'offsec doctor'
+  _bb_add "scope-single"       "setup"   'scope <dominio>'
 
   # ─────────────────────────────────────────────────────────────
   _bb_section "RECON — SUBDOMINIOS"
@@ -83,8 +86,10 @@ bbref() {
   _bb_add "params-interesting" "urls"    'cat $T/fuzz/params-raw.txt | grep -iE "[?&](id|user_?id|account|uid|uuid|pid|file|path|url|redirect|return|token|key|ref|src|dest|target|doc|order|invoice)=" | sort -u > $T/fuzz/params-interesting.txt'
   _bb_add "params-freq"        "urls"    'cat $T/fuzz/params-raw.txt | grep -oE "[?&][a-zA-Z_-]+=" | sort | uniq -c | sort -rn | head -30'
   _bb_add "katana-crawl"       "urls"    'katana -list $LIVE -depth 3 -js-crawl -known-files all -concurrency 20 -timeout 10 -o $T/recon/katana.txt -silent'
-  _bb_add "webmap"             "urls"    'webmap <dominio>'
-  _bb_add "paramhunt-v2"       "urls"    'paramhunt-v2 <dominio>'
+  _bb_add "offsec-webmap"      "urls"    'offsec webmap <programa>'
+  _bb_add "offsec-params"      "urls"    'offsec params <programa>'
+  _bb_add "webmap-direct"      "urls"    'webmap <dominio|lista.txt|url>'
+  _bb_add "paramhunt-v2-direct" "urls"   'paramhunt-v2 <dominio|lista.txt|url>'
   _bb_add "uro-dedup"          "urls"    'cat $T/http/urls-historical.txt | uro | sort -u > $T/http/urls-deduped.txt'
   _bb_add "qsreplace-fuzz"     "urls"    'cat $T/fuzz/params-raw.txt | qsreplace "FUZZ7TEST" | httpx -silent -mc 200 -mr "FUZZ7TEST" > $T/fuzz/reflected-params.txt'
 
@@ -287,7 +292,8 @@ bbref() {
 
   # ─────────────────────────────────────────────────────────────
   _bb_section "REPORTE / DOCUMENTACIÓN"
-  _bb_add "hunt-doctor"        "reporte" 'hunt-doctor'
+  _bb_add "offsec-doctor"      "reporte" 'offsec doctor'
+  _bb_add "hunt-doctor-direct" "reporte" 'hunt-doctor'
   _bb_add "claude-recon-v2"    "reporte" 'claude-recon-v2 <dominio>'
   _bb_add "claude-hypotheses-v2" "reporte" 'claude-hypotheses-v2 <dominio>'
   _bb_add "notas-target"       "reporte" 'nvim $T/notes/summary.md'
@@ -297,14 +303,16 @@ bbref() {
   content="${content#\\n}"
 
   if command -v fzf >/dev/null 2>&1; then
-    selected="$(printf '%b' "$content" | column -ts $'\t' | fzf \
+    selected="$(printf '%b' "$content" | fzf \
       --ansi \
       --no-sort \
       --reverse \
+      --delimiter=$'\t' \
+      --with-nth=1,2,3 \
       --header='bbref — ENTER copia el snippet · busca por técnica/categoría/tool · ESC para salir')" || return 0
 
-    # Extraer el snippet: es la tercera columna — todo lo que hay tras el segundo bloque de espacios
-    snippet="$(printf '%s' "$selected" | sed 's/^[^ ]*[[:space:]][[:space:]]*[^ ]*[[:space:]][[:space:]]*//')"
+    snippet="${selected#*$'\t'}"
+    snippet="${snippet#*$'\t'}"
 
     [[ -n "$snippet" && "$snippet" != "SNIPPET" && "$snippet" != "===" ]] || return 0
     _bb_copy "$snippet" && print -r -- "[+] Copiado al portapapeles: $snippet"

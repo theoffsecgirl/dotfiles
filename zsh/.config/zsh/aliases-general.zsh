@@ -215,17 +215,20 @@ tips() {
   _tips_alias q "Salir de la shell actual"
 
   _tips_section "BUG BOUNTY WORKFLOW"
-  _tips_cmd program-init "Inicializar programa multi-dominio en un único workspace"
-  _tips_cmd program-import-brief "Importar brief.txt y generar scope-web/out-of-scope/roots"
-  _tips_cmd scope-program "Recon multi-dominio usando in/roots.txt sin crear carpetas por dominio"
-  _tips_cmd mktarget "Crear estructura de target single-domain"
-  _tips_cmd scope "Enumerar subdominios y descubrir HTTP vivos para un dominio"
-  _tips_cmd webmap "Crawlear URLs, JS y candidatos API"
-  _tips_cmd paramhunt-v2 "Extraer URLs con parámetros y claves únicas"
-  _tips_cmd subscan "Enumeración rápida de subdominios"
-  _tips_func subenum "Helper legacy para enumerar subdominios"
-  _tips_func probe "Helper legacy para probar HTTP con httpx"
-  _tips_func recon "Pipeline legacy rápido de recon"
+  _tips_cmd offsec "CLI principal del workflow de bug bounty"
+  _tips_cmd offsec-init "Subcomando interno: offsec init <programa>"
+  _tips_cmd offsec-import "Subcomando interno: offsec import <programa>"
+  _tips_cmd offsec-scope "Subcomando interno: offsec scope <programa>"
+  _tips_cmd offsec-webmap "Subcomando interno: offsec webmap <programa>"
+  _tips_cmd offsec-params "Subcomando interno: offsec params <programa>"
+  _tips_cmd offsec-recon "Subcomando interno: offsec recon <programa>"
+  _tips_cmd offsec-doctor "Subcomando interno: offsec doctor"
+  _tips_cmd scope "Wrapper estable: recon inicial single-domain"
+  _tips_cmd webmap "Wrapper estable: crawling URLs, JS y candidatos API"
+  _tips_cmd paramhunt-v2 "Descubrimiento de parámetros"
+  _tips_cmd scope-program "Implementación interna: recon multi-dominio"
+  _tips_cmd program-init "Implementación interna: inicializar workspace"
+  _tips_cmd program-import-brief "Implementación interna: importar brief"
   _tips_func inscope "Filtrar resultados por scope"
 
   _tips_section "HTTP Y FUZZING"
@@ -252,7 +255,7 @@ tips() {
   _tips_alias venv-deactivate "Desactivar entorno virtual"
   _tips_func venv-auto "Detectar y activar venv automáticamente"
 
-  _tips_section "DOCKER / OFFSEC"
+  _tips_section "DOCKER / CONTENEDOR OFFSEC"
   _tips_alias dk "Alias corto de docker"
   _tips_alias dkps "Listar contenedores activos"
   _tips_alias dkpsa "Listar todos los contenedores"
@@ -263,10 +266,11 @@ tips() {
   _tips_alias dkexec "Entrar en contenedor con shell interactiva"
   _tips_alias dklog "Ver logs en streaming"
   _tips_alias dkprune "Limpiar recursos Docker no usados"
-  _tips_func offsec "Entrar al contenedor offsec (init + exec zsh)"
-  _tips_cmd offsec-up "Levantar contenedor offsec (Raycast/script)"
-  _tips_cmd offsec-shell "Abrir shell dentro del contenedor offsec (Raycast/script)"
-  _tips_func offsec-rebuild "Parar → eliminar → reconstruir → arrancar contenedor"
+  _tips_func offsec-container "Entrar al contenedor offsec legacy"
+  _tips_func offsec-container-init "Inicializar contenedor offsec legacy"
+  _tips_func offsec-container-rebuild "Parar → eliminar → reconstruir → arrancar contenedor legacy"
+  _tips_cmd offsec-up "Levantar contenedor offsec"
+  _tips_cmd offsec-shell "Abrir shell dentro del contenedor offsec"
 
   _tips_section "SISTEMA Y UTILIDADES"
   _tips_alias ll "Listar ficheros con detalles y ocultos"
@@ -334,8 +338,8 @@ tips() {
   content="${content#\\n}"
 
   if command -v fzf >/dev/null 2>&1; then
-    selected="$(printf '%b' "$content" | column -ts $'\t' | fzf --ansi --no-sort --reverse --header='tips — ENTER copia el comando · busca por nombre/categoría/descripción · ESC para salir')" || return 0
-    cmd="${selected%% *}"
+    selected="$(printf '%b' "$content" | fzf --ansi --no-sort --reverse --delimiter=$'\t' --with-nth=1,2,3 --header='tips — ENTER copia el comando · busca por nombre/categoría/descripción · ESC para salir')" || return 0
+    cmd="${selected%%$'\t'*}"
     [[ -n "$cmd" && "$cmd" != "===" && "$cmd" != "COMANDO" ]] || return 0
     _tips_copy "$cmd" && print -r -- "[+] Copiado al portapapeles: $cmd"
   elif command -v column >/dev/null 2>&1; then
