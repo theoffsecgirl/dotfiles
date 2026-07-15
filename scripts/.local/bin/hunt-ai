@@ -239,10 +239,15 @@ append_limited() {
   local rel="$1"
   local max_bytes="${2:-16000}"
   local abs="$BASE/$rel"
+  local size
+
   printf '\n===== FILE: %s =====\n' "$rel"
   if [[ -f "$abs" ]]; then
     head -c "$max_bytes" "$abs"
-    [[ "$(wc -c < "$abs" | tr -d ' ')" -gt "$max_bytes" ]] && printf '\n[truncated at %s bytes]\n' "$max_bytes"
+    size="$(wc -c < "$abs" | tr -d ' ')"
+    if [[ "$size" -gt "$max_bytes" ]]; then
+      printf '\n[truncated at %s bytes]\n' "$max_bytes"
+    fi
   else
     printf '[missing] %s\n' "$rel"
   fi
