@@ -1,23 +1,27 @@
-# Hunt AI Workflow
+# AI Workflow for Bug Bounty
 
-`hunt-ai` unifica el análisis asistido por Claude Code. Sustituye los antiguos scripts `claude-recon*`, `claude-hypotheses*` y `chatgpt-*`.
+`hunt-ai` convierte los outputs locales del target en contexto compacto antes de invocar Claude Code. El objetivo es evitar prompts enormes, no repetir recon y separar claramente análisis, hipótesis, tráfico y reporting.
 
-## Principio
-
-La IA no repite recon ni confirma vulnerabilidades. Trabaja sobre evidencia existente:
+## Flujo
 
 ```text
-scope-program / scope
+scope / scope-program
         ↓
 webmap
         ↓
 paramhunt-v2
         ↓
+hunt-ai index
+        ↓
+ai/context.json
+        ↓
 hunt-ai analyze
         ↓
 hunt-ai hypotheses
         ↓
-validación manual o replay controlado
+hunt-ai caido
+        ↓
+validación manual controlada
         ↓
 hunt-ai report
 ```
@@ -25,95 +29,84 @@ hunt-ai report
 ## Comandos
 
 ```bash
-hunt-ai analyze <target>
-hunt-ai hypotheses <target>
-hunt-ai caido <target>
-hunt-ai report <target>
+hunt-ai index <target>
+hunt-ai analyze <target> [--prompt-only]
+hunt-ai hypotheses <target> [--prompt-only]
+hunt-ai caido <target> [--prompt-only]
+hunt-ai report <target> [--prompt-only]
 hunt-ai doctor
 ```
 
-Cuando Claude Code no tenga acceso, genera el prompt sin ejecutar el modelo:
+### `index`
+
+Procesa localmente los artefactos existentes y genera:
+
+```text
+$HUNTING_HOME/targets/<target>/ai/context.json
+```
+
+El índice resume hosts, estados, tecnologías, endpoints interesantes, GraphQL, parámetros sensibles y scope. No usa Claude ni envía datos fuera del equipo.
+
+### `analyze`
+
+Lee `ai/context.json` y prioriza superficie, flujos sensibles y huecos de información. No declara vulnerabilidades.
+
+### `hypotheses`
+
+Lee el contexto y, cuando existe, `ai/analyze.md`. Devuelve un máximo de cinco hipótesis justificadas y comprobables.
+
+### `caido`
+
+Prepara una sesión para usar el MCP `caido` en modo de solo lectura. Puede listar, filtrar, leer y comparar tráfico ya capturado. No debe reenviar peticiones, ejecutar Replay, Automate, crawlers, workflows, tamper ni intercept.
+
+### `report`
+
+Trabaja únicamente con evidencia ya validada desde `notes/findings.md`, resultados previos y notas de Caido. Si falta reproducción o impacto demostrado, debe marcar el reporte como no listo.
+
+### `--prompt-only`
+
+Genera el prompt localmente sin invocar Claude Code:
 
 ```bash
-hunt-ai analyze <target> --prompt-only
-hunt-ai hypotheses <target> --prompt-only
+hunt-ai analyze doximity --prompt-only
 ```
 
-Los prompts y resultados se guardan en:
+Los prompts se guardan en:
 
 ```text
-$HUNTING_HOME/targets/<target>/ai/
+$HUNTING_HOME/targets/<target>/ai/*.prompt.md
 ```
 
-## Qué lee
+## Principios
 
-`hunt-ai` reutiliza, cuando existen:
+- Scope y exclusiones se leen antes de analizar.
+- Los JSONL grandes no se copian directamente al prompt.
+- Una hipótesis no es una vulnerabilidad confirmada.
+- Claude no repite recon ya disponible.
+- Caido es solo lectura por defecto.
+- Cookies, tokens, cabeceras `Authorization`, secretos y datos personales no deben mostrarse ni persistirse.
+- Las pruebas activas requieren revisión humana, bajo volumen y una modificación explícita.
 
-```text
-in/program.md
-in/brief.txt
-in/roots.txt
-in/scope-web.txt
-in/out-of-scope.txt
-notes/summary.md
-notes/overview.md
-notes/findings.md
-http/live.txt
-http/httpx.jsonl
-http/api_candidates.txt
-http/graphql.txt
-js/files.txt
-fuzz/params.txt
-fuzz/sensitive_params.txt
-fuzz/params_by_host.jsonl
-```
-
-No ejecuta `scope`, `webmap` ni `paramhunt-v2` automáticamente.
-
-## Caido
-
-`hunt-ai caido` indica a Claude que use el MCP `caido` en modo solo lectura:
-
-- listar y filtrar tráfico existente;
-- leer requests y responses capturadas;
-- comparar variantes existentes;
-- detectar IDs, ownership, roles y cambios de estado.
-
-No debe ejecutar Replay, Automate, scans, crawlers, workflows, tamper ni intercept. Tampoco debe mostrar cookies, cabeceras Authorization, tokens o secretos.
-
-Comprueba la integración con:
+## Diagnóstico
 
 ```bash
 hunt-ai doctor
-claude mcp get caido
 ```
 
-## Separación entre hipótesis y validación
+Comprueba `python3`, `jq`, Claude Code, `caido-mcp-server` y el registro MCP `caido` cuando Claude está disponible.
 
-Una hipótesis contiene evidencia, un supuesto y una prueba propuesta. No es un hallazgo.
+## Validación local sin tokens
 
-La validación debe:
+```bash
+bash -n scripts/.local/bin/hunt-ai
+bash -n scripts/.local/bin/hunt-doctor
+bats tests/test_hunt_ai.bats
 
-1. estar dentro de scope;
-2. ser mínima y reversible;
-3. usar cuentas o datos de prueba autorizados;
-4. registrar resultado esperado y observado;
-5. demostrar impacto antes de preparar el reporte.
+hunt-ai index doximity
+hunt-ai analyze doximity --prompt-only
+hunt-ai hypotheses doximity --prompt-only
+hunt-ai caido doximity --prompt-only
+hunt-ai report doximity --prompt-only
 
-`hunt-ai report` marca el borrador como `NO LISTO` si falta reproducción, evidencia o impacto demostrado.
-
-## Mantenimiento
-
-Los prompts viven en:
-
-```text
-scripts/.local/share/hunt-ai/
+wc -c "$HUNTING_HOME/targets/doximity/ai/"*.prompt.md
 ```
-
-El ejecutable vive en:
-
-```text
-scripts/.local/bin/hunt-ai
-```
-
-No vuelvas a añadir wrappers separados por proveedor o por fase. Los nuevos modos deben implementarse como subcomandos y plantillas dentro de `hunt-ai`.
