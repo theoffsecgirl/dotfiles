@@ -1,30 +1,24 @@
-# AI Workflow for Bug Bounty
+# Hunt AI — workflow indexado para bug bounty
 
-`hunt-ai` convierte los outputs locales del target en contexto compacto antes de invocar Claude Code. El objetivo es evitar prompts enormes, no repetir recon y separar claramente análisis, hipótesis, tráfico y reporting.
+`hunt-ai` convierte outputs locales de recon en contexto estructurado para Claude Code y Caido MCP. Sustituye los antiguos wrappers `claude-recon`, `claude-hypotheses` y `chatgpt-*`.
 
-## Flujo
+## Principio
+
+Claude no debe recibir volcados brutos de recon.
 
 ```text
-scope / scope-program
-        ↓
-webmap
-        ↓
-paramhunt-v2
-        ↓
-hunt-ai index
-        ↓
-ai/context.json
-        ↓
-hunt-ai analyze
-        ↓
-hunt-ai hypotheses
-        ↓
-hunt-ai caido
-        ↓
-validación manual controlada
-        ↓
-hunt-ai report
+scope / webmap / paramhunt
+          ↓
+    outputs locales
+          ↓
+    hunt-ai index
+          ↓
+     ai/context.json
+          ↓
+ analyze → hypotheses → caido → report
 ```
+
+`index` es local, determinista y no usa IA.
 
 ## Comandos
 
@@ -37,76 +31,156 @@ hunt-ai report <target> [--prompt-only]
 hunt-ai doctor
 ```
 
-### `index`
+`--prompt-only` genera el prompt pero no invoca Claude Code.
 
-Procesa localmente los artefactos existentes y genera:
+## Indexación
+
+`hunt-ai index` lee:
+
+- `in/roots.txt`;
+- `in/scope-web.txt`;
+- `in/out-of-scope.txt`;
+- `in/program.md`;
+- `notes/summary.md`;
+- `http/httpx.jsonl`;
+- `http/api_candidates.txt`;
+- `http/graphql.txt`;
+- `http/urls.txt`;
+- `fuzz/sensitive_params.txt`.
+
+Y genera:
 
 ```text
-$HUNTING_HOME/targets/<target>/ai/context.json
+ai/context.json
 ```
 
-El índice resume hosts, estados, tecnologías, endpoints interesantes, GraphQL, parámetros sensibles y scope. No usa Claude ni envía datos fuera del equipo.
+El contexto incluye:
 
-### `analyze`
+- scope y exclusiones;
+- resumen del programa;
+- inventario de hosts;
+- estados HTTP;
+- tecnologías;
+- endpoints y URLs candidatas;
+- GraphQL;
+- parámetros sensibles;
+- evidencia disponible.
 
-Lee `ai/context.json` y prioriza superficie, flujos sensibles y huecos de información. No declara vulnerabilidades.
+Los ficheros grandes se procesan línea a línea y no se copian completos al prompt.
 
-### `hypotheses`
+## Fases
 
-Lee el contexto y, cuando existe, `ai/analyze.md`. Devuelve un máximo de cinco hipótesis justificadas y comprobables.
+### Analyze
 
-### `caido`
+Entrada principal: `ai/context.json`.
 
-Prepara una sesión para usar el MCP `caido` en modo de solo lectura. Puede listar, filtrar, leer y comparar tráfico ya capturado. No debe reenviar peticiones, ejecutar Replay, Automate, crawlers, workflows, tamper ni intercept.
-
-### `report`
-
-Trabaja únicamente con evidencia ya validada desde `notes/findings.md`, resultados previos y notas de Caido. Si falta reproducción o impacto demostrado, debe marcar el reporte como no listo.
-
-### `--prompt-only`
-
-Genera el prompt localmente sin invocar Claude Code:
+Objetivo: resumir superficie, priorizar activos y señalar información que falta. No declara vulnerabilidades.
 
 ```bash
 hunt-ai analyze doximity --prompt-only
 ```
 
-Los prompts se guardan en:
+### Hypotheses
+
+Entradas: contexto + `ai/analyze.md` cuando existe.
+
+Objetivo: devolver un máximo de cinco hipótesis justificadas, con evidencia, precondiciones, prueba mínima y alternativa benigna.
+
+```bash
+hunt-ai hypotheses doximity --prompt-only
+```
+
+### Caido
+
+Entradas: contexto + resumen del target. Usa el MCP `caido`.
+
+Modo por defecto:
+
+- listar, buscar, leer y comparar tráfico existente;
+- no Replay;
+- no Automate;
+- no scans ni crawlers;
+- no exposición de secretos;
+- no peticiones nuevas.
+
+```bash
+hunt-ai caido doximity --prompt-only
+```
+
+### Report
+
+Entradas: `notes/findings.md`, `ai/caido.md` y `ai/hypotheses.md` cuando existen.
+
+Solo debe producir un reporte listo cuando la reproducción, el resultado observado y el impacto estén demostrados. En caso contrario marca `NO LISTO`.
+
+```bash
+hunt-ai report doximity --prompt-only
+```
+
+## Artefactos
 
 ```text
-$HUNTING_HOME/targets/<target>/ai/*.prompt.md
+ai/context.json
+ai/analyze.prompt.md
+ai/analyze.md
+ai/hypotheses.prompt.md
+ai/hypotheses.md
+ai/caido.prompt.md
+ai/caido.md
+ai/report.prompt.md
+ai/report.md
 ```
 
-## Principios
+## Validación real
 
-- Scope y exclusiones se leen antes de analizar.
-- Los JSONL grandes no se copian directamente al prompt.
-- Una hipótesis no es una vulnerabilidad confirmada.
-- Claude no repite recon ya disponible.
-- Caido es solo lectura por defecto.
-- Cookies, tokens, cabeceras `Authorization`, secretos y datos personales no deben mostrarse ni persistirse.
-- Las pruebas activas requieren revisión humana, bajo volumen y una modificación explícita.
+Prueba realizada con el target local `doximity`:
 
-## Diagnóstico
+```text
+http/httpx.jsonl   169242 bytes
+ai/context.json     40184 bytes
 
-```bash
-hunt-ai doctor
+analyze.prompt.md    41598 bytes
+hypotheses.prompt.md 41803 bytes
+caido.prompt.md      43165 bytes
+report.prompt.md     41790 bytes
 ```
 
-Comprueba `python3`, `jq`, Claude Code, `caido-mcp-server` y el registro MCP `caido` cuando Claude está disponible.
+La versión anterior generaba prompts de aproximadamente 181 KB porque copiaba `httpx.jsonl`. El flujo indexado los reduce a unas decenas de KB y evita incluir el JSONL bruto.
 
-## Validación local sin tokens
+El indexador detectó en esa prueba:
+
+```text
+92 hosts
+40 URLs candidatas
+estados HTTP agregados
+tecnologías agregadas
+```
+
+Que `interesting_endpoints` sea cero puede ser válido cuando `httpx.jsonl` contiene principalmente URLs raíz; los paths se recuperan también desde `http/urls.txt` y aparecen en `candidate_urls`.
+
+## Tests
 
 ```bash
+cd ~/.dotfiles
 bash -n scripts/.local/bin/hunt-ai
 bash -n scripts/.local/bin/hunt-doctor
 bats tests/test_hunt_ai.bats
-
-hunt-ai index doximity
-hunt-ai analyze doximity --prompt-only
-hunt-ai hypotheses doximity --prompt-only
-hunt-ai caido doximity --prompt-only
-hunt-ai report doximity --prompt-only
-
-wc -c "$HUNTING_HOME/targets/doximity/ai/"*.prompt.md
 ```
+
+Cobertura actual:
+
+- ayuda sin argumentos;
+- generación de contexto JSON;
+- prompt compacto sin JSONL bruto;
+- reutilización de análisis para hipótesis;
+- rechazo de subcomandos desconocidos.
+
+## Seguridad
+
+- trabajar solo dentro de scope;
+- leer out-of-scope antes de analizar;
+- no inventar endpoints, roles, respuestas o impacto;
+- no convertir hipótesis en findings;
+- no mostrar tokens, cookies, `Authorization` o datos personales;
+- usar pruebas mínimas, reversibles y de bajo volumen;
+- mantener Caido en solo lectura salvo autorización explícita posterior.
