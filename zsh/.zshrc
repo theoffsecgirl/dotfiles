@@ -23,3 +23,5 @@ if [[ -x "$_FF" ]]; then
   alias fflabs="'$_FF' -P Labs -no-remote"
 fi
 unset _FF
+alias graphw00f="python3 $HOME/tools/ext/graphw00f/main.py"
+alias graphql-cop="python3 $HOME/tools/ext/graphql-cop/graphql-cop.py"

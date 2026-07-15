@@ -14,8 +14,10 @@ if [[ -n "${OFFSEC_CONTAINER:-}" ]]; then
   export HUNTING_HOME="/work"
 else
   export ICLOUD_HOME="${ICLOUD_HOME:-$HOME/Library/Mobile Documents/com~apple~CloudDocs}"
-  # Fallback seguro: ~/targets — sin emojis, sin espacios, funciona en todos los tools
-  export HUNTING_HOME="${HUNTING_HOME:-$HOME/targets}"
+  # Fallback seguro: ~/hunting como RAÍZ del workspace (los targets viven en
+  # $HUNTING_HOME/targets/). Sin emojis ni espacios, funciona en todos los tools.
+  # Antes era ~/targets, lo que producía la ruta duplicada ~/targets/targets/<t>.
+  export HUNTING_HOME="${HUNTING_HOME:-$HOME/hunting}"
 fi
 
 export GLOBAL_NOTES_HOME="${GLOBAL_NOTES_HOME:-$HUNTING_HOME/notes}"

@@ -1,0 +1,153 @@
+diff --git a/scripts/.local/bin/hunt-ai b/scripts/.local/bin/hunt-ai
+index ec4e930..e22de5c 100755
+--- a/scripts/.local/bin/hunt-ai
++++ b/scripts/.local/bin/hunt-ai
+@@ -65,7 +65,7 @@ if declare -F _reject_flag_as_target >/dev/null 2>&1; then
+   _reject_flag_as_target "$TARGET"
+ fi
+ 
+-HUNTING_ROOT="${HUNTING_HOME:-$HOME/targets}"
++HUNTING_ROOT="${HUNTING_HOME:-$HOME/hunting}"
+ BASE="$HUNTING_ROOT/targets/$TARGET"
+ [[ -d "$BASE" ]] || { printf '[x] Target no encontrado: %s\n' "$BASE" >&2; exit 1; }
+ 
+diff --git a/scripts/.local/bin/mktarget b/scripts/.local/bin/mktarget
+index 7d70e33..3eee004 100755
+--- a/scripts/.local/bin/mktarget
++++ b/scripts/.local/bin/mktarget
+@@ -18,7 +18,7 @@ esac
+ _reject_flag_as_target "$1"
+ 
+ TARGET="$1"
+-BASE="${HUNTING_HOME:-$HOME/targets}/targets/$TARGET"
++BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
+ 
+ mkdir -p "$BASE"/{recon,http,fuzz,js,in,out,tmp,burp,notes,reports,loot,meta}
+ 
+diff --git a/scripts/.local/bin/paramhunt-v2 b/scripts/.local/bin/paramhunt-v2
+index 638d531..c01c0d4 100755
+--- a/scripts/.local/bin/paramhunt-v2
++++ b/scripts/.local/bin/paramhunt-v2
+@@ -9,7 +9,7 @@ source "$SCRIPT_DIR/../lib/offsec.sh"
+ trap 'printf "[!] Error en linea %d — %s\n" "$LINENO" "$BASH_COMMAND" >&2
+       printf "[!] Si falló una tool externa, revisa sus flags con -h o -version\n" >&2' ERR
+ 
+-BASE_ROOT="${HUNTING_HOME:-$HOME/targets}/targets"
++BASE_ROOT="${HUNTING_HOME:-$HOME/hunting}/targets"
+ 
+ case "${1:-}" in
+   -h|--help)
+diff --git a/scripts/.local/bin/program-init b/scripts/.local/bin/program-init
+index 132939c..6a2be26 100755
+--- a/scripts/.local/bin/program-init
++++ b/scripts/.local/bin/program-init
+@@ -20,7 +20,7 @@ esac
+ _reject_flag_as_target "$1"
+ 
+ PROGRAM="$1"
+-BASE="${HUNTING_HOME:-$HOME/targets}/targets/$PROGRAM"
++BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$PROGRAM"
+ 
+ if command -v mktarget >/dev/null 2>&1; then
+   mktarget "$PROGRAM" >/dev/null 2>&1 || true
+diff --git a/scripts/.local/bin/scope-program b/scripts/.local/bin/scope-program
+index b492c94..39789ac 100755
+--- a/scripts/.local/bin/scope-program
++++ b/scripts/.local/bin/scope-program
+@@ -23,7 +23,7 @@ esac
+ _reject_flag_as_target "$1"
+ 
+ PROGRAM="$1"
+-BASE="${HUNTING_HOME:-$HOME/targets}/targets/$PROGRAM"
++BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$PROGRAM"
+ ROOTS_FILE="$BASE/in/roots.txt"
+ 
+ if command -v mktarget >/dev/null 2>&1; then
+diff --git a/scripts/.local/bin/scope-v2 b/scripts/.local/bin/scope-v2
+index 7b5ffe1..3d0ef5e 100755
+--- a/scripts/.local/bin/scope-v2
++++ b/scripts/.local/bin/scope-v2
+@@ -22,7 +22,7 @@ esac
+ _reject_flag_as_target "$1"
+ 
+ TARGET="$1"
+-BASE="${HUNTING_HOME:-$HOME/targets}/targets/$TARGET"
++BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
+ mkdir -p "$BASE"/{recon,http,meta,ai,tmp}
+ 
+ if command -v mktarget >/dev/null 2>&1; then
+diff --git a/scripts/.local/bin/webmap-v2 b/scripts/.local/bin/webmap-v2
+index c1d4158..5cb7291 100755
+--- a/scripts/.local/bin/webmap-v2
++++ b/scripts/.local/bin/webmap-v2
+@@ -44,7 +44,7 @@ resolve_input() {
+     INPUT_SOURCE="$arg"
+     TARGET="$(basename "$arg")"
+     TARGET="${TARGET%.*}"
+-    BASE="${HUNTING_HOME:-$HOME/targets}/targets/_adhoc/$TARGET"
++    BASE="${HUNTING_HOME:-$HOME/hunting}/targets/_adhoc/$TARGET"
+     LIVEFILE="$arg"
+     return
+   fi
+@@ -53,7 +53,7 @@ resolve_input() {
+     INPUT_MODE="url"
+     INPUT_SOURCE="$arg"
+     TARGET="$(printf '%s' "$arg" | sed -E 's#https?://##; s#/.*$##; s#[^A-Za-z0-9._-]#_#g')"
+-    BASE="${HUNTING_HOME:-$HOME/targets}/targets/_adhoc/$TARGET"
++    BASE="${HUNTING_HOME:-$HOME/hunting}/targets/_adhoc/$TARGET"
+     TMP_LIVEFILE="$(mktemp)"
+     LIVEFILE="$TMP_LIVEFILE"
+     printf '%s\n' "$arg" > "$LIVEFILE"
+@@ -63,7 +63,7 @@ resolve_input() {
+   _reject_flag_as_target "$arg"
+   INPUT_MODE="target"
+   TARGET="$arg"
+-  BASE="${HUNTING_HOME:-$HOME/targets}/targets/$TARGET"
++  BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
+   LIVEFILE="$BASE/http/live.txt"
+   [[ -f "$LIVEFILE" ]] || die "Ejecuta primero scope-v2 $TARGET"
+ }
+diff --git a/zsh/.config/zsh/bbref.zsh b/zsh/.config/zsh/bbref.zsh
+index d6ebfac..4e63388 100644
+--- a/zsh/.config/zsh/bbref.zsh
++++ b/zsh/.config/zsh/bbref.zsh
+@@ -293,11 +293,20 @@ bbref() {
+   _bb_add "tmux-sessionizer"   "tmux"    'tmux-sessionizer'
+   _bb_add "tmux-popup"         "tmux"    'tmux-popup'
+ 
++  # ─────────────────────────────────────────────────────────────
++  _bb_section "ANÁLISIS IA — hunt-ai"
++  _bb_add "hunt-ai"            "ai"      'hunt-ai <index|analyze|hypotheses|caido|report|doctor> <target> [--prompt-only]'
++  _bb_add "hunt-ai-index"      "ai"      'hunt-ai index <target>'
++  _bb_add "hunt-ai-analyze"    "ai"      'hunt-ai analyze <target>'
++  _bb_add "hunt-ai-analyze-po" "ai"      'hunt-ai analyze <target> --prompt-only'
++  _bb_add "hunt-ai-hypotheses" "ai"      'hunt-ai hypotheses <target>'
++  _bb_add "hunt-ai-caido"      "ai"      'hunt-ai caido <target>'
++  _bb_add "hunt-ai-report"     "ai"      'hunt-ai report <target>'
++  _bb_add "hunt-ai-doctor"     "ai"      'hunt-ai doctor'
++
+   # ─────────────────────────────────────────────────────────────
+   _bb_section "REPORTE / DOCUMENTACIÓN"
+   _bb_add "hunt-doctor"        "reporte" 'hunt-doctor'
+-  _bb_add "claude-recon-v2"    "reporte" 'claude-recon-v2 <dominio>'
+-  _bb_add "claude-hypotheses-v2" "reporte" 'claude-hypotheses-v2 <dominio>'
+   _bb_add "notas-target"       "reporte" 'nvim $T/notes/summary.md'
+   _bb_add "loot-dir"           "reporte" 'ls -la $T/loot/'
+ 
+diff --git a/zsh/.config/zsh/bug-bounty.zsh b/zsh/.config/zsh/bug-bounty.zsh
+index b6629bc..f3e3536 100644
+--- a/zsh/.config/zsh/bug-bounty.zsh
++++ b/zsh/.config/zsh/bug-bounty.zsh
+@@ -14,8 +14,10 @@ if [[ -n "${OFFSEC_CONTAINER:-}" ]]; then
+   export HUNTING_HOME="/work"
+ else
+   export ICLOUD_HOME="${ICLOUD_HOME:-$HOME/Library/Mobile Documents/com~apple~CloudDocs}"
+-  # Fallback seguro: ~/targets — sin emojis, sin espacios, funciona en todos los tools
+-  export HUNTING_HOME="${HUNTING_HOME:-$HOME/targets}"
++  # Fallback seguro: ~/hunting como RAÍZ del workspace (los targets viven en
++  # $HUNTING_HOME/targets/). Sin emojis ni espacios, funciona en todos los tools.
++  # Antes era ~/targets, lo que producía la ruta duplicada ~/targets/targets/<t>.
++  export HUNTING_HOME="${HUNTING_HOME:-$HOME/hunting}"
+ fi
+ 
+ export GLOBAL_NOTES_HOME="${GLOBAL_NOTES_HOME:-$HUNTING_HOME/notes}"

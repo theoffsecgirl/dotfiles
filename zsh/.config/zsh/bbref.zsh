@@ -294,10 +294,19 @@ bbref() {
   _bb_add "tmux-popup"         "tmux"    'tmux-popup'
 
   # ─────────────────────────────────────────────────────────────
+  _bb_section "ANÁLISIS IA — hunt-ai"
+  _bb_add "hunt-ai"            "ai"      'hunt-ai <index|analyze|hypotheses|caido|report|doctor> <target> [--prompt-only]'
+  _bb_add "hunt-ai-index"      "ai"      'hunt-ai index <target>'
+  _bb_add "hunt-ai-analyze"    "ai"      'hunt-ai analyze <target>'
+  _bb_add "hunt-ai-analyze-po" "ai"      'hunt-ai analyze <target> --prompt-only'
+  _bb_add "hunt-ai-hypotheses" "ai"      'hunt-ai hypotheses <target>'
+  _bb_add "hunt-ai-caido"      "ai"      'hunt-ai caido <target>'
+  _bb_add "hunt-ai-report"     "ai"      'hunt-ai report <target>'
+  _bb_add "hunt-ai-doctor"     "ai"      'hunt-ai doctor'
+
+  # ─────────────────────────────────────────────────────────────
   _bb_section "REPORTE / DOCUMENTACIÓN"
   _bb_add "hunt-doctor"        "reporte" 'hunt-doctor'
-  _bb_add "claude-recon-v2"    "reporte" 'claude-recon-v2 <dominio>'
-  _bb_add "claude-hypotheses-v2" "reporte" 'claude-hypotheses-v2 <dominio>'
   _bb_add "notas-target"       "reporte" 'nvim $T/notes/summary.md'
   _bb_add "loot-dir"           "reporte" 'ls -la $T/loot/'
 

@@ -22,7 +22,7 @@ esac
 _reject_flag_as_target "$1"
 
 TARGET="$1"
-BASE="${HUNTING_HOME:-$HOME/targets}/targets/$TARGET"
+BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
 mkdir -p "$BASE"/{recon,http,meta,ai,tmp}
 
 if command -v mktarget >/dev/null 2>&1; then

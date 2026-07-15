@@ -65,7 +65,7 @@ if declare -F _reject_flag_as_target >/dev/null 2>&1; then
   _reject_flag_as_target "$TARGET"
 fi
 
-HUNTING_ROOT="${HUNTING_HOME:-$HOME/targets}"
+HUNTING_ROOT="${HUNTING_HOME:-$HOME/hunting}"
 BASE="$HUNTING_ROOT/targets/$TARGET"
 [[ -d "$BASE" ]] || { printf '[x] Target no encontrado: %s\n' "$BASE" >&2; exit 1; }
 

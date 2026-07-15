@@ -23,7 +23,7 @@ esac
 _reject_flag_as_target "$1"
 
 PROGRAM="$1"
-BASE="${HUNTING_HOME:-$HOME/targets}/targets/$PROGRAM"
+BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$PROGRAM"
 ROOTS_FILE="$BASE/in/roots.txt"
 
 if command -v mktarget >/dev/null 2>&1; then
