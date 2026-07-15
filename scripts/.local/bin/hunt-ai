@@ -1,0 +1,296 @@
+#!/usr/bin/env bash
+# hunt-ai — contexto compacto y análisis asistido por Claude Code + Caido MCP
+# Uso: hunt-ai <index|analyze|hypotheses|caido|report|doctor> <target> [--prompt-only]
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LIB="$SCRIPT_DIR/../lib/offsec.sh"
+[[ -f "$LIB" ]] && source "$LIB"
+
+usage() {
+  cat <<'EOF'
+Uso:
+  hunt-ai index <target>
+  hunt-ai analyze <target> [--prompt-only]
+  hunt-ai hypotheses <target> [--prompt-only]
+  hunt-ai caido <target> [--prompt-only]
+  hunt-ai report <target> [--prompt-only]
+  hunt-ai doctor
+
+Subcomandos:
+  index         Resume outputs locales en ai/context.json sin usar IA.
+  analyze       Prioriza superficie y flujos desde el contexto indexado.
+  hypotheses    Genera un máximo de 5 hipótesis desde contexto + análisis.
+  caido         Prepara análisis del historial de Caido en solo lectura.
+  report        Prepara un reporte solo desde evidencia validada.
+  doctor        Comprueba dependencias y MCP de Caido.
+
+Opciones:
+  --prompt-only Genera el prompt pero no invoca Claude Code.
+EOF
+}
+
+[[ $# -ge 1 ]] || { usage; exit 1; }
+COMMAND="$1"
+shift
+
+if [[ "$COMMAND" == "doctor" ]]; then
+  rc=0
+  command -v python3 >/dev/null 2>&1 && printf '[+] python3 disponible\n' || { printf '[!] python3 no disponible\n'; rc=1; }
+  command -v jq >/dev/null 2>&1 && printf '[+] jq disponible\n' || { printf '[!] jq no disponible\n'; rc=1; }
+  command -v claude >/dev/null 2>&1 && printf '[+] claude: %s\n' "$(claude --version 2>/dev/null | head -1)" || printf '[!] claude no disponible (prompt-only sigue funcionando)\n'
+  command -v caido-mcp-server >/dev/null 2>&1 && printf '[+] caido-mcp-server: %s\n' "$(caido-mcp-server --version 2>/dev/null | head -1)" || printf '[!] caido-mcp-server no disponible\n'
+  if command -v claude >/dev/null 2>&1; then
+    claude mcp get caido 2>/dev/null | grep -q 'Connected' \
+      && printf '[+] MCP caido conectado\n' \
+      || printf '[!] MCP caido no conectado o no registrado\n'
+  fi
+  exit "$rc"
+fi
+
+[[ $# -ge 1 ]] || { usage; exit 1; }
+TARGET="$1"
+shift
+PROMPT_ONLY=0
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --prompt-only) PROMPT_ONLY=1 ;;
+    -h|--help) usage; exit 0 ;;
+    *) printf '[!] Opción desconocida: %s\n' "$1" >&2; usage; exit 1 ;;
+  esac
+  shift
+done
+
+if declare -F _reject_flag_as_target >/dev/null 2>&1; then
+  _reject_flag_as_target "$TARGET"
+fi
+
+HUNTING_ROOT="${HUNTING_HOME:-$HOME/targets}"
+BASE="$HUNTING_ROOT/targets/$TARGET"
+[[ -d "$BASE" ]] || { printf '[x] Target no encontrado: %s\n' "$BASE" >&2; exit 1; }
+
+SHARE="$SCRIPT_DIR/../share/hunt-ai"
+COMMON_TEMPLATE="$SHARE/common.md"
+OUTDIR="$BASE/ai"
+CONTEXT="$OUTDIR/context.json"
+mkdir -p "$OUTDIR"
+
+index_target() {
+  command -v python3 >/dev/null 2>&1 || { printf '[x] Falta python3\n' >&2; return 1; }
+
+  BASE="$BASE" TARGET="$TARGET" CONTEXT="$CONTEXT" python3 <<'PY'
+import json
+import os
+import re
+from collections import Counter
+from pathlib import Path
+from urllib.parse import urlsplit
+
+base = Path(os.environ["BASE"])
+target = os.environ["TARGET"]
+out = Path(os.environ["CONTEXT"])
+
+
+def lines(rel, limit=300):
+    path = base / rel
+    if not path.is_file():
+        return []
+    result = []
+    with path.open("r", encoding="utf-8", errors="replace") as handle:
+        for raw in handle:
+            value = raw.strip()
+            if value and not value.startswith("#"):
+                result.append(value)
+            if len(result) >= limit:
+                break
+    return result
+
+
+def text(rel, max_bytes=12000):
+    path = base / rel
+    if not path.is_file():
+        return ""
+    data = path.read_bytes()[:max_bytes]
+    return data.decode("utf-8", errors="replace")
+
+hosts = {}
+status_counts = Counter()
+tech_counts = Counter()
+interesting = []
+httpx_path = base / "http/httpx.jsonl"
+
+signals = re.compile(r"/(api|graphql|auth|oauth|oidc|sso|login|session|account|user|profile|admin|billing|payment|order|transfer|card|kyc|support|internal)(/|$)", re.I)
+write_words = re.compile(r"(create|update|delete|remove|add|upload|invite|approve|transfer|payment|checkout|reset|verify)", re.I)
+
+if httpx_path.is_file():
+    with httpx_path.open("r", encoding="utf-8", errors="replace") as handle:
+        for raw in handle:
+            try:
+                item = json.loads(raw)
+            except (json.JSONDecodeError, TypeError):
+                continue
+            url = item.get("url") or item.get("input") or ""
+            host = item.get("host") or item.get("input") or ""
+            if url:
+                parsed = urlsplit(url if "://" in url else "https://" + url)
+                host = parsed.hostname or host
+                path = parsed.path or "/"
+            else:
+                path = "/"
+            if not host:
+                continue
+            status = item.get("status_code") or item.get("status-code")
+            title = item.get("title") or ""
+            tech = item.get("tech") or item.get("technologies") or []
+            if isinstance(tech, str):
+                tech = [tech]
+            record = hosts.setdefault(host, {"status": set(), "titles": set(), "tech": set()})
+            if status is not None:
+                record["status"].add(str(status))
+                status_counts[str(status)] += 1
+            if title:
+                record["titles"].add(str(title)[:120])
+            for value in tech[:20]:
+                value = str(value)
+                record["tech"].add(value)
+                tech_counts[value] += 1
+            if signals.search(path) or write_words.search(path):
+                interesting.append({"url": url, "host": host, "path": path, "status": status})
+
+host_rows = []
+for host, data in sorted(hosts.items()):
+    host_rows.append({
+        "host": host,
+        "status": sorted(data["status"]),
+        "titles": sorted(data["titles"])[:3],
+        "tech": sorted(data["tech"])[:12],
+    })
+
+candidate_urls = []
+for rel in ("http/api_candidates.txt", "http/graphql.txt", "http/urls.txt"):
+    for value in lines(rel, 600):
+        if signals.search(value) or write_words.search(value):
+            candidate_urls.append(value)
+
+seen = set()
+deduped = []
+for value in candidate_urls:
+    if value not in seen:
+        seen.add(value)
+        deduped.append(value)
+    if len(deduped) >= 250:
+        break
+
+context = {
+    "schema_version": 1,
+    "target": target,
+    "scope": {
+        "roots": lines("in/roots.txt", 200),
+        "in_scope": lines("in/scope-web.txt", 300),
+        "out_of_scope": lines("in/out-of-scope.txt", 300),
+    },
+    "program_notes": text("in/program.md", 10000),
+    "target_summary": text("notes/summary.md", 12000),
+    "inventory": {
+        "host_count": len(host_rows),
+        "hosts": host_rows[:250],
+        "status_counts": dict(status_counts.most_common()),
+        "top_technologies": [{"name": k, "count": v} for k, v in tech_counts.most_common(30)],
+    },
+    "interesting_endpoints": interesting[:250],
+    "candidate_urls": deduped,
+    "graphql": lines("http/graphql.txt", 150),
+    "sensitive_parameters": lines("fuzz/sensitive_params.txt", 200),
+    "available_evidence": {
+        "analysis": (base / "ai/analyze.md").is_file(),
+        "findings": (base / "notes/findings.md").is_file(),
+        "caido_notes": (base / "ai/caido.md").is_file(),
+    },
+}
+
+out.write_text(json.dumps(context, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+print(f"[+] Contexto indexado: {out}")
+print(f"[+] Hosts: {len(host_rows)} | endpoints interesantes: {len(interesting[:250])} | candidatos: {len(deduped)}")
+PY
+}
+
+if [[ "$COMMAND" == "index" ]]; then
+  index_target
+  exit 0
+fi
+
+case "$COMMAND" in
+  analyze|hypotheses|caido|report) ;;
+  *) printf '[x] Subcomando no soportado: %s\n' "$COMMAND" >&2; usage; exit 1 ;;
+esac
+
+[[ -f "$COMMON_TEMPLATE" ]] || { printf '[x] Reglas comunes no encontradas: %s\n' "$COMMON_TEMPLATE" >&2; exit 1; }
+PROMPT_TEMPLATE="$SHARE/$COMMAND.md"
+[[ -f "$PROMPT_TEMPLATE" ]] || { printf '[x] Plantilla no encontrada: %s\n' "$PROMPT_TEMPLATE" >&2; exit 1; }
+
+# El índice es barato y determinista; se regenera para no usar contexto obsoleto.
+index_target >/dev/null
+
+PROMPTFILE="$OUTDIR/$COMMAND.prompt.md"
+OUTFILE="$OUTDIR/$COMMAND.md"
+ERRFILE="$OUTDIR/$COMMAND.claude.stderr.log"
+
+append_limited() {
+  local rel="$1"
+  local max_bytes="${2:-16000}"
+  local abs="$BASE/$rel"
+  local size
+
+  printf '\n===== FILE: %s =====\n' "$rel"
+  if [[ -f "$abs" ]]; then
+    head -c "$max_bytes" "$abs"
+    size="$(wc -c < "$abs" | tr -d ' ')"
+    if [[ "$size" -gt "$max_bytes" ]]; then
+      printf '\n[truncated at %s bytes]\n' "$max_bytes"
+    fi
+  else
+    printf '[missing] %s\n' "$rel"
+  fi
+}
+
+{
+  cat "$COMMON_TEMPLATE"
+  printf '\n\n'
+  sed "s/{{TARGET}}/$TARGET/g" "$PROMPT_TEMPLATE"
+  printf '\n\n## Contexto estructurado\n'
+  append_limited "ai/context.json" 50000
+
+  case "$COMMAND" in
+    hypotheses)
+      append_limited "ai/analyze.md" 24000
+      ;;
+    caido)
+      append_limited "notes/summary.md" 10000
+      ;;
+    report)
+      append_limited "notes/findings.md" 30000
+      append_limited "ai/caido.md" 20000
+      append_limited "ai/hypotheses.md" 16000
+      ;;
+  esac
+} > "$PROMPTFILE"
+
+PROMPT_BYTES="$(wc -c < "$PROMPTFILE" | tr -d ' ')"
+printf '[+] Prompt generado: %s (%s bytes)\n' "$PROMPTFILE" "$PROMPT_BYTES"
+
+if [[ "$PROMPT_ONLY" -eq 1 ]]; then
+  exit 0
+fi
+
+if ! command -v claude >/dev/null 2>&1; then
+  printf '[!] Claude Code no disponible. Usa --prompt-only o ejecuta el prompt más tarde.\n' >&2
+  exit 0
+fi
+
+if claude -p "$(cat "$PROMPTFILE")" > "$OUTFILE" 2> "$ERRFILE"; then
+  printf '[+] Resultado guardado: %s\n' "$OUTFILE"
+else
+  rm -f "$OUTFILE"
+  printf '[x] Claude falló. Revisa: %s\n' "$ERRFILE" >&2
+  exit 1
+fi

@@ -3,79 +3,45 @@
 ![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux-lightgrey?style=flat-square)
 ![Shell](https://img.shields.io/badge/Shell-zsh-brightgreen?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-red?style=flat-square)
-![Status](https://img.shields.io/badge/Status-Stable-brightgreen?style=flat-square)
 
----
-**Dotfiles for bug bounty and pentesting**
+**Dotfiles for bug bounty and pentesting**  
 *by [TheOffSecGirl](https://github.com/theoffsecgirl)*
 
 > 🇪🇸 [Versión en español](README.es.md)
 
 </div>
 
----
+## What this is
 
-## What is this
+A macOS-first, terminal-centric bug bounty environment built around a reproducible workflow. The repository manages shell configuration, hunting wrappers, tooling installation, target structure and an indexed Claude Code workflow.
 
-These are not "pretty dotfiles".
-
-This is my real bug bounty working environment — macOS-first, terminal-centric, built around a reproducible workflow.
-
-Designed to:
-
-- stop wasting time on setup
-- keep the same workflow everywhere
-- automate repetitive tasks
-- go straight to finding bugs
-
----
-
-## Setup
+## Install
 
 ```bash
 git clone git@github.com:theoffsecgirl/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ./install.sh
-```
-
-After install, set your real workspace path (see [Configuration](#configuration)), then:
-
-```bash
 exec zsh
 ```
 
-Preview what stow would link without applying:
+Preview Stow changes without applying them:
 
 ```bash
 ./install.sh --dry-run
 ```
 
-If something breaks:
+Machine-specific configuration belongs in `~/.config/zsh/local.zsh`, which is not versioned:
+
+```zsh
+export HUNTING_HOME="$HOME/hunting"
+```
+
+Validate the environment:
 
 ```bash
 hunt-doctor
+hunt-ai doctor
 ```
-
-`hunt-doctor` validates the full environment: required tools (subfinder, httpx, katana, dnsx, nuclei, jq, unfurl, anew), all pipeline scripts, stable wrappers, and optional tools referenced in `bbref` (uro, dalfox, gau, waybackurls, gowitness, trufflehog, subjs, ffuf, feroxbuster, amass, assetfinder, subjack).
-
----
-
-## Configuration
-
-All real configuration lives in `~/.config/zsh/load.zsh` (not `.zshrc`, which is intentionally minimal).
-
-Machine-specific overrides go in `~/.config/zsh/local.zsh` — this file is **not versioned**. The installer creates a template automatically.
-
-The most important override is `HUNTING_HOME`:
-
-```zsh
-# ~/.config/zsh/local.zsh
-export HUNTING_HOME="$HOME/Library/Mobile Documents/com~apple~CloudDocs/02_PROFESIONAL/bugbounty"
-```
-
-If `HUNTING_HOME` is not set here, it falls back to `~/targets` — which works but won't point to iCloud.
-
----
 
 ## Bug bounty workflow
 
@@ -88,225 +54,156 @@ webmap example.com
 paramhunt-v2 example.com
 ```
 
-Target layout:
-
-```text
-$HUNTING_HOME/targets/example.com/
-├── recon/
-├── http/
-├── fuzz/
-├── js/
-├── in/
-│   └── resolvers.txt
-├── out/
-├── tmp/
-├── burp/
-├── notes/
-│   └── summary.md
-├── reports/
-├── loot/
-└── meta/
-```
-
-Main outputs:
-
-```text
-recon/subdomains.txt
-http/live.txt
-http/httpx.jsonl
-http/httpx_table.tsv
-http/urls.txt
-http/urls_clean.txt
-http/api_candidates.txt
-js/files.txt
-fuzz/urls_with_params.txt
-fuzz/params.txt
-meta/*.json
-```
-
 ### Multi-domain program
-
-Use when a private/public program has multiple web scopes but you want one workspace.
 
 ```bash
 program-init example
-cd "$HUNTING_HOME/targets/example"
-```
+nvim "$HUNTING_HOME/targets/example/in/brief.txt"
+program-import-brief example "$HUNTING_HOME/targets/example/in/brief.txt"
 
-Import the brief:
+nvim "$HUNTING_HOME/targets/example/in/roots.txt"
+nvim "$HUNTING_HOME/targets/example/in/scope-web.txt"
+nvim "$HUNTING_HOME/targets/example/in/out-of-scope.txt"
 
-```bash
-nvim in/brief.txt
-program-import-brief example in/brief.txt
-```
-
-Review extracted scope before recon:
-
-```bash
-nvim in/roots.txt
-nvim in/scope-web.txt
-nvim in/out-of-scope.txt
-```
-
-Run multi-domain flow:
-
-```bash
 scope-program example
 webmap example
 paramhunt-v2 example
 ```
 
-`scope-program` reads `in/roots.txt` and keeps everything inside `$HUNTING_HOME/targets/example/` — no per-domain subdirectories.
-
-Expected multi-domain outputs:
+Core outputs are kept inside `$HUNTING_HOME/targets/<target>/`:
 
 ```text
 recon/subdomains.txt
-recon/roots/<root>.subdomains.txt
 http/live.txt
 http/httpx.jsonl
-http/httpx_table.tsv
-http/roots/<root>.live.txt
-meta/scope-program.json
-meta/roots/<root>.scope.json
+http/urls.txt
+http/api_candidates.txt
+http/graphql.txt
+js/files.txt
+fuzz/params.txt
+fuzz/sensitive_params.txt
+meta/*.json
 ```
 
-### Validate commands
+## Indexed AI workflow
+
+`hunt-ai` is the only supported AI entry point. Old `claude-recon`, `claude-hypotheses` and `chatgpt-*` wrappers were removed rather than kept as dead compatibility layers.
 
 ```bash
-type -a program-init scope-program program-import-brief scope webmap mktarget subscan
+hunt-ai index <target>
+hunt-ai analyze <target> --prompt-only
+hunt-ai hypotheses <target> --prompt-only
+hunt-ai caido <target> --prompt-only
+hunt-ai report <target> --prompt-only
 ```
 
-Expected: everything resolves to `~/.local/bin/*`. `tips` is a shell function.
+Remove `--prompt-only` to invoke Claude Code.
 
----
+The workflow is deliberately staged:
 
-## Quick navigation
+```text
+raw recon outputs
+    ↓
+hunt-ai index
+    ↓
+ai/context.json
+    ↓
+analyze → hypotheses → Caido review → report
+```
+
+`index` is local and deterministic. It summarizes large files such as `http/httpx.jsonl` into `ai/context.json`, so Claude receives compact structured context instead of raw recon dumps.
+
+Generated artifacts:
+
+```text
+ai/context.json
+ai/analyze.prompt.md
+ai/analyze.md
+ai/hypotheses.prompt.md
+ai/hypotheses.md
+ai/caido.prompt.md
+ai/caido.md
+ai/report.prompt.md
+ai/report.md
+```
+
+Rules:
+
+- scope and out-of-scope are read first;
+- hypotheses are not treated as confirmed findings;
+- `caido` is read-only by default;
+- secrets, cookies and authorization headers must not be exposed;
+- `report` uses validated evidence, not raw recon;
+- missing evidence is stated instead of invented.
+
+See [`docs/ai-workflow.md`](docs/ai-workflow.md) for the full design.
+
+## Caido MCP
+
+The optional Caido MCP integration expects a local MCP server registered as `caido` in Claude Code. `hunt-ai caido` prepares a read-only analysis prompt; it must not replay requests, run Automate, start crawlers or modify traffic.
+
+Check the integration with:
 
 ```bash
-cdh        # cd $HUNTING_HOME
-cdt        # cd $HUNTING_HOME/targets
-cdn        # cd $HUNTING_HOME/notes
-cds        # cd $HUNTING_HOME/scripts
+hunt-ai doctor
+claude mcp get caido
 ```
 
----
-
-## Proxy (Burp Suite)
+## Useful commands
 
 ```bash
-setproxy      # activates http_proxy + https_proxy → 127.0.0.1:8080
-              # also sets no_proxy=localhost,127.0.0.1 so CLI tools
-              # don't route local traffic through Burp
-unsetproxy    # clears all three variables
+cdh        # $HUNTING_HOME
+cdt        # $HUNTING_HOME/targets
+bbref      # interactive bug bounty reference
+hunt-doctor
+hunt-ai doctor
 ```
 
----
-
-## Interactive cheatsheet
+Validate command resolution:
 
 ```bash
-bbref
+type -a program-init scope-program program-import-brief scope webmap paramhunt-v2 hunt-ai
 ```
 
-Opens an fzf cheatsheet of bug bounty commands organised by category (setup, recon, http, fuzz, params, JS, secrets, wordlists, tmux, findings). Press ENTER to copy the selected snippet to the clipboard.
+Everything should resolve to `~/.local/bin/*`.
+
+## Tests and audit
 
 ```bash
-tips
+cd ~/.dotfiles
+bash -n scripts/.local/bin/hunt-ai
+bash -n scripts/.local/bin/hunt-doctor
+bats tests/test_hunt_ai.bats
+bash audit_dotfiles.sh ~/.dotfiles
 ```
-
-General shell tips cheatsheet (git, proxy, navigation). Also opens with fzf + copy.
-
----
-
-## General utilities
-
-| Command | Behaviour |
-|---|---|
-| `grh` | `git reset --hard HEAD` — shows a diff summary and asks for confirmation |
-| `rmrf` | `rm -rf` with a preview of what will be deleted and a confirmation prompt — same pattern as `grh` |
-| `ll` / `la` | Uses `eza` or `lsd` if installed, falls back to `ls -lAh` / `ls -A` |
-| `cat` | Automatically uses `bat --style=plain` if installed (syntax highlighting, no paging, no decorations) |
-| `myip` | Tries three public IP services with a 3s timeout each |
-| `localip` | Works on both macOS (`en0`) and Linux (`ip addr`) |
-| `git wip` | Stages only tracked files (`add -u`), never untracked secrets |
-| `setproxy` / `unsetproxy` | Toggle Burp proxy with `no_proxy` for localhost |
-| `purge_outputs` | Removes `output/` dirs and `.log` files — asks for confirmation |
-
----
-
-## Tools
-
-```bash
-bash ~/.dotfiles/tools/install-tools.sh   # install Go tools (ProjectDiscovery, tomnomnom)
-bash ~/.dotfiles/tools/update-tools.sh    # update them
-```
-
-Brew dependencies are managed via `brew/Brewfile` — the single source of truth for macOS packages:
-
-```bash
-brew bundle --file=~/.dotfiles/brew/Brewfile
-```
-
----
-
-## Offsec container (optional)
-
-```bash
-offsec-up       # start container (alias: offsec-start)
-offsec-shell    # exec into zsh in the container
-```
-
-The container mounts `$HUNTING_HOME` at `/work`.
-
----
-
-## Dotfiles audit
-
-```bash
-bash ~/.dotfiles/audit_dotfiles.sh ~/.dotfiles
-```
-
-Checks: merge conflicts, CRLF, `sh` bashisms, bash/zsh syntax errors, shellcheck (requires `shellcheck` — included in the Brewfile), and duplicate zsh functions across all files loaded from `load.zsh`.
-
----
 
 ## Structure
 
 ```text
 ~/.dotfiles/
 ├── zsh/
-│   ├── .zshrc                    # minimal — loads load.zsh
-│   └── .config/zsh/
-│       ├── load.zsh              # modular entry point
-│       ├── aliases-general.zsh   # git, nav, system
-│       ├── bug-bounty.zsh        # hunting workspace
-│       └── bbref.zsh             # interactive bug bounty cheatsheet
+├── scripts/
+│   └── .local/
+│       ├── bin/
+│       ├── lib/
+│       └── share/hunt-ai/
+├── docs/
+├── tests/
 ├── tmux/
 ├── nvim/
 ├── ghostty/
-├── scripts/
-│   └── .local/bin/               # all hunting scripts
-├── vendor/
-│   └── shell-utils/zsh/          # cross-platform helpers
+├── git/
 ├── brew/
-│   └── Brewfile                  # macOS package source of truth
 ├── tools/
-│   ├── install-tools.sh
-│   └── update-tools.sh
-├── audit_dotfiles.sh
-└── install.sh
+├── install.sh
+└── audit_dotfiles.sh
 ```
 
-Managed with [GNU Stow](https://www.gnu.org/software/stow/) — clean, reversible symlinks.
-
----
+Managed with GNU Stow.
 
 ## Ethical use
 
-Only on systems you have permission to test.
-
----
+Only test systems for which you have explicit authorization.
 
 ## License
 
