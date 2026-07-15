@@ -1,125 +1,136 @@
-# 🔍 theoffsecgirl — Cheatsheet
+# 🔍 TheOffSecGirl — Cheatsheet
 
-Referencia rápida de los comandos principales del entorno.
+Referencia rápida de los comandos principales.
 
----
+## Navegación
 
-## Navegación workspace
+| Comando | Acción |
+|---|---|
+| `cdh` | `cd $HUNTING_HOME` |
+| `cdt` | `cd $HUNTING_HOME/targets` |
+| `cdn` | `cd $HUNTING_HOME/notes` |
+| `cd ~/.dotfiles` | volver al repositorio Git |
 
-| Alias | Acción |
-|-------|--------|
-| `cdh` | `cd ~/hunting` |
-| `cdt` | `cd ~/hunting/targets` |
-| `cdn` | `cd ~/hunting/notes` |
-| `cds` | `cd ~/hunting/scripts` |
-
----
-
-## Bootstrap y validación
+## Diagnóstico
 
 ```bash
-offsec-bootstrap
 hunt-doctor
+hunt-ai doctor
+type -a scope webmap paramhunt-v2 hunt-ai
 ```
 
-- `offsec-bootstrap` → enlaza scripts de `~/.dotfiles/scripts/.local/bin/` a `~/.local/bin/`
-- `hunt-doctor` → valida entorno, scripts y tooling
+## Target single-domain
 
----
-
-## Modelo operativo
-
-### Host
-- Git
-- dotfiles
-- Claude Code
-- edición y documentación
-
-### Contenedor
-- `subfinder`
-- `httpx`
-- `katana`
-- `unfurl`
-- `ffuf`
-- `jq`
-- `python3`
-- `scope-v2`
-- `webmap-v2`
-- `paramhunt-v2`
-
----
-
-## Flujo recomendado
-
-### Contenedor
 ```bash
 mktarget example.com
-scope-v2 example.com
-webmap-v2 example.com
+scope example.com
+webmap example.com
 paramhunt-v2 example.com
 ```
 
-### Host
-```bash
-claude-recon example.com
-claude-hypotheses example.com
-```
-
----
-
-## Scripts en `~/.local/bin/`
-
-| Comando | Uso | Descripción |
-|---------|-----|-------------|
-| `mktarget` | `mktarget domain.com` | Crea estructura completa del target |
-| `scope` | `scope domain.com` | Recon básico legacy |
-| `webmap` | `webmap domain.com` | Crawl básico legacy |
-| `paramhunt` | `paramhunt domain.com` | Extracción básica legacy |
-| `scope-v2` | `scope-v2 domain.com` | Subdominios + hosts vivos + `httpx.jsonl` |
-| `webmap-v2` | `webmap-v2 domain.com` | Crawl + separación de URLs, JS, API y GraphQL |
-| `paramhunt-v2` | `paramhunt-v2 domain.com` | Params por URL, sensibles y JSONL por host |
-| `claude-recon` | `claude-recon domain.com` | Análisis IA de recon |
-| `claude-hypotheses` | `claude-hypotheses domain.com` | Hipótesis estructuradas de ataque |
-| `fuzzdirs` | `fuzzdirs https://url` | Fuzz de directorios con ffuf |
-| `subscan` | `subscan domain.com` | Tabla rápida httpx con status, IP y título |
-| `offsec-up` | `offsec-up` | Arranca contenedor offsec-toolbox |
-| `offsec-shell` | `offsec-shell` | Shell dentro del contenedor |
-| `offsec-bootstrap` | `offsec-bootstrap` | Enlaza scripts de forma idempotente |
-| `hunt-doctor` | `hunt-doctor` | Valida entorno y tooling |
-
----
-
-## Contenedor offsec-toolbox
+## Programa multi-dominio
 
 ```bash
-offsec-up
-offsec-shell
-offsec-bootstrap
-hunt-doctor
+program-init example
+program-import-brief example "$HUNTING_HOME/targets/example/in/brief.txt"
+scope-program example
+webmap example
+paramhunt-v2 example
 ```
 
-Actualizar tooling:
+Antes del recon revisa:
+
+```text
+in/roots.txt
+in/scope-web.txt
+in/out-of-scope.txt
+```
+
+## Hunt AI
+
+| Comando | Descripción |
+|---|---|
+| `hunt-ai index target` | Resume outputs en `ai/context.json` sin usar IA |
+| `hunt-ai analyze target` | Prioriza superficie y flujos |
+| `hunt-ai hypotheses target` | Genera hasta cinco hipótesis justificadas |
+| `hunt-ai caido target` | Analiza tráfico existente mediante Caido MCP, solo lectura |
+| `hunt-ai report target` | Prepara reporte desde evidencia validada |
+| `hunt-ai doctor` | Comprueba Python, jq, Claude y Caido MCP |
+
+Generar sin consumir Claude Code:
 
 ```bash
-cd ~/.dotfiles/containers/debian-toolbox
-docker compose build --build-arg HTTPX_VERSION=1.6.11
+hunt-ai analyze target --prompt-only
+hunt-ai hypotheses target --prompt-only
+hunt-ai caido target --prompt-only
+hunt-ai report target --prompt-only
 ```
 
----
+Validar el contexto:
 
-## Shortcuts HTTP
+```bash
+jq empty "$HUNTING_HOME/targets/target/ai/context.json"
+wc -c "$HUNTING_HOME/targets/target/ai/"*.prompt.md
+```
 
-| Alias | Comando equivalente |
-|-------|--------------------|
+## Caido MCP
+
+```bash
+claude mcp get caido
+hunt-ai doctor
+```
+
+Reglas: lectura por defecto, sin Replay, Automate, crawlers, scans ni exposición de secretos.
+
+## Scripts principales
+
+| Comando | Uso |
+|---|---|
+| `program-init` | crea workspace multi-dominio |
+| `program-import-brief` | importa y estructura el brief |
+| `scope-program` | recon multi-dominio |
+| `mktarget` | crea target single-domain |
+| `scope` | wrapper estable de recon inicial |
+| `webmap` | wrapper estable de crawling |
+| `paramhunt-v2` | extracción de parámetros |
+| `subscan` | vista rápida de hosts HTTP |
+| `fuzzdirs` | fuzzing manual de directorios |
+| `hunt-ai` | workflow indexado de IA |
+| `hunt-doctor` | diagnóstico del entorno |
+
+Los comandos eliminados `claude-recon`, `claude-hypotheses` y `chatgpt-*` no deben reaparecer.
+
+## Tests
+
+```bash
+cd ~/.dotfiles
+bash -n scripts/.local/bin/hunt-ai
+bash -n scripts/.local/bin/hunt-doctor
+bats tests/test_hunt_ai.bats
+./install.sh --dry-run
+```
+
+## Stow
+
+```bash
+cd ~/.dotfiles
+stow --restow -t "$HOME" scripts
+rehash
+```
+
+## HTTP
+
+| Alias | Equivalente |
+|---|---|
 | `h` | `httpx -silent` |
 | `hh` | `httpx -silent -tech-detect -status-code` |
 | `hhh` | `httpx -silent -tech-detect -status-code -title -web-server` |
 | `ch` | `curl -sI` |
 | `f` | `ffuf -c -mc all -fc 404` |
 
----
+## Regla operativa
 
-## Regla clave
-
-- Contenedor = tooling ofensivo
-- Host = Claude / Git / docs
+```text
+contenedor = tooling ofensivo
+host       = Git, notas, Claude Code, Caido y hunt-ai
+```
