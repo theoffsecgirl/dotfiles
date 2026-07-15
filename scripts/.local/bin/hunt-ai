@@ -69,7 +69,9 @@ BASE="$HUNTING_ROOT/targets/$TARGET"
 [[ -d "$BASE" ]] || { printf '[x] Target no encontrado: %s\n' "$BASE" >&2; exit 1; }
 
 SHARE="$SCRIPT_DIR/../share/hunt-ai"
+COMMON_TEMPLATE="$SHARE/common.md"
 PROMPT_TEMPLATE="$SHARE/$COMMAND.md"
+[[ -f "$COMMON_TEMPLATE" ]] || { printf '[x] Reglas comunes no encontradas: %s\n' "$COMMON_TEMPLATE" >&2; exit 1; }
 [[ -f "$PROMPT_TEMPLATE" ]] || { printf '[x] Subcomando no soportado: %s\n' "$COMMAND" >&2; usage; exit 1; }
 
 OUTDIR="$BASE/ai"
@@ -91,6 +93,8 @@ append_file() {
 }
 
 {
+  cat "$COMMON_TEMPLATE"
+  printf '\n\n'
   sed "s/{{TARGET}}/$TARGET/g" "$PROMPT_TEMPLATE"
   printf '\n\n## Contexto local del target\n'
   append_file "in/program.md" 300
