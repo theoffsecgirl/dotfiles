@@ -1,205 +1,256 @@
 # Bug Bounty Operational Stack Setup
 
-Guía detallada para montar el entorno completo desde cero.
-
----
+Guía para montar y validar el entorno completo.
 
 ## Arquitectura
 
 ```text
-macOS / Linux Host
-├── terminal
-├── tmux
+macOS / Linux host
 ├── zsh + dotfiles
-└── Docker / Colima
-    └── Debian Toolbox
-        ├── subfinder
-        ├── httpx
-        ├── katana
-        ├── unfurl
-        ├── ffuf
-        ├── jq
-        └── python3
+├── Git y documentación
+├── Claude Code
+├── Caido + caido-mcp-server (opcional)
+└── contenedor offsec
+    ├── subfinder
+    ├── httpx
+    ├── katana
+    ├── unfurl
+    ├── ffuf
+    ├── jq
+    └── python3
 ```
 
----
-
-## Instalación automática
+## Instalación
 
 ```bash
 git clone https://github.com/theoffsecgirl/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ./install.sh
-offsec-bootstrap
-hunt-doctor
+exec zsh
 ```
 
-`install.sh` instala dependencias base, aplica stow y crea `~/hunting`.
+Configura la ruta local del workspace en `~/.config/zsh/local.zsh`:
 
----
+```zsh
+export HUNTING_HOME="$HOME/hunting"
+```
 
-## Instalación manual
+Valida:
 
-### 1. Clonar dotfiles
 ```bash
-git clone https://github.com/theoffsecgirl/dotfiles.git ~/.dotfiles
+hunt-doctor
+hunt-ai doctor
+```
+
+Para aplicar solo los scripts con Stow:
+
+```bash
 cd ~/.dotfiles
+stow --restow -t "$HOME" scripts
+rehash
 ```
-
-### 2. Instalar dependencias
-#### macOS
-```bash
-brew bundle --file=brew/Brewfile
-```
-
-#### Linux
-```bash
-sudo apt install -y stow zsh tmux neovim fzf bat ripgrep fd-find unzip jq
-```
-
-### 3. Aplicar dotfiles
-```bash
-stow -t "$HOME" zsh git tmux nvim scripts
-source ~/.zshrc
-```
-
-### 4. Bootstrap y validación
-```bash
-offsec-bootstrap
-hunt-doctor
-```
-
-### 5. Contenedor
-```bash
-cd ~/.dotfiles/containers/debian-toolbox
-docker compose build
-offsec-up
-offsec-shell
-offsec-bootstrap
-hunt-doctor
-```
-
----
 
 ## Modelo operativo
 
 ### Host
+
 Usa el host para:
-- Git
-- dotfiles
-- Claude Code
-- edición y documentación
+
+- Git y dotfiles;
+- notas y reportes;
+- Claude Code;
+- Caido;
+- `hunt-ai`.
 
 ### Contenedor
+
 Usa el contenedor para:
-- recon
-- crawling
-- extracción de parámetros
-- fuzzing
 
----
+- enumeración;
+- crawling;
+- extracción de parámetros;
+- fuzzing controlado;
+- herramientas ofensivas reproducibles.
 
-## Uso diario
+## Crear un target
 
-### Flujo normal
-```bash
-offsec-up
-offsec-shell
-offsec-bootstrap
-hunt-doctor
+### Single-domain
 
-cdh
-cdt
-note "hallazgo"
-notes
-```
-
-### Recon
-#### En el contenedor
 ```bash
 mktarget example.com
-scope-v2 example.com
-webmap-v2 example.com
+scope example.com
+webmap example.com
 paramhunt-v2 example.com
 ```
 
-#### En el host
+### Programa multi-dominio
+
 ```bash
-claude-recon example.com
-claude-hypotheses example.com
+program-init example
+nvim "$HUNTING_HOME/targets/example/in/brief.txt"
+program-import-brief example "$HUNTING_HOME/targets/example/in/brief.txt"
+
+nvim "$HUNTING_HOME/targets/example/in/roots.txt"
+nvim "$HUNTING_HOME/targets/example/in/scope-web.txt"
+nvim "$HUNTING_HOME/targets/example/in/out-of-scope.txt"
+
+scope-program example
+webmap example
+paramhunt-v2 example
 ```
 
----
+## Workflow de IA
 
-## Artefactos generados
+Los wrappers antiguos `claude-recon`, `claude-hypotheses` y `chatgpt-*` ya no forman parte del flujo. El único punto de entrada es `hunt-ai`.
 
-### `scope-v2`
-- `recon/subdomains.txt`
-- `http/live.txt`
-- `http/httpx.jsonl`
-- `http/httpx_table.tsv`
-- `meta/scope.json`
+### 1. Indexar localmente
 
-### `webmap-v2`
-- `http/katana.jsonl`
-- `http/urls.txt`
-- `http/urls_clean.txt`
-- `http/api_candidates.txt`
-- `http/graphql.txt`
-- `js/files.txt`
-- `meta/webmap.json`
+```bash
+hunt-ai index example
+```
 
-### `paramhunt-v2`
-- `fuzz/params.txt`
-- `fuzz/params_by_url.tsv`
-- `fuzz/sensitive_params.txt`
-- `fuzz/params_by_host.jsonl`
-- `meta/paramhunt.json`
+Genera:
 
-### Claude
-- `ai/recon.json`
-- `ai/hypotheses.json`
+```text
+$HUNTING_HOME/targets/example/ai/context.json
+```
 
----
+El indexador resume `httpx.jsonl`, URLs candidatas, GraphQL, parámetros sensibles, scope, tecnologías y estados HTTP. No usa Claude y no envía datos fuera del equipo.
+
+### 2. Generar prompts sin consumir Claude
+
+```bash
+hunt-ai analyze example --prompt-only
+hunt-ai hypotheses example --prompt-only
+hunt-ai caido example --prompt-only
+hunt-ai report example --prompt-only
+```
+
+### 3. Ejecutar Claude Code
+
+```bash
+hunt-ai analyze example
+hunt-ai hypotheses example
+hunt-ai caido example
+hunt-ai report example
+```
+
+Cada fase usa entradas distintas:
+
+- `analyze`: `ai/context.json`;
+- `hypotheses`: contexto + análisis previo cuando existe;
+- `caido`: contexto + resumen del target, con reglas de solo lectura;
+- `report`: findings y evidencia ya validada.
+
+## Caido MCP
+
+Caido debe estar escuchando localmente y Claude Code debe tener el MCP registrado como `caido`.
+
+Comprobación:
+
+```bash
+claude mcp get caido
+hunt-ai doctor
+```
+
+Reglas por defecto:
+
+- lectura y comparación de tráfico existente;
+- no Replay;
+- no Automate;
+- no crawlers ni scans;
+- no exposición de cookies, tokens o `Authorization`;
+- no peticiones nuevas sin un flujo explícito de validación.
+
+## Artefactos principales
+
+### Recon
+
+```text
+recon/subdomains.txt
+http/live.txt
+http/httpx.jsonl
+http/httpx_table.tsv
+http/urls.txt
+http/api_candidates.txt
+http/graphql.txt
+js/files.txt
+fuzz/params.txt
+fuzz/sensitive_params.txt
+meta/*.json
+```
+
+### IA
+
+```text
+ai/context.json
+ai/analyze.prompt.md
+ai/analyze.md
+ai/hypotheses.prompt.md
+ai/hypotheses.md
+ai/caido.prompt.md
+ai/caido.md
+ai/report.prompt.md
+ai/report.md
+```
+
+## Validación local
+
+```bash
+cd ~/.dotfiles
+bash -n scripts/.local/bin/hunt-ai
+bash -n scripts/.local/bin/hunt-doctor
+bats tests/test_hunt_ai.bats
+./install.sh --dry-run
+```
+
+Prueba funcional sin tokens:
+
+```bash
+hunt-ai index example
+hunt-ai analyze example --prompt-only
+jq empty "$HUNTING_HOME/targets/example/ai/context.json"
+wc -c "$HUNTING_HOME/targets/example/ai/"*.prompt.md
+```
 
 ## Troubleshooting
 
-### Los scripts no aparecen en PATH
+### `hunt-ai: command not found`
+
 ```bash
-offsec-bootstrap
-hunt-doctor
+cd ~/.dotfiles
+stow --restow -t "$HOME" scripts
+rehash
+type -a hunt-ai
 ```
 
-### En contenedor faltan scripts
+### Target no encontrado
+
 ```bash
-/root/.dotfiles/scripts/.local/bin/offsec-bootstrap
-/root/.dotfiles/scripts/.local/bin/hunt-doctor
+echo "$HUNTING_HOME"
+ls -la "$HUNTING_HOME/targets"
 ```
 
-### `claude` no existe en el contenedor
-Es esperado. Ejecuta:
-- recon en contenedor
-- `claude-recon` y `claude-hypotheses` en host
+El nombre pasado a `hunt-ai` debe coincidir con una carpeta existente en `$HUNTING_HOME/targets/`.
 
-### Stow da conflictos en host
-Usa bootstrap después de instalar:
+### Git dice que no es un repositorio
+
+Los comandos Git del proyecto deben ejecutarse desde:
+
 ```bash
-offsec-bootstrap
+cd ~/.dotfiles
 ```
 
----
+No desde `$HUNTING_HOME/targets/<target>`.
+
+### Claude no está disponible
+
+`index` y `--prompt-only` siguen funcionando sin tokens ni sesión activa de Claude Code.
 
 ## Seguridad
 
-- `~/.dotfiles` montado en contenedor como read-only
-- SSH keys read-only
-- identidad Git en `~/.gitconfig.local`
-- workspace en `~/hunting` montado en `/work`
-
----
-
-## Recursos
-
-- [ProjectDiscovery tools](https://github.com/projectdiscovery)
-- [Exegol Docs](https://exegol.readthedocs.io/)
-- [bats-core](https://github.com/bats-core/bats-core)
+- `~/.config/zsh/local.zsh` no se versiona;
+- no se guardan tokens de Claude o Caido en el repo;
+- los prompts evitan secretos y datos personales;
+- el reporting no convierte hipótesis en findings;
+- solo se prueban activos autorizados.
