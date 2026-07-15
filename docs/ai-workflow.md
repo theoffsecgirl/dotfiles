@@ -1,104 +1,119 @@
-# AI Workflow for Bug Bounty Recon
+# Hunt AI Workflow
 
-Pipeline orientado a reducir ruido y convertir outputs de recon en hipótesis accionables.
+`hunt-ai` unifica el análisis asistido por Claude Code. Sustituye los antiguos scripts `claude-recon*`, `claude-hypotheses*` y `chatgpt-*`.
 
----
+## Principio
 
-## Flujo recomendado
+La IA no repite recon ni confirma vulnerabilidades. Trabaja sobre evidencia existente:
+
+```text
+scope-program / scope
+        ↓
+webmap
+        ↓
+paramhunt-v2
+        ↓
+hunt-ai analyze
+        ↓
+hunt-ai hypotheses
+        ↓
+validación manual o replay controlado
+        ↓
+hunt-ai report
+```
+
+## Comandos
 
 ```bash
-scope-v2 target.com
-webmap-v2 target.com
-paramhunt-v2 target.com
-claude-recon target.com
-claude-hypotheses target.com
+hunt-ai analyze <target>
+hunt-ai hypotheses <target>
+hunt-ai caido <target>
+hunt-ai report <target>
+hunt-ai doctor
 ```
 
----
+Cuando Claude Code no tenga acceso, genera el prompt sin ejecutar el modelo:
 
-## Objetivo
+```bash
+hunt-ai analyze <target> --prompt-only
+hunt-ai hypotheses <target> --prompt-only
+```
 
-Pasar de:
+Los prompts y resultados se guardan en:
 
 ```text
-recon -> listas planas
+$HUNTING_HOME/targets/<target>/ai/
 ```
 
-A:
+## Qué lee
+
+`hunt-ai` reutiliza, cuando existen:
 
 ```text
-recon -> dataset estructurado -> priorización -> hipótesis -> validación manual
+in/program.md
+in/brief.txt
+in/roots.txt
+in/scope-web.txt
+in/out-of-scope.txt
+notes/summary.md
+notes/overview.md
+notes/findings.md
+http/live.txt
+http/httpx.jsonl
+http/api_candidates.txt
+http/graphql.txt
+js/files.txt
+fuzz/params.txt
+fuzz/sensitive_params.txt
+fuzz/params_by_host.jsonl
 ```
 
----
+No ejecuta `scope`, `webmap` ni `paramhunt-v2` automáticamente.
 
-## Artefactos generados
+## Caido
 
-### scope-v2
-- `recon/subdomains.txt`
-- `http/live.txt`
-- `http/httpx.jsonl`
-- `http/httpx_table.tsv`
-- `meta/scope.json`
+`hunt-ai caido` indica a Claude que use el MCP `caido` en modo solo lectura:
 
-### webmap-v2
-- `http/katana.jsonl`
-- `http/urls.txt`
-- `http/urls_clean.txt`
-- `http/api_candidates.txt`
-- `http/graphql.txt`
-- `js/files.txt`
-- `meta/webmap.json`
+- listar y filtrar tráfico existente;
+- leer requests y responses capturadas;
+- comparar variantes existentes;
+- detectar IDs, ownership, roles y cambios de estado.
 
-### paramhunt-v2
-- `fuzz/params.txt`
-- `fuzz/params_by_url.tsv`
-- `fuzz/sensitive_params.txt`
-- `fuzz/params_by_host.jsonl`
-- `meta/paramhunt.json`
+No debe ejecutar Replay, Automate, scans, crawlers, workflows, tamper ni intercept. Tampoco debe mostrar cookies, cabeceras Authorization, tokens o secretos.
 
-### claude-recon
-- `ai/recon.json`
+Comprueba la integración con:
 
-### claude-hypotheses
-- `ai/hypotheses.json`
+```bash
+hunt-ai doctor
+claude mcp get caido
+```
 
----
+## Separación entre hipótesis y validación
 
-## Priorización práctica
+Una hipótesis contiene evidencia, un supuesto y una prueba propuesta. No es un hallazgo.
 
-Prioriza:
-- endpoints `/api/`, `/graphql`, `/v1/`, `/v2/`
-- parámetros `id`, `user_id`, `account_id`, `redirect`, `token`, `file`
-- paneles internos, seller, billing, admin, support
-- bundles JS con lógica de roles o feature flags
+La validación debe:
 
-Evita perder tiempo en:
-- estáticos
-- assets de marketing
-- endpoints sin estado ni contexto de negocio
+1. estar dentro de scope;
+2. ser mínima y reversible;
+3. usar cuentas o datos de prueba autorizados;
+4. registrar resultado esperado y observado;
+5. demostrar impacto antes de preparar el reporte.
 
----
+`hunt-ai report` marca el borrador como `NO LISTO` si falta reproducción, evidencia o impacto demostrado.
 
-## Validación
+## Mantenimiento
 
-Claude propone hipótesis. La validación sigue siendo manual.
+Los prompts viven en:
 
-Checklist:
-1. reproducir request en Burp
-2. modificar identificadores
-3. observar diferencias de autorización
-4. probar desincronización de estados si aplica
-5. documentar señal esperada vs observada
+```text
+scripts/.local/share/hunt-ai/
+```
 
----
+El ejecutable vive en:
 
-## Seguridad
+```text
+scripts/.local/bin/hunt-ai
+```
 
-La carpeta `.claude/settings.json` limita lectura/escritura sobre secretos, loot y `.env`.
-
-No uses Claude como confirmador de bugs. Úsalo como:
-- clasificador
-- resumidor
-- generador de hipótesis
-- asistente de reporting
+No vuelvas a añadir wrappers separados por proveedor o por fase. Los nuevos modos deben implementarse como subcomandos y plantillas dentro de `hunt-ai`.
