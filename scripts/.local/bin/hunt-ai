@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+# hunt-ai — análisis asistido por Claude Code sobre artefactos locales y Caido MCP
+# Uso: hunt-ai <analyze|hypotheses|caido|report|doctor> <target> [--prompt-only]
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LIB="$SCRIPT_DIR/../lib/offsec.sh"
+[[ -f "$LIB" ]] && source "$LIB"
+
+usage() {
+  cat <<'EOF'
+Uso:
+  hunt-ai analyze <target> [--prompt-only]
+  hunt-ai hypotheses <target> [--prompt-only]
+  hunt-ai caido <target> [--prompt-only]
+  hunt-ai report <target> [--prompt-only]
+  hunt-ai doctor
+
+Subcomandos:
+  analyze       Prioriza superficie y flujos usando outputs existentes.
+  hypotheses    Genera un máximo de 5 hipótesis accionables.
+  caido         Analiza el proyecto activo de Caido en modo solo lectura.
+  report        Prepara un borrador de reporte desde evidencia ya validada.
+  doctor        Comprueba Claude Code, MCP de Caido y estructura local.
+
+Opciones:
+  --prompt-only Genera el prompt pero no invoca Claude Code.
+EOF
+}
+
+[[ $# -ge 1 ]] || { usage; exit 1; }
+COMMAND="$1"
+shift
+
+if [[ "$COMMAND" == "doctor" ]]; then
+  rc=0
+  command -v claude >/dev/null 2>&1 && printf '[+] claude: %s\n' "$(claude --version 2>/dev/null | head -1)" || { printf '[!] claude no disponible\n'; rc=1; }
+  command -v caido-mcp-server >/dev/null 2>&1 && printf '[+] caido-mcp-server: %s\n' "$(caido-mcp-server --version 2>/dev/null | head -1)" || { printf '[!] caido-mcp-server no disponible\n'; rc=1; }
+  if command -v claude >/dev/null 2>&1; then
+    if claude mcp get caido 2>/dev/null | grep -q 'Connected'; then
+      printf '[+] MCP caido conectado\n'
+    else
+      printf '[!] MCP caido no conectado o no registrado\n'
+      rc=1
+    fi
+  fi
+  exit "$rc"
+fi
+
+[[ $# -ge 1 ]] || { usage; exit 1; }
+TARGET="$1"
+shift
+PROMPT_ONLY=0
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --prompt-only) PROMPT_ONLY=1 ;;
+    -h|--help) usage; exit 0 ;;
+    *) printf '[!] Opción desconocida: %s\n' "$1" >&2; usage; exit 1 ;;
+  esac
+  shift
+done
+
+if declare -F _reject_flag_as_target >/dev/null 2>&1; then
+  _reject_flag_as_target "$TARGET"
+fi
+
+HUNTING_ROOT="${HUNTING_HOME:-$HOME/targets}"
+BASE="$HUNTING_ROOT/targets/$TARGET"
+[[ -d "$BASE" ]] || { printf '[x] Target no encontrado: %s\n' "$BASE" >&2; exit 1; }
+
+SHARE="$SCRIPT_DIR/../share/hunt-ai"
+PROMPT_TEMPLATE="$SHARE/$COMMAND.md"
+[[ -f "$PROMPT_TEMPLATE" ]] || { printf '[x] Subcomando no soportado: %s\n' "$COMMAND" >&2; usage; exit 1; }
+
+OUTDIR="$BASE/ai"
+mkdir -p "$OUTDIR"
+PROMPTFILE="$OUTDIR/$COMMAND.prompt.md"
+OUTFILE="$OUTDIR/$COMMAND.md"
+ERRFILE="$OUTDIR/$COMMAND.claude.stderr.log"
+
+append_file() {
+  local rel="$1"
+  local limit="${2:-250}"
+  local abs="$BASE/$rel"
+  printf '\n===== FILE: %s =====\n' "$rel"
+  if [[ -f "$abs" ]]; then
+    sed -n "1,${limit}p" "$abs"
+  else
+    printf '[missing] %s\n' "$rel"
+  fi
+}
+
+{
+  sed "s/{{TARGET}}/$TARGET/g" "$PROMPT_TEMPLATE"
+  printf '\n\n## Contexto local del target\n'
+  append_file "in/program.md" 300
+  append_file "in/brief.txt" 300
+  append_file "in/roots.txt" 200
+  append_file "in/scope-web.txt" 200
+  append_file "in/out-of-scope.txt" 200
+  append_file "notes/summary.md" 400
+  append_file "notes/overview.md" 300
+  append_file "notes/findings.md" 300
+  append_file "http/live.txt" 250
+  append_file "http/httpx.jsonl" 250
+  append_file "http/api_candidates.txt" 300
+  append_file "http/graphql.txt" 200
+  append_file "js/files.txt" 250
+  append_file "fuzz/params.txt" 250
+  append_file "fuzz/sensitive_params.txt" 250
+  append_file "fuzz/params_by_host.jsonl" 250
+} > "$PROMPTFILE"
+
+printf '[+] Prompt generado: %s\n' "$PROMPTFILE"
+
+if [[ "$PROMPT_ONLY" -eq 1 ]]; then
+  exit 0
+fi
+
+if ! command -v claude >/dev/null 2>&1; then
+  printf '[!] Claude Code no disponible. Usa --prompt-only o ejecuta el prompt más tarde.\n' >&2
+  exit 0
+fi
+
+if claude -p "$(cat "$PROMPTFILE")" > "$OUTFILE" 2> "$ERRFILE"; then
+  printf '[+] Resultado guardado: %s\n' "$OUTFILE"
+else
+  rm -f "$OUTFILE"
+  printf '[x] Claude falló. Revisa: %s\n' "$ERRFILE" >&2
+  exit 1
+fi
