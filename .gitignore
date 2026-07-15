@@ -47,3 +47,4 @@ node_modules/
 tests/tmp/
 tools/bin/
 tools/src/
+*.patch
