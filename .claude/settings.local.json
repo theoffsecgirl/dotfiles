@@ -5,7 +5,13 @@
       "Bash(bats *)",
       "Bash(bash *)",
       "Bash(git add *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(git rm *)",
+      "Bash(zsh -n zsh/.config/zsh/aliases-general.zsh)",
+      "Bash(zsh -n vendor/shell-utils/zsh/aliases-builtin.zsh)",
+      "Bash(zsh -n vendor/shell-utils/zsh/functions-bugbounty.zsh)",
+      "Bash(zsh -n zsh/.config/zsh/bbref.zsh)"
     ]
   }
 }
