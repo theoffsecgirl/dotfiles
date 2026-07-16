@@ -30,7 +30,15 @@ Devuelve Markdown con:
 - resumen del historial relevante
 - endpoints prioritarios
 - diferencias observadas
-- candidatos de hipótesis
+- candidatos de hipótesis (ver formato de handoff)
 - datos que faltan
+
+# Formato de handoff por candidato
+Prepara la validación manual sin ejecutarla. Para cada candidato:
+- request observada: método + host + path (sin tokens, cookies ni Authorization)
+- qué modificar para probar la hipótesis (campo, parámetro o ID), mínimo y reversible
+- resultado esperado si NO es vulnerable
+- señal si SÍ lo es
+- evidencia a capturar: status, campo o longitud diferencial, y la captura concreta que lo demuestra
 
 No hagas ninguna petición nueva.

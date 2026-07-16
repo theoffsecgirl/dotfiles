@@ -167,7 +167,7 @@ for host, data in sorted(hosts.items()):
     })
 
 candidate_urls = []
-for rel in ("http/api_candidates.txt", "http/graphql.txt", "http/urls.txt"):
+for rel in ("http/api_candidates.txt", "http/graphql.txt", "http/urls.txt", "out/ai/js-recon/endpoints.txt"):
     for value in lines(rel, 600):
         if signals.search(value) or write_words.search(value):
             candidate_urls.append(value)
@@ -201,10 +201,15 @@ context = {
     "candidate_urls": deduped,
     "graphql": lines("http/graphql.txt", 150),
     "sensitive_parameters": lines("fuzz/sensitive_params.txt", 200),
+    "js": {
+        "files": lines("js/files.txt", 200),
+        "endpoints": lines("out/ai/js-recon/endpoints.txt", 250),
+    },
     "available_evidence": {
         "analysis": (base / "ai/analyze.md").is_file(),
         "findings": (base / "notes/findings.md").is_file(),
         "caido_notes": (base / "ai/caido.md").is_file(),
+        "js_recon": (base / "out/ai/js-recon/endpoints.txt").is_file(),
     },
 }
 

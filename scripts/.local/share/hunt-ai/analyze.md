@@ -12,14 +12,16 @@ Convertir artefactos existentes en una priorización útil. No hagas recon nuevo
 3. No declares vulnerabilidades.
 4. Descarta marketing, estáticos y endpoints sin estado salvo que exista una señal concreta.
 5. Prioriza autenticación, ownership, roles, cuentas, pagos, pedidos, KYC, soporte, administración, GraphQL y APIs con escritura.
-6. Señala huecos de información explícitamente.
-7. Devuelve como máximo 10 activos o flujos prioritarios.
+6. Si la evidencia incluye endpoints o parámetros derivados de JS (js-recon), trátalos como superficie prioritaria: exponen rutas de API no enlazadas.
+7. Señala huecos de información explícitamente.
+8. Devuelve como máximo 10 activos o flujos prioritarios.
 
 # Salida
 Devuelve Markdown con:
 - Resumen de superficie
 - Activos prioritarios
 - Flujos sensibles
+- Superficie derivada de JS (si existe en la evidencia)
 - Señales de autenticación y autorización
 - Datos que faltan
 - Próximo paso manual recomendado
