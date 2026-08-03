@@ -75,6 +75,9 @@ KATANA_CONCURRENCY="${KATANA_CONCURRENCY:-15}"
 KATANA_PARALLELISM="${KATANA_PARALLELISM:-15}"
 KATANA_TIMEOUT="${KATANA_TIMEOUT:-10}"
 KATANA_RATE_LIMIT="${KATANA_RATE_LIMIT:-5}"
+KATANA_HEADERS=()
+_hf="$BASE/in/headers.txt"
+[[ -f "$_hf" ]] && while IFS= read -r _h; do [[ -z "$_h" || "$_h" == \#* ]] || KATANA_HEADERS+=( -H "$_h" ); done < "$_hf"
 
 need_cmd katana anew grep jq
 ensure_dir "$BASE/http" "$BASE/js" "$BASE/meta"
@@ -87,6 +90,7 @@ ensure_dir "$BASE/http" "$BASE/js" "$BASE/meta"
 
 run_or_explain katana \
   -list "$LIVEFILE" \
+  ${KATANA_HEADERS[@]+"${KATANA_HEADERS[@]}"} \
   -silent \
   -jc \
   -d "$KATANA_DEPTH" \
