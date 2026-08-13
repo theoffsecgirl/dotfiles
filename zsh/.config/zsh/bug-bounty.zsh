@@ -437,3 +437,58 @@ venv-auto() {
 
 # Compatibilidad explícita con el nombre antiguo sin pisar el binario scope
 alias scope-filter=inscope
+
+# hunt-start — arranca (o retoma) un target de bug bounty con el contexto ya cargado.
+# Encadena mis wrappers, genera el CLAUDE.md del target, carga cuentas al entorno
+# y abre Claude Code listo para /hunt. No relanza recon si ya hay datos.
+# Uso: hunt-start <programa>
+hunt-start() {
+  emulate -L zsh
+  setopt pipefail
+  local prog="${1:-}"
+  if [[ -z "$prog" ]]; then
+    print -u2 "uso: hunt-start <programa>"
+    return 2
+  fi
+  : "${HUNTING_HOME:?HUNTING_HOME no está exportado}"
+
+  local tdir="$HUNTING_HOME/targets/$prog"
+
+  # 1. init si el target no existe
+  if [[ ! -d "$tdir" ]]; then
+    print "[*] target nuevo — inicializando $prog"
+    program-init "$prog" || { print -u2 "[!] program-init falló"; return 1; }
+    if [[ -s "$tdir/in/brief.txt" ]]; then
+      program-import-brief "$prog" || print -u2 "[i] program-import-brief no completó; revisa in/brief.txt"
+    else
+      print "[i] no hay in/brief.txt aún. Pega el brief ahí y reejecuta, o sigue si no lo necesitas."
+    fi
+  fi
+
+  # 2. resolver scope solo si no está resuelto (no relanzar recon a ciegas)
+  if [[ ! -s "$tdir/in/scope-web.txt" ]]; then
+    print "[*] scope sin resolver — corriendo scope-program"
+    scope-program "$prog" || { print -u2 "[!] scope-program falló"; return 1; }
+  else
+    print "[i] scope ya resuelto — no relanzo scope-program"
+  fi
+
+  # 3. (re)generar el contexto del target
+  gen-claude-md "$prog" || { print -u2 "[!] gen-claude-md falló (¿scope vacío?)"; return 1; }
+
+  # 4. cargar cuentas al entorno de la sesión (fuera de git)
+  local creds="$HUNTING_HOME/.creds/$prog.env"
+  if [[ -f "$creds" ]]; then
+    set -a; source "$creds"; set +a
+    print "[+] cuentas de $prog cargadas al entorno"
+  else
+    print "[i] sin .creds/$prog.env (no hay cuentas de test para este target)"
+  fi
+
+  # 5. abrir Claude Code en el target.
+  #    SIN --dangerously-skip-permissions a propósito: si un día quieres soltarlo del
+  #    todo en un target concreto, lo añades a mano esa vez, no por defecto en cada arranque.
+  cd "$tdir" || return 1
+  print "[+] listo. En Claude Code escribe /hunt para arrancar."
+  claude
+}
