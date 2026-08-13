@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# gen-claude-md — genera el CLAUDE.md por-target de un programa de bug bounty
-# a partir del scope YA resuelto en in/. No versiona credenciales.
+# gen-claude-md — genera el CLAUDE.md por-target de un programa de bug bounty.
+# Fuente de verdad: in/program.md (el artefacto curado de program-import-brief).
+# Si no existe, cae a las listas atómicas de in/. No versiona credenciales.
 # Uso: gen-claude-md <programa>
 set -euo pipefail
 
@@ -37,26 +38,12 @@ dump() {
   fi
 }
 
-creds_env="$HUNTING_HOME/.creds/$prog.env"
-if [[ -f "$creds_env" ]]; then
-  creds_note="Cuentas de test cargadas como variables de entorno desde \`.creds/$prog.env\` (fuera de git). Úsalas para cross-account / IDOR / aislamiento entre tenants. NO las escribas en ningún fichero ni en notes."
+# --- sección de contexto: program.md si existe, si no las listas atómicas ---
+if [[ -s "$indir/program.md" ]]; then
+  context_section="$(cat "$indir/program.md")"
 else
-  creds_note="No hay cuentas de test para este programa todavía (\`.creds/$prog.env\` no existe). Si necesitas una segunda cuenta, PARA y dime cómo crearla dentro de las reglas del programa."
-fi
-
-out="$tdir/CLAUDE.md"
-cat > "$out" <<EOF
-# CLAUDE.md — target: $prog
-
-> Generado por \`gen-claude-md\`. Mi CLAUDE.md global (reglas duras, idioma, formato,
-> stack, prioridades de vuln) aplica igual. Esto SOLO añade el contexto de este
-> programa. No dupliques aquí lo que ya vive en el global.
-
-## Programa
-
-$(dump program.md)
-
-## Scope in (web)
+  echo "[i] no hay in/program.md — uso las listas sueltas de in/ como fallback" >&2
+  context_section="## Scope in (web)
 
 \`\`\`
 $(dump scope-web.txt)
@@ -76,7 +63,25 @@ $(dump out-of-scope.txt)
 
 ## Brief
 
-$(dump brief.txt)
+$(dump brief.txt)"
+fi
+
+creds_env="$HUNTING_HOME/.creds/$prog.env"
+if [[ -f "$creds_env" ]]; then
+  creds_note="Cuentas de test cargadas como variables de entorno desde \`.creds/$prog.env\` (fuera de git). Úsalas para cross-account / IDOR / aislamiento entre tenants. NO las escribas en ningún fichero ni en notes."
+else
+  creds_note="No hay cuentas de test para este programa todavía (\`.creds/$prog.env\` no existe). Si necesitas una segunda cuenta, PARA y dime cómo crearla dentro de las reglas del programa."
+fi
+
+out="$tdir/CLAUDE.md"
+cat > "$out" <<EOF
+# CLAUDE.md — target: $prog
+
+> Generado por \`gen-claude-md\`. Mi CLAUDE.md global (reglas duras, idioma, formato,
+> stack, prioridades de vuln) aplica igual. Esto SOLO añade el contexto de este
+> programa. No dupliques aquí lo que ya vive en el global.
+
+$context_section
 
 ## Cuentas
 
