@@ -441,15 +441,19 @@ alias scope-filter=inscope
 # hunt-start — arranca (o retoma) un target de bug bounty con el contexto ya cargado.
 # Encadena mis wrappers, genera el CLAUDE.md del target, carga cuentas al entorno
 # y abre Claude Code listo para /hunt. No relanza recon si ya hay datos.
-# Uso: hunt-start <programa>
+# Uso: hunt-start <programa> [--yolo]
+#   --yolo  arranca Claude Code con --dangerously-skip-permissions (agente SIN frenos).
+#           Opcional y por sesión: solo se aplica en el arranque en que lo pones.
 hunt-start() {
   emulate -L zsh
   setopt pipefail
   local prog="${1:-}"
   if [[ -z "$prog" ]]; then
-    print -u2 "uso: hunt-start <programa>"
+    print -u2 "uso: hunt-start <programa> [--yolo]"
     return 2
   fi
+  local skip=""
+  [[ "${2:-}" == "--yolo" ]] && skip="--dangerously-skip-permissions"
   : "${HUNTING_HOME:?HUNTING_HOME no está exportado}"
 
   local tdir="$HUNTING_HOME/targets/$prog"
@@ -486,9 +490,11 @@ hunt-start() {
   fi
 
   # 5. abrir Claude Code en el target.
-  #    SIN --dangerously-skip-permissions a propósito: si un día quieres soltarlo del
-  #    todo en un target concreto, lo añades a mano esa vez, no por defecto en cada arranque.
   cd "$tdir" || return 1
+  if [[ -n "$skip" ]]; then
+    print "[⚠] arrancando SIN permisos (--dangerously-skip-permissions): el agente ejecuta"
+    print "    acciones y requests sin pedirte confirmación. Vigila scope y la cabecera del programa."
+  fi
   print "[+] listo. En Claude Code escribe /hunt para arrancar."
-  claude
+  claude $skip
 }
