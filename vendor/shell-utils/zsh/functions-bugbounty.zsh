@@ -23,6 +23,9 @@ alias update='update_system'
 # -------------------------
 # mkproject: crear proyectos de hunting con pipeline DNS
 # -------------------------
+# NOTA (pendiente de decisión): confirmar si sigue en uso o se retira.
+# "rara vez" se usa según confirmación de theoffsecgirl (20/08/2026) — no se ha
+# tocado en esta limpieza porque no hubo confirmación explícita de eliminarla.
 mkproject() {
   set -euo pipefail
 
@@ -131,22 +134,6 @@ EOF
   echo "[→] Ejecuta: cd $base && ./dns-pipeline.sh $domain"
 
   command -v tmux-recon >/dev/null 2>&1 && tmux-recon "recon-$domain" "$base"
-}
-
-
-# -------------------------
-# mkproject_template
-# -------------------------
-mkproject_template() {
-    [[ $# -lt 2 ]] && { echo "Uso: mkproject_template nombre plantilla"; echo "Plantillas: docencia, bugbounty, ctf"; return 1; }
-    local proj="$1" tpl="$2"
-    case "$tpl" in
-        docencia)  mkdir -p "$proj"/{actividades,labs,scripts}; echo "# $proj" > "$proj/README.md" ;;
-        bugbounty) mkdir -p "$proj"/{recon,enumeration,scans,exploits,pocs,wordlists,screenshots,notes,reports,loot}; echo "# $proj" > "$proj/README.md" ;;
-        ctf)       mkdir -p "$proj"/{src,flags,writeups,notes}; echo "# $proj" > "$proj/README.md" ;;
-        *)         echo "Plantilla desconocida: $tpl (docencia|bugbounty|ctf)"; return 2 ;;
-    esac
-    echo "Proyecto '$proj' creado con plantilla '$tpl'."
 }
 
 
@@ -289,6 +276,7 @@ subfinderall() { command subfinder -d "$1" -all -t 100 -v -o "subs_${1}.txt"; }
 # -------------------------
 # ctfwriteup
 # -------------------------
+# NOTA (pendiente de decisión): no confirmado su uso — no se ha tocado en esta limpieza.
 ctfwriteup() { mkdir -p "$1" && echo "# $1" > "$1/writeup.md" && nvim "$1/writeup.md"; }
 
 
