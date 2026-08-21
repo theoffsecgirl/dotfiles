@@ -58,12 +58,12 @@ paramhunt-v2 example.com
 
 ```bash
 program-init example
-nvim "$HUNTING_HOME/targets/example/in/brief.txt"
-program-import-brief example "$HUNTING_HOME/targets/example/in/brief.txt"
+nvim "$HUNTING_HOME/targets/example/scopes/brief.txt"
+program-import-brief example "$HUNTING_HOME/targets/example/scopes/brief.txt"
 
-nvim "$HUNTING_HOME/targets/example/in/roots.txt"
-nvim "$HUNTING_HOME/targets/example/in/scope-web.txt"
-nvim "$HUNTING_HOME/targets/example/in/out-of-scope.txt"
+nvim "$HUNTING_HOME/targets/example/scopes/roots.txt"
+nvim "$HUNTING_HOME/targets/example/scopes/scope-web.txt"
+nvim "$HUNTING_HOME/targets/example/scopes/out-of-scope.txt"
 
 scope-program example
 webmap example
@@ -74,15 +74,15 @@ Core outputs are kept inside `$HUNTING_HOME/targets/<target>/`:
 
 ```text
 recon/subdomains.txt
-http/live.txt
-http/httpx.jsonl
-http/urls.txt
-http/api_candidates.txt
-http/graphql.txt
-js/files.txt
-fuzz/params.txt
-fuzz/sensitive_params.txt
-meta/*.json
+recon/live.txt
+recon/httpx.jsonl
+recon/urls.txt
+recon/api_candidates.txt
+recon/graphql.txt
+recon/js_files.txt
+recon/params.txt
+recon/sensitive_params.txt
+scopes/*.json
 ```
 
 ## Indexed AI workflow
@@ -111,7 +111,7 @@ ai/context.json
 analyze → hypotheses → Caido review → report
 ```
 
-`index` is local and deterministic. It summarizes large files such as `http/httpx.jsonl` into `ai/context.json`, so Claude receives compact structured context instead of raw recon dumps.
+`index` is local and deterministic. It summarizes large files such as `recon/httpx.jsonl` into `ai/context.json`, so Claude receives compact structured context instead of raw recon dumps.
 
 Generated artifacts:
 

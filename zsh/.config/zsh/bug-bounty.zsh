@@ -238,44 +238,46 @@ alias f='ffuf -c -mc all -fc 404'
 # Recon rápido
 # ==========================================
 # DEPRECADO — usa: scope <dominio> (pipeline v2: http/httpx.jsonl + http/live.txt)
-subenum() {
-  printf '\033[1;33m[!]\033[0m %s\n' "DEPRECADO: subenum → usa scope <dominio> o scope-program <programa>" >&2
-  local domain="${1:-}"
-  [[ -z "$domain" ]] && { echo "Uso: subenum <dominio.com>"; return 1; }
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# subenum() {
+#   printf '\033[1;33m[!]\033[0m %s\n' "DEPRECADO: subenum → usa scope <dominio> o scope-program <programa>" >&2
+#   local domain="${1:-}"
+#   [[ -z "$domain" ]] && { echo "Uso: subenum <dominio.com>"; return 1; }
 
-  local base outdir outfile
-  base="$(_target_base "$domain")"
-  outdir="$base/recon"
-  outfile="$outdir/subdomains.txt"
-  mkdir -p "$outdir"
+#   local base outdir outfile
+#   base="$(_target_base "$domain")"
+#   outdir="$base/recon"
+#   outfile="$outdir/subdomains.txt"
+#   mkdir -p "$outdir"
 
-  echo "[*] Enumerando subdominios para $domain..."
+#   echo "[*] Enumerando subdominios para $domain..."
 
-  (
-    if command -v subfinder >/dev/null 2>&1; then
-      subfinder -silent -d "$domain" -all 2>/dev/null
-    fi
+#   (
+#     if command -v subfinder >/dev/null 2>&1; then
+#       subfinder -silent -d "$domain" -all 2>/dev/null
+#     fi
 
-    if command -v curl >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then
-      curl -sf --max-time 15 "https://crt.sh/?q=%25.${domain}&output=json" 2>/dev/null \
-        | jq -r 'if type == "array" then .[].name_value else empty end' 2>/dev/null \
-        | tr ',' '\n'
-    fi
-  ) | sed 's/^\*\.//' | tr '[:upper:]' '[:lower:]' | sort -u | tee "$outfile"
+#     if command -v curl >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then
+#       curl -sf --max-time 15 "https://crt.sh/?q=%25.${domain}&output=json" 2>/dev/null \
+#         | jq -r 'if type == "array" then .[].name_value else empty end' 2>/dev/null \
+#         | tr ',' '\n'
+#     fi
+#   ) | sed 's/^\*\.//' | tr '[:upper:]' '[:lower:]' | sort -u | tee "$outfile"
 
-  echo "[+] Subdominios guardados → $outfile"
-}
+#   echo "[+] Subdominios guardados → $outfile"
+# }
 
 # DEPRECADO — genera recon/probed.txt; el pipeline v2 espera http/httpx.jsonl + http/live.txt
-probe() {
-  printf '\033[1;33m[!]\033[0m %s\n' "DEPRECADO: probe → el pipeline v2 usa httpx via scope/scope-program (salida en http/httpx.jsonl)" >&2
-  local input="${1:-}"
-  [[ -z "$input" ]] && { echo "Uso: probe <urls.txt>"; return 1; }
-  [[ ! -f "$input" ]] && { echo "[!] Fichero no encontrado: $input"; return 1; }
-  local out="$(dirname "$input")/probed.txt"
-  httpx -silent -tech-detect -status-code -l "$input" -o "$out"
-  echo "[+] Resultados → $out"
-}
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# probe() {
+#   printf '\033[1;33m[!]\033[0m %s\n' "DEPRECADO: probe → el pipeline v2 usa httpx via scope/scope-program (salida en http/httpx.jsonl)" >&2
+#   local input="${1:-}"
+#   [[ -z "$input" ]] && { echo "Uso: probe <urls.txt>"; return 1; }
+#   [[ ! -f "$input" ]] && { echo "[!] Fichero no encontrado: $input"; return 1; }
+#   local out="$(dirname "$input")/probed.txt"
+#   httpx -silent -tech-detect -status-code -l "$input" -o "$out"
+#   echo "[+] Resultados → $out"
+# }
 
 inscope() {
   local domain="${1:-}"
@@ -284,21 +286,22 @@ inscope() {
   local scope_file="$base/recon/scope.txt"
   local subs_file="$base/recon/subdomains.txt"
   [[ ! -f "$scope_file" ]] && { echo "[!] Fichero de scope no encontrado: $scope_file"; return 1; }
-  [[ ! -f "$subs_file" ]] && { echo "[!] Ejecuta primero: subenum $domain"; return 1; }
+  [[ ! -f "$subs_file" ]] && { echo "[!] Ejecuta primero: scope $domain"; return 1; }
   grep -Ff "$scope_file" "$subs_file"
 }
 
 # DEPRECADO — usa: scope <dominio> o program-init + scope-program para programas multi-dominio
-recon() {
-  printf '\033[1;33m[!]\033[0m %s\n' "DEPRECADO: recon → usa scope <dominio> (o program-init + scope-program para programas)" >&2
-  local domain="${1:-}"
-  [[ -z "$domain" ]] && { echo "Uso: recon <dominio.com>"; return 1; }
-  mktarget "$domain" >/dev/null
-  subenum "$domain"
-  local subs="$(_target_base "$domain")/recon/subdomains.txt"
-  [[ -f "$subs" ]] && probe "$subs"
-  note "recon completado para $domain"
-}
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# recon() {
+#   printf '\033[1;33m[!]\033[0m %s\n' "DEPRECADO: recon → usa scope <dominio> (o program-init + scope-program para programas)" >&2
+#   local domain="${1:-}"
+#   [[ -z "$domain" ]] && { echo "Uso: recon <dominio.com>"; return 1; }
+#   mktarget "$domain" >/dev/null
+#   subenum "$domain"
+#   local subs="$(_target_base "$domain")/recon/subdomains.txt"
+#   [[ -f "$subs" ]] && probe "$subs"
+#   note "recon completado para $domain"
+# }
 
 
 # ==========================================
@@ -487,6 +490,11 @@ hunt-start() {
     print "[+] cuentas de $prog cargadas al entorno"
   else
     print "[i] sin .creds/$prog.env (no hay cuentas de test para este target)"
+  fi
+
+  # 4.5 reconmind — actualiza notes/coverage.md en silencio, nunca bloquea la sesión
+  if command -v reconmind >/dev/null 2>&1; then
+    reconmind "$tdir" || print -u2 "[i] reconmind no pudo actualizar coverage.md (no bloquea la sesión)"
   fi
 
   # 5. abrir Claude Code en el target.

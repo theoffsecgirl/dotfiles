@@ -37,16 +37,16 @@ hunt-ai doctor
 
 `hunt-ai index` lee:
 
-- `in/roots.txt`;
-- `in/scope-web.txt`;
-- `in/out-of-scope.txt`;
-- `in/program.md`;
+- `scopes/roots.txt`;
+- `scopes/scope-web.txt`;
+- `scopes/out-of-scope.txt`;
+- `scopes/program.md`;
 - `notes/summary.md`;
-- `http/httpx.jsonl`;
-- `http/api_candidates.txt`;
-- `http/graphql.txt`;
-- `http/urls.txt`;
-- `fuzz/sensitive_params.txt`.
+- `recon/httpx.jsonl`;
+- `recon/api_candidates.txt`;
+- `recon/graphql.txt`;
+- `recon/urls.txt`;
+- `recon/sensitive_params.txt`.
 
 Y genera:
 
@@ -136,7 +136,7 @@ ai/report.md
 Prueba realizada con el target local `doximity`:
 
 ```text
-http/httpx.jsonl   169242 bytes
+recon/httpx.jsonl  169242 bytes
 ai/context.json     40184 bytes
 
 analyze.prompt.md    41598 bytes
@@ -156,7 +156,7 @@ estados HTTP agregados
 tecnologías agregadas
 ```
 
-Que `interesting_endpoints` sea cero puede ser válido cuando `httpx.jsonl` contiene principalmente URLs raíz; los paths se recuperan también desde `http/urls.txt` y aparecen en `candidate_urls`.
+Que `interesting_endpoints` sea cero puede ser válido cuando `httpx.jsonl` contiene principalmente URLs raíz; los paths se recuperan también desde `recon/urls.txt` y aparecen en `candidate_urls`.
 
 ## Tests
 

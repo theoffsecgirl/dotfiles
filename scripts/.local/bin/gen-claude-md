@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # gen-claude-md — genera el CLAUDE.md por-target de un programa de bug bounty.
-# Fuente de verdad: in/program.md (el artefacto curado de program-import-brief).
-# Si no existe, cae a las listas atómicas de in/. No versiona credenciales.
+# Fuente de verdad: scopes/program.md (el artefacto curado de program-import-brief).
+# Si no existe, cae a las listas atómicas de scopes/. No versiona credenciales.
 # Uso: gen-claude-md <programa>
 set -euo pipefail
 
@@ -13,7 +13,7 @@ fi
 
 : "${HUNTING_HOME:?HUNTING_HOME no está exportado}"
 tdir="$HUNTING_HOME/targets/$prog"
-indir="$tdir/in"
+indir="$tdir/scopes"
 
 if [[ ! -d "$tdir" ]]; then
   echo "[!] no existe $tdir — ¿has corrido program-init $prog?" >&2
@@ -28,7 +28,7 @@ if [[ ! -s "$indir/scope-web.txt" ]]; then
   exit 1
 fi
 
-# helper: vuelca un fichero de in/ si existe y tiene contenido; si no, aviso
+# helper: vuelca un fichero de scopes/ si existe y tiene contenido; si no, aviso
 dump() {
   local f="$indir/$1"
   if [[ -s "$f" ]]; then
@@ -42,7 +42,7 @@ dump() {
 if [[ -s "$indir/program.md" ]]; then
   context_section="$(cat "$indir/program.md")"
 else
-  echo "[i] no hay in/program.md — uso las listas sueltas de in/ como fallback" >&2
+  echo "[i] no hay scopes/program.md — uso las listas sueltas de scopes/ como fallback" >&2
   context_section="## Scope in (web)
 
 \`\`\`
@@ -98,7 +98,7 @@ explorar → entender → hipótesis → validar manual → demostrar impacto �
   priorices SQLi/RCE/XXE salvo evidencia clara.
 - Usa mis skills (\`recon\`, \`idor-hunt\`, \`js-recon\`, \`report\`) en lugar de reinventar
   el paso a paso.
-- Si ya hay outputs en \`http/\`, \`js/\`, \`fuzz/\`, analízalos antes de relanzar nada.
+- Si ya hay outputs en \`recon/\`, analízalos antes de relanzar nada.
 - Ningún finding es real sin impacto reproducible: pásalo por el finding-validator.
 - PARA antes de cualquier acción irreversible (enviar, confirmar, pagar, publicar,
   borrar): esas las hago yo a mano.

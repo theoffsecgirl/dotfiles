@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # scope-program — recon web multi-dominio dentro de un único target/programa
 # Uso: scope-program <programa>
-# Lee: $HUNTING_HOME/targets/<programa>/in/roots.txt
+# Lee: $HUNTING_HOME/targets/<programa>/scopes/roots.txt
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
@@ -14,7 +14,7 @@ trap 'printf "[!] Error en linea %d — %s\n" "$LINENO" "$BASH_COMMAND" >&2
 case "${1:-}" in
   -h|--help)
     echo "Uso: scope-program <programa>"
-    echo "  Recon web multi-dominio para un programa. Lee \$HUNTING_HOME/targets/<programa>/in/roots.txt"
+    echo "  Recon web multi-dominio para un programa. Lee \$HUNTING_HOME/targets/<programa>/scopes/roots.txt"
     echo "  Anterior: program-init <programa>   Siguiente: webmap <programa>"
     exit 0 ;;
 esac
@@ -24,15 +24,15 @@ _reject_flag_as_target "$1"
 
 PROGRAM="$1"
 BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$PROGRAM"
-ROOTS_FILE="$BASE/in/roots.txt"
+ROOTS_FILE="$BASE/scopes/roots.txt"
 
 if command -v mktarget >/dev/null 2>&1; then
   mktarget "$PROGRAM" >/dev/null 2>&1 || true
 else
-  mkdir -p "$BASE"/{recon,http,fuzz,js,in,out,tmp,burp,notes,reports,loot,meta}
+  mkdir -p "$BASE"/{scopes,recon,notes,reports,loot}
 fi
 
-mkdir -p "$BASE"/{recon,http,meta,tmp} "$BASE/recon/roots" "$BASE/http/roots" "$BASE/meta/roots"
+mkdir -p "$BASE"/{scopes,recon}
 
 if [[ ! -f "$ROOTS_FILE" ]]; then
   cat > "$ROOTS_FILE" <<'EOF'
@@ -50,7 +50,7 @@ for dep in subfinder httpx anew jq; do
   command -v "$dep" >/dev/null 2>&1 || { echo "[!] Falta: $dep"; exit 1; }
 done
 
-ROOTS_TMP="$BASE/tmp/roots.clean.txt"
+ROOTS_TMP="$BASE/recon/roots_clean.txt"
 grep -Ev '^\s*#|^\s*$' "$ROOTS_FILE" | sed 's/^\*\.//' | sort -u > "$ROOTS_TMP"
 
 if [[ ! -s "$ROOTS_TMP" ]]; then
@@ -59,19 +59,19 @@ if [[ ! -s "$ROOTS_TMP" ]]; then
 fi
 
 : > "$BASE/recon/subdomains.txt"
-: > "$BASE/http/live.txt"
-: > "$BASE/http/httpx.jsonl"
-: > "$BASE/http/httpx_table.tsv"
+: > "$BASE/recon/live.txt"
+: > "$BASE/recon/httpx.jsonl"
+: > "$BASE/recon/httpx_table.tsv"
 
 while IFS= read -r ROOT; do
   [[ -z "$ROOT" ]] && continue
 
   echo "[*] Enumerando raíz: $ROOT"
   ROOT_SAFE="${ROOT//[^A-Za-z0-9_.-]/_}"
-  ROOT_RECON="$BASE/recon/roots/$ROOT_SAFE.subdomains.txt"
-  ROOT_HTTP_JSON="$BASE/http/roots/$ROOT_SAFE.httpx.jsonl"
-  ROOT_HTTP_LIVE="$BASE/http/roots/$ROOT_SAFE.live.txt"
-  ROOT_META="$BASE/meta/roots/$ROOT_SAFE.scope.json"
+  ROOT_RECON="$BASE/recon/roots.$ROOT_SAFE.subdomains.txt"
+  ROOT_HTTP_JSON="$BASE/recon/roots.$ROOT_SAFE.httpx.jsonl"
+  ROOT_HTTP_LIVE="$BASE/recon/roots.$ROOT_SAFE.live.txt"
+  ROOT_META="$BASE/scopes/roots.$ROOT_SAFE.scope.json"
 
   : > "$ROOT_RECON"
   : > "$ROOT_HTTP_JSON"
@@ -97,10 +97,10 @@ while IFS= read -r ROOT; do
     -cdn \
     -ports 80,443,8080,8443 \
     | tee "$ROOT_HTTP_JSON" \
-    | tee -a "$BASE/http/httpx.jsonl" \
+    | tee -a "$BASE/recon/httpx.jsonl" \
     | jq -r 'select(.url != null) | .url' \
     | anew "$ROOT_HTTP_LIVE" \
-    | anew "$BASE/http/live.txt" >/dev/null
+    | anew "$BASE/recon/live.txt" >/dev/null
 
   jq -n \
     --arg root "$ROOT" \
@@ -112,24 +112,24 @@ while IFS= read -r ROOT; do
 done < "$ROOTS_TMP"
 
 sort -u "$BASE/recon/subdomains.txt" -o "$BASE/recon/subdomains.txt"
-sort -u "$BASE/http/live.txt" -o "$BASE/http/live.txt"
+sort -u "$BASE/recon/live.txt" -o "$BASE/recon/live.txt"
 
-jq -r 'select(.url != null) | [.input, .url, (.status_code|tostring), (.webserver // ""), (.title // "")] | @tsv' "$BASE/http/httpx.jsonl" \
-  > "$BASE/http/httpx_table.tsv"
+jq -r 'select(.url != null) | [.input, .url, (.status_code|tostring), (.webserver // ""), (.title // "")] | @tsv' "$BASE/recon/httpx.jsonl" \
+  > "$BASE/recon/httpx_table.tsv"
 
 jq -n \
   --arg program "$PROGRAM" \
   --arg generated_at "$(date -u +%FT%TZ)" \
   --argjson roots "$(jq -Rsc 'split("\n") | map(select(length > 0))' "$ROOTS_TMP")" \
   --arg sub_count "$(wc -l < "$BASE/recon/subdomains.txt" | tr -d ' ')" \
-  --arg live_count "$(wc -l < "$BASE/http/live.txt" | tr -d ' ')" \
+  --arg live_count "$(wc -l < "$BASE/recon/live.txt" | tr -d ' ')" \
   '{program:$program, generated_at:$generated_at, roots:$roots, subdomains:($sub_count|tonumber), live_hosts:($live_count|tonumber)}' \
-  > "$BASE/meta/scope-program.json"
+  > "$BASE/scopes/scope-program.json"
 
 echo "[+] Programa: $PROGRAM"
 echo "[+] Raíces: $(wc -l < "$ROOTS_TMP" | tr -d ' ')"
 echo "[+] Subdominios: $(wc -l < "$BASE/recon/subdomains.txt" | tr -d ' ') → $BASE/recon/subdomains.txt"
-echo "[+] Hosts vivos: $(wc -l < "$BASE/http/live.txt" | tr -d ' ') → $BASE/http/live.txt"
-echo "[+] httpx JSONL → $BASE/http/httpx.jsonl"
-echo "[+] metadata → $BASE/meta/scope-program.json"
+echo "[+] Hosts vivos: $(wc -l < "$BASE/recon/live.txt" | tr -d ' ') → $BASE/recon/live.txt"
+echo "[+] httpx JSONL → $BASE/recon/httpx.jsonl"
+echo "[+] metadata → $BASE/scopes/scope-program.json"
 echo "[→] Siguiente paso: webmap $PROGRAM"

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# set -euo pipefail
 
-hunt-doctor
+# hunt-doctor

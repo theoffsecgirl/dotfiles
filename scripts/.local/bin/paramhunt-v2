@@ -43,8 +43,8 @@ resolve_input() {
   _reject_flag_as_target "$arg"
   TARGET="$arg"
   BASE="$BASE_ROOT/$TARGET"
-  URLFILE="$BASE/http/urls_clean.txt"
-  [[ -f "$URLFILE" ]] || URLFILE="$BASE/http/urls.txt"
+  URLFILE="$BASE/recon/urls_clean.txt"
+  [[ -f "$URLFILE" ]] || URLFILE="$BASE/recon/urls.txt"
   [[ -f "$URLFILE" ]] || { echo "[!] No URLs — ejecuta primero: webmap $TARGET"; exit 1; }
 }
 
@@ -52,9 +52,9 @@ resolve_input "${1:-}"
 
 command -v unfurl >/dev/null 2>&1 || { echo "[!] Falta: unfurl"; exit 1; }
 
-mkdir -p "$BASE/fuzz" "$BASE/meta"
+mkdir -p "$BASE/recon"
 
-grep '=' "$URLFILE" | sort -u > "$BASE/fuzz/urls_with_params.txt" || true
-run_or_explain unfurl keys < "$BASE/fuzz/urls_with_params.txt" | sort -u > "$BASE/fuzz/params.txt" || true
+grep '=' "$URLFILE" | sort -u > "$BASE/recon/urls_with_params.txt" || true
+run_or_explain unfurl keys < "$BASE/recon/urls_with_params.txt" | sort -u > "$BASE/recon/params.txt" || true
 
-echo "[+] Params → $BASE/fuzz/params.txt"
+echo "[+] Params → $BASE/recon/params.txt"

@@ -195,58 +195,59 @@ updateall() {
 # subscan: delega en el script externo si existe, si no ejecuta inline
 # -------------------------
 # DEPRECADO — usa: subscan (scripts/.local/bin/subscan)
-subscan_legacy() {
-    printf '\033[1;33m[!]\033[0m %s\n' "DEPRECADO: subscan_legacy → usa subscan" >&2
-    if command -v subscan >/dev/null 2>&1 && [[ "$(command -v subscan)" != "$0" ]]; then
-        command subscan "$@"
-        return
-    fi
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# subscan_legacy() {
+#     printf '\033[1;33m[!]\033[0m %s\n' "DEPRECADO: subscan_legacy → usa subscan" >&2
+#     if command -v subscan >/dev/null 2>&1 && [[ "$(command -v subscan)" != "$0" ]]; then
+#         command subscan "$@"
+#         return
+#     fi
 
-    [[ -z "${1:-}" ]] && { echo "Uso: subscan <dominio.com>"; return 1; }
+#     [[ -z "${1:-}" ]] && { echo "Uso: subscan <dominio.com>"; return 1; }
 
-    python3 - "$1" <<'PYCODE'
-import sys, shutil, subprocess, json, signal, threading
+#     python3 - "$1" <<'PYCODE'
+# import sys, shutil, subprocess, json, signal, threading
 
-def tty(): return sys.stdout.isatty()
-def c(s, code): return f"\x1b[{code}m{s}\x1b[0m" if tty() else s
-BOLD=lambda s:c(s,"1"); RED=lambda s:c(s,"31"); GRN=lambda s:c(s,"32"); YEL=lambda s:c(s,"33")
+# def tty(): return sys.stdout.isatty()
+# def c(s, code): return f"\x1b[{code}m{s}\x1b[0m" if tty() else s
+# BOLD=lambda s:c(s,"1"); RED=lambda s:c(s,"31"); GRN=lambda s:c(s,"32"); YEL=lambda s:c(s,"33")
 
-PORTS="80,443,8080,8443"
-HTTPX_ARGS=['httpx','-silent','-follow-redirects','-status-code','-title','-ip','-ports',PORTS,'-json','-threads','200']
+# PORTS="80,443,8080,8443"
+# HTTPX_ARGS=['httpx','-silent','-follow-redirects','-status-code','-title','-ip','-ports',PORTS,'-json','-threads','200']
 
-stop_event=threading.Event()
-def handle_sigint(sig,frame): stop_event.set(); print(YEL("\n[!] Interrumpido"))
-signal.signal(signal.SIGINT,handle_sigint)
+# stop_event=threading.Event()
+# def handle_sigint(sig,frame): stop_event.set(); print(YEL("\n[!] Interrumpido"))
+# signal.signal(signal.SIGINT,handle_sigint)
 
-def truncate(s,n=60): s=s or ""; return s if len(s)<=n else s[:n-1]+"…"
-def run(cmd,input_text=None):
-    p=subprocess.Popen(cmd,stdin=subprocess.PIPE if input_text else None,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
-    out,err=p.communicate(input=input_text)
-    return p.returncode,out,err
+# def truncate(s,n=60): s=s or ""; return s if len(s)<=n else s[:n-1]+"…"
+# def run(cmd,input_text=None):
+#     p=subprocess.Popen(cmd,stdin=subprocess.PIPE if input_text else None,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+#     out,err=p.communicate(input=input_text)
+#     return p.returncode,out,err
 
-domain=sys.argv[1].strip()
-missing=[x for x in ["subfinder","httpx"] if not shutil.which(x)]
-if missing: print(RED("[x] Faltan: ")+", ".join(missing)); sys.exit(2)
+# domain=sys.argv[1].strip()
+# missing=[x for x in ["subfinder","httpx"] if not shutil.which(x)]
+# if missing: print(RED("[x] Faltan: ")+", ".join(missing)); sys.exit(2)
 
-print(BOLD(f"[*] Enumerando {domain}"))
-_,subs,_=run(["subfinder","-silent","-d",domain,"-all","-recursive"])
-subs="\n".join(sorted({s.strip().lower().lstrip("*.") for s in subs.splitlines() if s.strip()}))
-if not subs.strip(): print(YEL("[!] Sin subdominios")); sys.exit(0)
+# print(BOLD(f"[*] Enumerando {domain}"))
+# _,subs,_=run(["subfinder","-silent","-d",domain,"-all","-recursive"])
+# subs="\n".join(sorted({s.strip().lower().lstrip("*.") for s in subs.splitlines() if s.strip()}))
+# if not subs.strip(): print(YEL("[!] Sin subdominios")); sys.exit(0)
 
-print(BOLD("[*] Probando HTTP(S)"))
-_,out,_=run(HTTPX_ARGS,input_text=subs)
-rows=[]
-for line in out.splitlines():
-    try: rows.append(json.loads(line))
-    except: continue
+# print(BOLD("[*] Probando HTTP(S)"))
+# _,out,_=run(HTTPX_ARGS,input_text=subs)
+# rows=[]
+# for line in out.splitlines():
+#     try: rows.append(json.loads(line))
+#     except: continue
 
-print(BOLD("\n"+"URL".ljust(52)+"SC".ljust(5)+"IP".ljust(18)+"TITLE"))
-print("-"*100)
-for r in rows:
-    print(r.get("url","").ljust(52)+str(r.get("status_code","")).ljust(5)+str(r.get("host","") or r.get("ip","")).ljust(18)+truncate(r.get("title",""),42))
-print(GRN(f"\n[+] {len(rows)} endpoints"))
-PYCODE
-}
+# print(BOLD("\n"+"URL".ljust(52)+"SC".ljust(5)+"IP".ljust(18)+"TITLE"))
+# print("-"*100)
+# for r in rows:
+#     print(r.get("url","").ljust(52)+str(r.get("status_code","")).ljust(5)+str(r.get("host","") or r.get("ip","")).ljust(18)+truncate(r.get("title",""),42))
+# print(GRN(f"\n[+] {len(rows)} endpoints"))
+# PYCODE
+# }
 
 
 # -------------------------

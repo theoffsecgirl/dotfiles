@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-set -euo pipefail
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# set -euo pipefail
 
-target="${1:-}"
-[[ -n "$target" ]] || { echo "Uso: offsec import <programa>" >&2; exit 1; }
+# target="${1:-}"
+# [[ -n "$target" ]] || { echo "Uso: offsec import <programa>" >&2; exit 1; }
 
-program-import-brief "$target"
+# program-import-brief "$target"

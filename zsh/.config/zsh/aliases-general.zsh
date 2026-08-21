@@ -4,16 +4,26 @@
 # -------------------------
 # Git
 # -------------------------
-alias gs='git status -sb'
-alias gl='git log --oneline --graph --decorate -20'
-alias gp='git push'
-alias gpl='git pull'
-alias gc='git commit -m'
-alias gca='git commit --amend --no-edit'
-alias gco='git checkout'
-alias gcb='git checkout -b'
-alias gd='git diff'
-alias gds='git diff --staged'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# alias gs='git status -sb'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# alias gl='git log --oneline --graph --decorate -20'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# alias gp='git push'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# alias gpl='git pull'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# alias gc='git commit -m'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# alias gca='git commit --amend --no-edit'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# alias gco='git checkout'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# alias gcb='git checkout -b'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# alias gd='git diff'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# alias gds='git diff --staged'
 grh() {
   print -r -- "[!] git reset --hard HEAD — se perderán todos los cambios sin stage/commit en:"
   git diff --stat HEAD
@@ -21,10 +31,14 @@ grh() {
   echo
   git reset --hard HEAD
 }
-alias gst='git stash'
-alias gstp='git stash pop'
-alias gb='git branch -vv'
-alias glog='git log --oneline --graph --all --decorate'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# alias gst='git stash'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# alias gstp='git stash pop'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# alias gb='git branch -vv'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# alias glog='git log --oneline --graph --all --decorate'
 
 # -------------------------
 # Navegación con zoxide
@@ -183,21 +197,7 @@ tips() {
   }
 
   _tips_section "GIT"
-  _tips_alias gs "Ver estado corto del repositorio"
-  _tips_alias gl "Ver últimos commits en formato gráfico"
-  _tips_alias gp "Subir commits al remoto"
-  _tips_alias gpl "Traer cambios del remoto"
-  _tips_alias gd "Ver diff de cambios sin staged"
-  _tips_alias gds "Ver diff de cambios staged"
-  _tips_alias gc "Crear commit con mensaje"
-  _tips_alias gca "Rehacer el último commit sin cambiar mensaje"
-  _tips_alias gco "Cambiar de rama o checkout"
-  _tips_alias gcb "Crear y cambiar a una rama nueva"
   _tips_func grh "Reset hard al HEAD actual; pide confirmación"
-  _tips_alias gst "Guardar cambios en stash"
-  _tips_alias gstp "Recuperar último stash"
-  _tips_alias gb "Listar ramas con tracking"
-  _tips_alias glog "Ver grafo completo de ramas y commits"
 
   _tips_section "NAVEGACIÓN"
   _tips_cmd z "Saltar a directorios frecuentes con zoxide"

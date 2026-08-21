@@ -64,7 +64,7 @@ resolve_input() {
   INPUT_MODE="target"
   TARGET="$arg"
   BASE="${HUNTING_HOME:-$HOME/hunting}/targets/$TARGET"
-  LIVEFILE="$BASE/http/live.txt"
+  LIVEFILE="$BASE/recon/live.txt"
   [[ -f "$LIVEFILE" ]] || die "Ejecuta primero scope-v2 $TARGET"
 }
 
@@ -76,17 +76,17 @@ KATANA_PARALLELISM="${KATANA_PARALLELISM:-15}"
 KATANA_TIMEOUT="${KATANA_TIMEOUT:-10}"
 KATANA_RATE_LIMIT="${KATANA_RATE_LIMIT:-5}"
 KATANA_HEADERS=()
-_hf="$BASE/in/headers.txt"
+_hf="$BASE/scopes/headers.txt"
 [[ -f "$_hf" ]] && while IFS= read -r _h; do [[ -z "$_h" || "$_h" == \#* ]] || KATANA_HEADERS+=( -H "$_h" ); done < "$_hf"
 
 need_cmd katana anew grep jq
-ensure_dir "$BASE/http" "$BASE/js" "$BASE/meta"
+ensure_dir "$BASE/recon" "$BASE/scopes"
 
-: > "$BASE/http/urls.txt"
-: > "$BASE/http/urls_clean.txt"
-: > "$BASE/http/api_candidates.txt"
-: > "$BASE/http/graphql.txt"
-: > "$BASE/js/files.txt"
+: > "$BASE/recon/urls.txt"
+: > "$BASE/recon/urls_clean.txt"
+: > "$BASE/recon/api_candidates.txt"
+: > "$BASE/recon/graphql.txt"
+: > "$BASE/recon/js_files.txt"
 
 run_or_explain katana \
   -list "$LIVEFILE" \
@@ -99,7 +99,7 @@ run_or_explain katana \
   -timeout "$KATANA_TIMEOUT" \
   -rl "$KATANA_RATE_LIMIT" \
   -kf all \
-  | tee "$BASE/http/katana.raw" \
+  | tee "$BASE/recon/katana.raw" \
   | {
       if command -v uro >/dev/null 2>&1; then
         uro
@@ -107,16 +107,16 @@ run_or_explain katana \
         cat
       fi
     } \
-  | anew "$BASE/http/urls.txt" >/dev/null
+  | anew "$BASE/recon/urls.txt" >/dev/null
 
-grep -Ei '\.js($|\?)' "$BASE/http/urls.txt" | anew "$BASE/js/files.txt" >/dev/null || true
-grep -Ei '/api(/|$)|/v[0-9]+/|graphql|rest|swagger|openapi|/rpc(/|$)|/query($|[/?])|/mutation($|[/?])|/internal(/|$)' "$BASE/http/urls.txt" | anew "$BASE/http/api_candidates.txt" >/dev/null || true
-grep -Ei 'graphql' "$BASE/http/urls.txt" | anew "$BASE/http/graphql.txt" >/dev/null || true
-grep -Evi '\.(png|jpg|jpeg|gif|svg|css|woff|woff2|ttf|ico)($|\?)' "$BASE/http/urls.txt" > "$BASE/http/urls_clean.txt" || true
+grep -Ei '\.js($|\?)' "$BASE/recon/urls.txt" | anew "$BASE/recon/js_files.txt" >/dev/null || true
+grep -Ei '/api(/|$)|/v[0-9]+/|graphql|rest|swagger|openapi|/rpc(/|$)|/query($|[/?])|/mutation($|[/?])|/internal(/|$)' "$BASE/recon/urls.txt" | anew "$BASE/recon/api_candidates.txt" >/dev/null || true
+grep -Ei 'graphql' "$BASE/recon/urls.txt" | anew "$BASE/recon/graphql.txt" >/dev/null || true
+grep -Evi '\.(png|jpg|jpeg|gif|svg|css|woff|woff2|ttf|ico)($|\?)' "$BASE/recon/urls.txt" > "$BASE/recon/urls_clean.txt" || true
 
-urls_count="$(count_lines_safe "$BASE/http/urls.txt")"
-js_count="$(count_lines_safe "$BASE/js/files.txt")"
-api_count="$(count_lines_safe "$BASE/http/api_candidates.txt")"
+urls_count="$(count_lines_safe "$BASE/recon/urls.txt")"
+js_count="$(count_lines_safe "$BASE/recon/js_files.txt")"
+api_count="$(count_lines_safe "$BASE/recon/api_candidates.txt")"
 
 jq -n \
   --arg urls "$urls_count" \
@@ -130,11 +130,11 @@ jq -n \
   --arg timeout "$KATANA_TIMEOUT" \
   --arg rate_limit "$KATANA_RATE_LIMIT" \
   '{urls:($urls|tonumber), js:($js|tonumber), api_candidates:($api|tonumber), input_mode:$mode, input_source:$source, katana:{depth:($depth|tonumber), concurrency:($concurrency|tonumber), parallelism:($parallelism|tonumber), timeout:($timeout|tonumber), rate_limit:($rate_limit|tonumber)}}' \
-  > "$BASE/meta/webmap.json"
+  > "$BASE/scopes/webmap.json"
 
 log_ok "Modo: $INPUT_MODE"
 log_ok "URLs totales: $urls_count"
 log_ok "JS: $js_count"
 log_ok "API candidates: $api_count"
-log_ok "Raw crawl → $BASE/http/katana.raw"
+log_ok "Raw crawl → $BASE/recon/katana.raw"
 log_ok "Katana limits: d=$KATANA_DEPTH c=$KATANA_CONCURRENCY p=$KATANA_PARALLELISM timeout=$KATANA_TIMEOUT rl=$KATANA_RATE_LIMIT"

@@ -117,7 +117,7 @@ hosts = {}
 status_counts = Counter()
 tech_counts = Counter()
 interesting = []
-httpx_path = base / "http/httpx.jsonl"
+httpx_path = base / "recon/httpx.jsonl"
 
 signals = re.compile(r"/(api|graphql|auth|oauth|oidc|sso|login|session|account|user|profile|admin|billing|payment|order|transfer|card|kyc|support|internal)(/|$)", re.I)
 write_words = re.compile(r"(create|update|delete|remove|add|upload|invite|approve|transfer|payment|checkout|reset|verify)", re.I)
@@ -167,7 +167,7 @@ for host, data in sorted(hosts.items()):
     })
 
 candidate_urls = []
-for rel in ("http/api_candidates.txt", "http/graphql.txt", "http/urls.txt", "out/ai/js-recon/endpoints.txt"):
+for rel in ("recon/api_candidates.txt", "recon/graphql.txt", "recon/urls.txt", "recon/js_endpoints.txt"):
     for value in lines(rel, 600):
         if signals.search(value) or write_words.search(value):
             candidate_urls.append(value)
@@ -185,11 +185,11 @@ context = {
     "schema_version": 1,
     "target": target,
     "scope": {
-        "roots": lines("in/roots.txt", 200),
-        "in_scope": lines("in/scope-web.txt", 300),
-        "out_of_scope": lines("in/out-of-scope.txt", 300),
+        "roots": lines("scopes/roots.txt", 200),
+        "in_scope": lines("scopes/scope-web.txt", 300),
+        "out_of_scope": lines("scopes/out-of-scope.txt", 300),
     },
-    "program_notes": text("in/program.md", 10000),
+    "program_notes": text("scopes/program.md", 10000),
     "target_summary": text("notes/summary.md", 12000),
     "inventory": {
         "host_count": len(host_rows),
@@ -199,17 +199,17 @@ context = {
     },
     "interesting_endpoints": interesting[:250],
     "candidate_urls": deduped,
-    "graphql": lines("http/graphql.txt", 150),
-    "sensitive_parameters": lines("fuzz/sensitive_params.txt", 200),
+    "graphql": lines("recon/graphql.txt", 150),
+    "sensitive_parameters": lines("recon/sensitive_params.txt", 200),
     "js": {
-        "files": lines("js/files.txt", 200),
-        "endpoints": lines("out/ai/js-recon/endpoints.txt", 250),
+        "files": lines("recon/js_files.txt", 200),
+        "endpoints": lines("recon/js_endpoints.txt", 250),
     },
     "available_evidence": {
         "analysis": (base / "ai/analyze.md").is_file(),
         "findings": (base / "notes/findings.md").is_file(),
         "caido_notes": (base / "ai/caido.md").is_file(),
-        "js_recon": (base / "out/ai/js-recon/endpoints.txt").is_file(),
+        "js_recon": (base / "recon/js_endpoints.txt").is_file(),
     },
 }
 

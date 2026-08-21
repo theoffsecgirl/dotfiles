@@ -6,12 +6,12 @@ Uso:
   program-import-brief <programa> <brief.txt>
 
 Genera/actualiza:
-  in/program.md
-  in/scope-web.txt
-  in/out-of-scope.txt
-  in/roots.txt
-  in/brief.txt
-  meta/brief-import.json
+  scopes/program.md
+  scopes/scope-web.txt
+  scopes/out-of-scope.txt
+  scopes/roots.txt
+  scopes/brief.txt
+  scopes/brief-import.json
 """
 from __future__ import annotations
 
@@ -198,7 +198,7 @@ def main() -> int:
     if len(sys.argv) > 1 and sys.argv[1] in ("-h", "--help"):
         print("Uso: program-import-brief <programa> <brief.txt>")
         print("  Importa un brief de programa (H1/Bugcrowd/Intigriti) en el workspace.")
-        print("  Genera: in/scope-web.txt, in/out-of-scope.txt, in/roots.txt, in/program.md")
+        print("  Genera: scopes/scope-web.txt, scopes/out-of-scope.txt, scopes/roots.txt, scopes/program.md")
         print("  Anterior: program-init <programa>   Siguiente: scope-program <programa>")
         return 0
 
@@ -215,10 +215,9 @@ def main() -> int:
         die(f"No existe el brief: {brief_file}")
 
     base = hunting_home() / "targets" / program
-    in_dir = base / "in"
-    meta_dir = base / "meta"
+    scopes_dir = base / "scopes"
     notes_dir = base / "notes"
-    for d in (in_dir, meta_dir, notes_dir):
+    for d in (scopes_dir, notes_dir):
         d.mkdir(parents=True, exist_ok=True)
 
     text = brief_file.read_text(encoding="utf-8", errors="replace")
@@ -278,14 +277,14 @@ def main() -> int:
     roots = unique([r for r in (root_from_pattern(x) for x in in_scope) if r])
     rules = extract_rules(normalized)
 
-    dst_brief = in_dir / "brief.txt"
+    dst_brief = scopes_dir / "brief.txt"
 
     if brief_file.resolve() != dst_brief.resolve():
         shutil.copyfile(brief_file, dst_brief)
-    
-    write_lines(in_dir / "scope-web.txt", in_scope, "# In-scope web assets extracted from brief")
-    write_lines(in_dir / "out-of-scope.txt", out_scope, "# Out-of-scope assets extracted from brief")
-    write_lines(in_dir / "roots.txt", roots, "# Root domains inferred from in-scope web assets")
+
+    write_lines(scopes_dir / "scope-web.txt", in_scope, "# In-scope web assets extracted from brief")
+    write_lines(scopes_dir / "out-of-scope.txt", out_scope, "# Out-of-scope assets extracted from brief")
+    write_lines(scopes_dir / "roots.txt", roots, "# Root domains inferred from in-scope web assets")
 
     program_md = [
         f"# {program} program notes",
@@ -318,7 +317,7 @@ def main() -> int:
         "```",
         "",
     ]
-    (in_dir / "program.md").write_text("\n".join(program_md), encoding="utf-8")
+    (scopes_dir / "program.md").write_text("\n".join(program_md), encoding="utf-8")
 
     summary = notes_dir / "summary.md"
     if not summary.exists():
@@ -346,13 +345,13 @@ def main() -> int:
         "roots_count": len(roots),
         "rules_count": len(rules),
     }
-    (meta_dir / "brief-import.json").write_text(json.dumps(meta, indent=2) + "\n", encoding="utf-8")
+    (scopes_dir / "brief-import.json").write_text(json.dumps(meta, indent=2) + "\n", encoding="utf-8")
 
     print(f"[+] Importado brief para: {program}")
-    print(f"[+] In-scope web: {len(in_scope)} → {in_dir / 'scope-web.txt'}")
-    print(f"[+] Out-of-scope: {len(out_scope)} → {in_dir / 'out-of-scope.txt'}")
-    print(f"[+] Roots: {len(roots)} → {in_dir / 'roots.txt'}")
-    print(f"[+] Program notes → {in_dir / 'program.md'}")
+    print(f"[+] In-scope web: {len(in_scope)} → {scopes_dir / 'scope-web.txt'}")
+    print(f"[+] Out-of-scope: {len(out_scope)} → {scopes_dir / 'out-of-scope.txt'}")
+    print(f"[+] Roots: {len(roots)} → {scopes_dir / 'roots.txt'}")
+    print(f"[+] Program notes → {scopes_dir / 'program.md'}")
     print("[→] Revisa manualmente los ficheros antes de lanzar recon")
     return 0
 
