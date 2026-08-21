@@ -107,114 +107,123 @@ offsec-system-start() {
   container system start
 }
 
-offsec-container-status() {
-  container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
-  container ls
-}
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# offsec-container-status() {
+#   container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
+#   container ls
+# }
 
-offsec-container-build() {
-  container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# offsec-container-build() {
+#   container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
 
-  local tmpdir dockerfile
-  tmpdir="$(mktemp -d)" || return 1
-  dockerfile="$tmpdir/Containerfile"
+#   local tmpdir dockerfile
+#   tmpdir="$(mktemp -d)" || return 1
+#   dockerfile="$tmpdir/Containerfile"
 
-  cat > "$dockerfile" <<EOF
-FROM ${OFFSEC_IMAGE_BASE}
+#   cat > "$dockerfile" <<EOF
+# FROM ${OFFSEC_IMAGE_BASE}
 
-ENV DEBIAN_FRONTEND=noninteractive
+# ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y \
-  ca-certificates \
-  curl \
-  wget \
-  git \
-  jq \
-  vim \
-  zsh \
-  python3 \
-  python3-pip \
-  python3-venv \
-  dnsutils \
-  iputils-ping \
-  net-tools \
-  procps \
-  build-essential \
-  unzip \
-  && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y \
+#   ca-certificates \
+#   curl \
+#   wget \
+#   git \
+#   jq \
+#   vim \
+#   zsh \
+#   python3 \
+#   python3-pip \
+#   python3-venv \
+#   dnsutils \
+#   iputils-ping \
+#   net-tools \
+#   procps \
+#   build-essential \
+#   unzip \
+#   && rm -rf /var/lib/apt/lists/*
 
-WORKDIR ${OFFSEC_WORKDIR}
-CMD ["sleep", "infinity"]
-EOF
+# WORKDIR ${OFFSEC_WORKDIR}
+# CMD ["sleep", "infinity"]
+# EOF
 
-  echo "[*] Construyendo imagen ${OFFSEC_IMAGE_NAME}..."
-  container build -t "${OFFSEC_IMAGE_NAME}" "$tmpdir"
-  local rc=$?
-  rm -rf "$tmpdir"
-  return $rc
-}
+#   echo "[*] Construyendo imagen ${OFFSEC_IMAGE_NAME}..."
+#   container build -t "${OFFSEC_IMAGE_NAME}" "$tmpdir"
+#   local rc=$?
+#   rm -rf "$tmpdir"
+#   return $rc
+# }
 
-offsec-container-init() {
-  container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# offsec-container-init() {
+#   container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
 
-  local running exists
-  running="$(container ls --format json 2>/dev/null | jq -r '.[]?.name // empty' 2>/dev/null | grep -Fx "${OFFSEC_CONTAINER_NAME}" || true)"
-  if [[ -n "$running" ]]; then
-    echo "[+] Contenedor ya en ejecución: ${OFFSEC_CONTAINER_NAME}"
-    return 0
-  fi
+#   local running exists
+#   running="$(container ls --format json 2>/dev/null | jq -r '.[]?.name // empty' 2>/dev/null | grep -Fx "${OFFSEC_CONTAINER_NAME}" || true)"
+#   if [[ -n "$running" ]]; then
+#     echo "[+] Contenedor ya en ejecución: ${OFFSEC_CONTAINER_NAME}"
+#     return 0
+#   fi
 
-  exists="$(container list --format json 2>/dev/null | jq -r '.[]?.name // empty' 2>/dev/null | grep -Fx "${OFFSEC_CONTAINER_NAME}" || true)"
-  if [[ -n "$exists" ]]; then
-    echo "[*] Arrancando contenedor existente: ${OFFSEC_CONTAINER_NAME}"
-    container start "${OFFSEC_CONTAINER_NAME}"
-    return $?
-  fi
+#   exists="$(container list --format json 2>/dev/null | jq -r '.[]?.name // empty' 2>/dev/null | grep -Fx "${OFFSEC_CONTAINER_NAME}" || true)"
+#   if [[ -n "$exists" ]]; then
+#     echo "[*] Arrancando contenedor existente: ${OFFSEC_CONTAINER_NAME}"
+#     container start "${OFFSEC_CONTAINER_NAME}"
+#     return $?
+#   fi
 
-  [[ -d "${OFFSEC_HOST_MOUNT}" ]] || mkdir -p "${OFFSEC_HOST_MOUNT}"
+#   [[ -d "${OFFSEC_HOST_MOUNT}" ]] || mkdir -p "${OFFSEC_HOST_MOUNT}"
 
-  echo "[*] Creando contenedor ${OFFSEC_CONTAINER_NAME}..."
-  container run -d \
-    --name "${OFFSEC_CONTAINER_NAME}" \
-    --volume "${OFFSEC_HOST_MOUNT}:${OFFSEC_WORKDIR}" \
-    --workdir "${OFFSEC_WORKDIR}" \
-    "${OFFSEC_IMAGE_NAME}" \
-    sleep infinity
-}
+#   echo "[*] Creando contenedor ${OFFSEC_CONTAINER_NAME}..."
+#   container run -d \
+#     --name "${OFFSEC_CONTAINER_NAME}" \
+#     --volume "${OFFSEC_HOST_MOUNT}:${OFFSEC_WORKDIR}" \
+#     --workdir "${OFFSEC_WORKDIR}" \
+#     "${OFFSEC_IMAGE_NAME}" \
+#     sleep infinity
+# }
 
-offsec-container() {
-  container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
-  offsec-init || return 1
-  container exec -it "${OFFSEC_CONTAINER_NAME}" zsh
-}
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# offsec-container() {
+#   container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
+#   offsec-init || return 1
+#   container exec -it "${OFFSEC_CONTAINER_NAME}" zsh
+# }
 
-offsec-container-start() {
-  container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
-  offsec-init
-}
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# offsec-container-start() {
+#   container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
+#   offsec-init
+# }
 
-offsec-container-stop() {
-  container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
-  container stop "${OFFSEC_CONTAINER_NAME}"
-}
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# offsec-container-stop() {
+#   container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
+#   container stop "${OFFSEC_CONTAINER_NAME}"
+# }
 
-offsec-container-logs() {
-  container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
-  container logs "${OFFSEC_CONTAINER_NAME}"
-}
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# offsec-container-logs() {
+#   container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
+#   container logs "${OFFSEC_CONTAINER_NAME}"
+# }
 
-offsec-container-rm() {
-  container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
-  container rm "${OFFSEC_CONTAINER_NAME}"
-}
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# offsec-container-rm() {
+#   container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
+#   container rm "${OFFSEC_CONTAINER_NAME}"
+# }
 
-offsec-container-rebuild() {
-  container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
-  offsec-stop >/dev/null 2>&1 || true
-  offsec-rm >/dev/null 2>&1 || true
-  offsec-build || return 1
-  offsec-init
-}
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# offsec-container-rebuild() {
+#   container-runtime || { echo "[!] Apple Container no está instalado"; return 1; }
+#   offsec-stop >/dev/null 2>&1 || true
+#   offsec-rm >/dev/null 2>&1 || true
+#   offsec-build || return 1
+#   offsec-init
+# }
 
 
 # ==========================================

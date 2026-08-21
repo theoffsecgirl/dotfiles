@@ -154,7 +154,7 @@ claude mcp get caido
 ```bash
 cdh        # $HUNTING_HOME
 cdt        # $HUNTING_HOME/targets
-bbref      # interactive bug bounty reference
+dotfiles-ref  # interactive reference for the whole dotfiles setup (shell, git, navigation, utilities, bug bounty)
 hunt-doctor
 hunt-ai doctor
 ```

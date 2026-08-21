@@ -99,7 +99,8 @@ cpuload()   { uptime | awk '{print "Carga:", $(NF-2), $(NF-1), $NF}'; }
 # -------------------------
 # Búsqueda
 # -------------------------
-alias findtxt='find . -type f -name "*.txt"'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# alias findtxt='find . -type f -name "*.txt"'
 alias grepip="grep -Eo '([0-9]{1,3}\.){3}[0-9]{1,3}'"
 alias greppass="grep -i 'password'"
 
@@ -125,17 +126,27 @@ alias rcat='realcat'
 # Logs del sistema
 # -------------------------
 if [[ "$PLATFORM" == "linux" ]]; then
-  alias watchlog='tail -f /var/log/syslog'
-  alias logerror='grep -i error /var/log/syslog'
-  alias logauth='cat /var/log/auth.log'
-  alias logsize='du -sh /var/log/* | sort -h'
-  alias viewlog='cat /var/log/syslog'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+#   alias watchlog='tail -f /var/log/syslog'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+#   alias logerror='grep -i error /var/log/syslog'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+#   alias logauth='cat /var/log/auth.log'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+#   alias logsize='du -sh /var/log/* | sort -h'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+#   alias viewlog='cat /var/log/syslog'
 elif [[ "$PLATFORM" == "macos" ]]; then
-  alias watchlog='tail -f /var/log/system.log'
-  alias logerror='grep -i error /var/log/system.log'
-  alias logauth='log show --predicate "eventMessage CONTAINS \"authentication\"" --last 1h'
-  alias logsize='du -sh /var/log/* | sort -h'
-  alias viewlog='log show --last 1h'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+#   alias watchlog='tail -f /var/log/system.log'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+#   alias logerror='grep -i error /var/log/system.log'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+#   alias logauth='log show --predicate "eventMessage CONTAINS \"authentication\"" --last 1h'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+#   alias logsize='du -sh /var/log/* | sort -h'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+#   alias viewlog='log show --last 1h'
 fi
 
 
@@ -143,10 +154,12 @@ fi
 # Red
 # -------------------------
 if [[ "$PLATFORM" == "linux" ]]; then
-  alias sniff='tcpdump -i eth0 -nn -s0 -w capture.pcap'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+#   alias sniff='tcpdump -i eth0 -nn -s0 -w capture.pcap'
   alias ifconfig='ip a'
 elif [[ "$PLATFORM" == "macos" ]]; then
-  alias sniff='sudo tcpdump -i en0 -nn -s0 -w capture.pcap'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+#   alias sniff='sudo tcpdump -i en0 -nn -s0 -w capture.pcap'
 fi
 
 # myip: eliminado — aliases-general.zsh define myip() con fallback a 3 servicios.

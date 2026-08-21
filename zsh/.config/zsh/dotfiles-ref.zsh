@@ -1,8 +1,10 @@
-# bbref — cheatsheet interactivo de bug bounty
+# dotfiles-ref — cheatsheet interactivo de todo mi setup de dotfiles
+# Shell, git, navegación, utilidades generales — y bug bounty como una
+# sección más, no como el único propósito.
 # ENTER copia el snippet al portapapeles.
 # Busca por técnica, categoría, herramienta o keyword.
 # -------------------------
-bbref() {
+dotfiles-ref() {
   emulate -L zsh
   setopt local_options no_aliases
 
@@ -46,14 +48,6 @@ bbref() {
   _bb_add "scope-program"      "setup"   'scope-program <programa>'
   _bb_add "mktarget"           "setup"   'mktarget <dominio>'
   _bb_add "scope"              "setup"   'scope <dominio>'
-  _bb_add "offsec"             "setup"   'offsec <init|import|scope|webmap|params|recon|doctor> <programa>'
-  _bb_add "offsec-init"        "setup"   'offsec init <programa>'
-  _bb_add "offsec-import"      "setup"   'offsec import <programa>'
-  _bb_add "offsec-scope"       "setup"   'offsec scope <programa>'
-  _bb_add "offsec-webmap"      "setup"   'offsec webmap <programa>'
-  _bb_add "offsec-params"      "setup"   'offsec params <programa>'
-  _bb_add "offsec-recon"       "setup"   'offsec recon <programa>'
-  _bb_add "offsec-doctor"      "setup"   'offsec doctor'
 
   # ─────────────────────────────────────────────────────────────
   _bb_section "RECON — SUBDOMINIOS"
@@ -318,7 +312,7 @@ bbref() {
       --ansi \
       --no-sort \
       --reverse \
-      --header='bbref — ENTER copia el snippet · busca por técnica/categoría/tool · ESC para salir')" || return 0
+      --header='dotfiles-ref — ENTER copia el snippet · busca por técnica/categoría/tool · ESC para salir')" || return 0
 
     # Extraer el snippet: es la tercera columna — todo lo que hay tras el segundo bloque de espacios
     snippet="$(printf '%s' "$selected" | sed 's/^[^ ]*[[:space:]][[:space:]]*[^ ]*[[:space:]][[:space:]]*//')"
@@ -330,4 +324,13 @@ bbref() {
   else
     printf '%b' "$content" | less
   fi
+}
+
+# -------------------------
+# Compatibilidad temporal: bbref se renombró a dotfiles-ref (2026-08-21).
+# Retira este wrapper cuando confirmes que ya no lo necesitas.
+# -------------------------
+bbref() {
+  print -u2 -- "[!] bbref se renombró a dotfiles-ref — usa 'dotfiles-ref' a partir de ahora."
+  dotfiles-ref "$@"
 }

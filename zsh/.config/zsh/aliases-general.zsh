@@ -345,5 +345,5 @@ tips() {
   fi
 }
 
-# bbref — cheatsheet interactivo de bug bounty
-[[ -f "$HOME/.config/zsh/bbref.zsh" ]] && source "$HOME/.config/zsh/bbref.zsh"
+# dotfiles-ref — cheatsheet interactivo de todo el setup de dotfiles (bug bounty es una sección más)
+[[ -f "$HOME/.config/zsh/dotfiles-ref.zsh" ]] && source "$HOME/.config/zsh/dotfiles-ref.zsh"

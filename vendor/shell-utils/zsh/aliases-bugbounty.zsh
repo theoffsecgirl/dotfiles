@@ -72,10 +72,14 @@ dstopall() {
 # -------------------------
 # Búsqueda de archivos
 # -------------------------
-alias findsh='find . -type f -name "*.sh"'
-alias findpy='find . -type f -name "*.py"'
-alias findbin='find . -type f -perm -u=x'
-alias findpcap='find . -type f -name "*.pcap"'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# alias findsh='find . -type f -name "*.sh"'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# alias findpy='find . -type f -name "*.py"'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# alias findbin='find . -type f -perm -u=x'
+# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
+# alias findpcap='find . -type f -name "*.pcap"'
 
 
 # -------------------------

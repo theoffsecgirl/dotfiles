@@ -11,7 +11,7 @@
       "Bash(zsh -n zsh/.config/zsh/aliases-general.zsh)",
       "Bash(zsh -n vendor/shell-utils/zsh/aliases-builtin.zsh)",
       "Bash(zsh -n vendor/shell-utils/zsh/functions-bugbounty.zsh)",
-      "Bash(zsh -n zsh/.config/zsh/bbref.zsh)"
+      "Bash(zsh -n zsh/.config/zsh/dotfiles-ref.zsh)"
     ]
   }
 }
