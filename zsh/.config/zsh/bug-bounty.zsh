@@ -484,7 +484,7 @@ hunt-start() {
   fi
 
   # 2. resolver scope solo si no está resuelto (no relanzar recon a ciegas)
-  if [[ ! -s "$tdir/in/scope-web.txt" ]]; then
+  if [[ ! -s "$tdir/scopes/scope-web.txt" ]]; then
     print "[*] scope sin resolver — corriendo scope-program"
     scope-program "$prog" || { print -u2 "[!] scope-program falló"; return 1; }
   else
