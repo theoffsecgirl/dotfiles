@@ -5,12 +5,12 @@ setup() {
   export HUNTING_HOME="$TEST_HOME/hunting"
   export TARGET="example"
   BASE="$HUNTING_HOME/targets/$TARGET"
-  mkdir -p "$BASE/in" "$BASE/notes" "$BASE/http" "$BASE/fuzz"
-  printf 'example.com\n' > "$BASE/in/scope-web.txt"
-  printf 'admin.example.com\n' > "$BASE/in/out-of-scope.txt"
-  printf 'example.com\n' > "$BASE/in/roots.txt"
+  mkdir -p "$BASE/scopes" "$BASE/notes" "$BASE/recon"
+  printf 'example.com\n' > "$BASE/scopes/scope-web.txt"
+  printf 'admin.example.com\n' > "$BASE/scopes/out-of-scope.txt"
+  printf 'example.com\n' > "$BASE/scopes/roots.txt"
   printf '# Test target\n' > "$BASE/notes/summary.md"
-  printf '%s\n' '{"url":"https://api.example.com/v1/users/123","host":"api.example.com","status_code":200,"title":"API","tech":["nginx"]}' > "$BASE/http/httpx.jsonl"
+  printf '%s\n' '{"url":"https://api.example.com/v1/users/123","host":"api.example.com","status_code":200,"title":"API","tech":["nginx"]}' > "$BASE/recon/httpx.jsonl"
   SCRIPT="$BATS_TEST_DIRNAME/../scripts/.local/bin/hunt-ai"
 }
 
@@ -30,7 +30,7 @@ setup() {
 }
 
 @test "hunt-ai genera prompt compacto sin incluir httpx bruto" {
-  python3 - <<'PY' >> "$BASE/http/httpx.jsonl"
+  python3 - <<'PY' >> "$BASE/recon/httpx.jsonl"
 import json
 print(json.dumps({"url": "https://example.com/" + "x" * 100000, "host": "example.com", "status_code": 200}))
 PY
