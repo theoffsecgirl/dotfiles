@@ -51,7 +51,7 @@ for dep in subfinder httpx anew jq; do
 done
 
 ROOTS_TMP="$BASE/recon/roots_clean.txt"
-grep -Ev '^\s*#|^\s*$' "$ROOTS_FILE" | sed 's/^\*\.//' | sort -u > "$ROOTS_TMP"
+grep -Ev '^\s*#|^\s*$' "$ROOTS_FILE" | sed 's/^\*\.//' | sort -u > "$ROOTS_TMP" || true
 
 if [[ ! -s "$ROOTS_TMP" ]]; then
   echo "[!] $ROOTS_FILE no contiene dominios raíz válidos"

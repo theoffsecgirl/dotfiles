@@ -453,9 +453,11 @@ alias scope-filter=inscope
 # hunt-start — arranca (o retoma) un target de bug bounty con el contexto ya cargado.
 # Encadena mis wrappers, genera el CLAUDE.md del target, carga cuentas al entorno
 # y abre Claude Code listo para /hunt. No relanza recon si ya hay datos.
+# Antes de lanzar Claude Code pregunta interactivamente (default NO en las 3):
+#   ¿Abrir Chrome? / ¿Abrir Caido? / ¿Modo --dangerously-skip-permissions?
 # Uso: hunt-start <programa> [--yolo]
-#   --yolo  arranca Claude Code con --dangerously-skip-permissions (agente SIN frenos).
-#           Opcional y por sesión: solo se aplica en el arranque en que lo pones.
+#   --yolo  atajo: responde "sí" automáticamente SOLO a la pregunta de permisos
+#           (Chrome y Caido se siguen preguntando igual). Por sesión, no persiste.
 hunt-start() {
   emulate -L zsh
   setopt pipefail
@@ -474,10 +476,10 @@ hunt-start() {
   if [[ ! -d "$tdir" ]]; then
     print "[*] target nuevo — inicializando $prog"
     program-init "$prog" || { print -u2 "[!] program-init falló"; return 1; }
-    if [[ -s "$tdir/in/brief.txt" ]]; then
-      program-import-brief "$prog" || print -u2 "[i] program-import-brief no completó; revisa in/brief.txt"
+    if [[ -s "$tdir/scopes/brief.txt" ]]; then
+      program-import-brief "$prog" || print -u2 "[i] program-import-brief no completó; revisa scopes/brief.txt"
     else
-      print "[i] no hay in/brief.txt aún. Pega el brief ahí y reejecuta, o sigue si no lo necesitas."
+      print "[i] no hay scopes/brief.txt aún. Pega el brief ahí y reejecuta, o sigue si no lo necesitas."
     fi
   fi
 
@@ -506,7 +508,37 @@ hunt-start() {
     reconmind "$tdir" || print -u2 "[i] reconmind no pudo actualizar coverage.md (no bloquea la sesión)"
   fi
 
-  # 5. abrir Claude Code en el target.
+  # 5. checklist interactivo de arranque — Chrome / Caido / modo yolo.
+  #    Las 3 preguntas tienen default "no" (Enter = no) para que un hunt-start
+  #    accidental no abra nada ni conceda permisos de más.
+  local ans
+
+  read -r "ans?[?] ¿Abrir Chrome? [s/N] "
+  if [[ "$ans" == [sSyY]* ]]; then
+    if command -v open >/dev/null 2>&1 && [[ -d "/Applications/Google Chrome.app" ]]; then
+      open -na "Google Chrome" --args --new-window "about:blank"
+      print "[+] Chrome abierto (about:blank)"
+    else
+      print "[i] Google Chrome no encontrado en /Applications — omito"
+    fi
+  fi
+
+  read -r "ans?[?] ¿Abrir Caido? [s/N] "
+  if [[ "$ans" == [sSyY]* ]]; then
+    if command -v open >/dev/null 2>&1 && [[ -d "/Applications/Caido.app" ]]; then
+      open -a "Caido"
+      print "[+] Caido abierto — recuerda: MCP en modo solo lectura salvo que confirmes lo contrario"
+    else
+      print "[i] Caido no encontrado en /Applications — omito"
+    fi
+  fi
+
+  if [[ -z "$skip" ]]; then
+    read -r "ans?[?] ¿Modo --dangerously-skip-permissions (yolo, SIN frenos)? [s/N] "
+    [[ "$ans" == [sSyY]* ]] && skip="--dangerously-skip-permissions"
+  fi
+
+  # 6. abrir Claude Code en el target.
   cd "$tdir" || return 1
   if [[ -n "$skip" ]]; then
     print "[⚠] arrancando SIN permisos (--dangerously-skip-permissions): el agente ejecuta"
