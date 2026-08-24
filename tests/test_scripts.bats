@@ -114,11 +114,11 @@ teardown() {
   run bash "$BIN/mktarget" "test.com"
   [ "$status" -eq 0 ]
   [ -d "$HUNTING_HOME/targets/test.com/recon" ]
-  [ -d "$HUNTING_HOME/targets/test.com/http" ]
-  [ -d "$HUNTING_HOME/targets/test.com/fuzz" ]
-  [ -d "$HUNTING_HOME/targets/test.com/in" ]
-  [ -d "$HUNTING_HOME/targets/test.com/meta" ]
-  [ -f "$HUNTING_HOME/targets/test.com/in/resolvers.txt" ]
+  [ -d "$HUNTING_HOME/targets/test.com/scopes" ]
+  [ -d "$HUNTING_HOME/targets/test.com/notes" ]
+  [ -d "$HUNTING_HOME/targets/test.com/reports" ]
+  [ -d "$HUNTING_HOME/targets/test.com/loot" ]
+  [ -f "$HUNTING_HOME/targets/test.com/scopes/resolvers.txt" ]
   [ -f "$HUNTING_HOME/targets/test.com/notes/summary.md" ]
 }
 
@@ -164,15 +164,15 @@ teardown() {
   run bash "$BIN/program-init" "acme-bb"
   [ "$status" -eq 0 ]
   [ -d "$HUNTING_HOME/targets/acme-bb/recon" ]
-  [ -d "$HUNTING_HOME/targets/acme-bb/in" ]
-  [ -f "$HUNTING_HOME/targets/acme-bb/in/roots.txt" ]
-  [ -f "$HUNTING_HOME/targets/acme-bb/in/scope-web.txt" ]
+  [ -d "$HUNTING_HOME/targets/acme-bb/scopes" ]
+  [ -f "$HUNTING_HOME/targets/acme-bb/scopes/roots.txt" ]
+  [ -f "$HUNTING_HOME/targets/acme-bb/scopes/scope-web.txt" ]
 }
 
 @test "program-init: no sobreescribe ficheros existentes" {
   bash "$BIN/program-init" "acme-bb" >/dev/null
-  echo "adidas.com" > "$HUNTING_HOME/targets/acme-bb/in/roots.txt"
+  echo "adidas.com" > "$HUNTING_HOME/targets/acme-bb/scopes/roots.txt"
   run bash "$BIN/program-init" "acme-bb"
   [ "$status" -eq 0 ]
-  grep -q "adidas.com" "$HUNTING_HOME/targets/acme-bb/in/roots.txt"
+  grep -q "adidas.com" "$HUNTING_HOME/targets/acme-bb/scopes/roots.txt"
 }

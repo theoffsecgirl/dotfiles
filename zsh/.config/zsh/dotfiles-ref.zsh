@@ -46,6 +46,7 @@ dotfiles-ref() {
   _bb_add "program-init"       "setup"   'program-init <programa>'
   _bb_add "program-import-brief" "setup" 'program-import-brief <programa> <brief.txt>'
   _bb_add "scope-program"      "setup"   'scope-program <programa>'
+  _bb_add "gen-claude-md"      "setup"   'gen-claude-md <programa>'
   _bb_add "mktarget"           "setup"   'mktarget <dominio>'
   _bb_add "scope"              "setup"   'scope <dominio>'
 
