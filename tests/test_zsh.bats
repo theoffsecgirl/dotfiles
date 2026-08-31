@@ -28,26 +28,6 @@ teardown() {
   [ "$status" -eq 0 ]
 }
 
-@test "aliases-bugbounty.zsh sintaxis válida" {
-  run zsh -n "$HOME/.dotfiles/vendor/shell-utils/zsh/aliases-bugbounty.zsh"
-  [ "$status" -eq 0 ]
-}
-
-@test "functions-bugbounty.zsh sintaxis válida" {
-  run zsh -n "$HOME/.dotfiles/vendor/shell-utils/zsh/functions-bugbounty.zsh"
-  [ "$status" -eq 0 ]
-}
-
-@test "bug-bounty.zsh sintaxis válida" {
-  run zsh -n "$HOME/.config/zsh/bug-bounty.zsh"
-  [ "$status" -eq 0 ]
-}
-
-@test "wrapper-exegol.zsh sintaxis válida" {
-  run zsh -n "$HOME/.dotfiles/vendor/shell-utils/zsh/wrapper-exegol.zsh"
-  [ "$status" -eq 0 ]
-}
-
 @test "PLATFORM se define al sourcear aliases-builtin" {
   run zsh -c "
     source '$HOME/.dotfiles/vendor/shell-utils/zsh/aliases-builtin.zsh'

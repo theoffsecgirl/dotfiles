@@ -22,30 +22,6 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y zsh
 
-      # No instala subfinder/httpx/dnsx/etc. — estos scripts son wrappers de
-      # recon, el check de sintaxis no necesita las tools reales instaladas.
-      - name: Syntax check — scripts/.local/bin y scripts/.local/lib
-        run: |
-          fail=0
-          for f in scripts/.local/bin/* scripts/.local/lib/*.sh; do
-            [ -f "$f" ] || continue
-            shebang="$(head -1 "$f")"
-            case "$shebang" in
-              '#!'*bash*|'#!'*/sh)
-                echo "bash -n $f"
-                bash -n "$f" || fail=1
-                ;;
-              '#!'*python3*)
-                echo "python3 -m py_compile $f"
-                python3 -m py_compile "$f" || fail=1
-                ;;
-              *)
-                echo "omitido (sin shebang bash/sh/python3): $f"
-                ;;
-            esac
-          done
-          exit "$fail"
-
       - name: Syntax check — configs zsh
         run: |
           fail=0
@@ -55,27 +31,6 @@ jobs:
             zsh -n "$f" || fail=1
           done
           exit "$fail"
-
-      # Informativo, no bloquea el job: este repo usa patrones intencionales
-      # (excepts genéricos, etc.) que shellcheck marcaría sin ser bugs reales.
-      # Si en el futuro se decide hacerlo bloqueante, subir de nivel aquí.
-      - name: shellcheck (informativo, no bloqueante)
-        continue-on-error: true
-        run: |
-          if ! command -v shellcheck >/dev/null 2>&1; then
-            sudo apt-get update -qq
-            sudo apt-get install -y shellcheck
-          fi
-          for f in scripts/.local/bin/* scripts/.local/lib/*.sh; do
-            [ -f "$f" ] || continue
-            shebang="$(head -1 "$f")"
-            case "$shebang" in
-              '#!'*bash*|'#!'*/sh)
-                echo "shellcheck $f"
-                shellcheck "$f" || true
-                ;;
-            esac
-          done
 
   test:
     name: bats tests/

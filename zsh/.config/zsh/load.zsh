@@ -89,16 +89,7 @@ fi
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 SHELL_UTILS_DIR="$DOTFILES_DIR/vendor/shell-utils"
 
-for _f in \
-  "$SHELL_UTILS_DIR/zsh/aliases-builtin.zsh" \
-  "$SHELL_UTILS_DIR/zsh/aliases-bugbounty.zsh" \
-  "$SHELL_UTILS_DIR/zsh/aliases-mac-containers.zsh" \
-  "$SHELL_UTILS_DIR/zsh/functions-bugbounty.zsh" \
-  "$SHELL_UTILS_DIR/zsh/wrapper-exegol.zsh"
-do
-  [[ -f "$_f" ]] && source "$_f"
-done
-unset _f
+[[ -f "$SHELL_UTILS_DIR/zsh/aliases-builtin.zsh" ]] && source "$SHELL_UTILS_DIR/zsh/aliases-builtin.zsh"
 
 # zoxide — navegación inteligente de directorios
 if command -v zoxide >/dev/null 2>&1; then
@@ -136,12 +127,8 @@ unset _entry _TOOL_COMPLETIONS
 # Aliases generales de productividad
 [[ -f "$HOME/.config/zsh/aliases-general.zsh" ]] && source "$HOME/.config/zsh/aliases-general.zsh"
 
-# Local overrides (no se versiona) — debe cargarse ANTES de bug-bounty.zsh
-# para que HUNTING_HOME esté definido cuando bug-bounty.zsh calcule GLOBAL_NOTES_HOME
+# Local overrides (no se versiona)
 [[ -f "$HOME/.config/zsh/local.zsh" ]] && source "$HOME/.config/zsh/local.zsh"
-
-# Bug bounty workspace
-[[ -f "$HOME/.config/zsh/bug-bounty.zsh" ]] && source "$HOME/.config/zsh/bug-bounty.zsh"
 
 # zsh-syntax-highlighting al final para evitar interferencias con widgets/completions
 for _plugin in \

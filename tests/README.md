@@ -19,9 +19,6 @@ sudo /tmp/bats-core/install.sh /usr/local
 # Todos los tests
 bats tests/
 
-# Solo scripts
-bats tests/test_scripts.bats
-
 # Solo zsh
 bats tests/test_zsh.bats
 
@@ -37,24 +34,9 @@ bats --formatter tap tests/
 
 ## Tests disponibles
 
-### `test_scripts.bats`
-Smoke tests para `scripts/.local/bin/`:
-- `jwt-decode` — sin args, token real
-- `fuzzdirs` — sin args, sin `$WORDLISTS`, sin wordlist
-- `paramhunt` — sin args, sin `urls.txt`
-- `webmap` — sin args, sin `live.txt`
-- `race-run` — sin args, fichero inexistente
-- `mktarget` — sin args, creación de estructura de directorios
-- `program-init` — sin args, creación multi-dominio, idempotencia (no sobreescribe)
-- `scope` — sin args, check de dependencias
-- `subscan` — sin args
-
-> `HUNTING_HOME` se fija a un directorio temporal en cada test para evitar escribir en rutas de iCloud o en el sistema real.
-
 ### `test_zsh.bats`
 Verificación de sintaxis zsh:
-- `load.zsh`, `aliases-builtin.zsh`, `aliases-bugbounty.zsh`
-- `functions-bugbounty.zsh`, `bug-bounty.zsh`, `wrapper-exegol.zsh`
+- `load.zsh`, `aliases-builtin.zsh`
 - `$PLATFORM` se define correctamente al sourcear
 
 ### `test_dotfiles-ref.bats`

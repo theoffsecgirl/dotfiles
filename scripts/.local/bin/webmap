@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-# webmap — wrapper estable hacia webmap-v2
-# Uso: webmap <dominio|lista.txt|url>
-set -euo pipefail
-
-SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-exec "$SCRIPT_DIR/webmap-v2" "$@"

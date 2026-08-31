@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-# RETIRADO 2026-08-21 — cero uso real confirmado por auditoría, ver historial de git para recuperar
-# set -euo pipefail
-
-# target="${1:-}"
-# [[ -n "$target" ]] || { echo "Uso: offsec scope <programa>" >&2; exit 1; }
-
-# scope-program "$target"
