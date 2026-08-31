@@ -1,16 +1,12 @@
 #!/usr/bin/env bats
-# tests/test_zsh.bats — smoke tests para configuración zsh
-# Requiere zsh instalado. Ejecutar con: bats tests/test_zsh.bats
+# test/test_zsh.bats — smoke tests para configuración zsh
+# Requiere zsh instalado. Ejecutar con: bats test/test_zsh.bats
 
 setup() {
   REPO_ROOT="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
   TMP_HOME="$(mktemp -d)"
-  # Simular HOME limpio con estructura mínima de stow
   mkdir -p "$TMP_HOME/.config/zsh"
-  mkdir -p "$TMP_HOME/.dotfiles"
-  cp -r "$REPO_ROOT/vendor" "$TMP_HOME/.dotfiles/vendor"
-  cp -r "$REPO_ROOT/zsh/.config/zsh"/* "$TMP_HOME/.config/zsh/"
-  export DOTFILES_DIR="$TMP_HOME/.dotfiles"
+  cp -r "$REPO_ROOT/config/.config/zsh"/* "$TMP_HOME/.config/zsh/"
   export HOME="$TMP_HOME"
 }
 
@@ -24,13 +20,13 @@ teardown() {
 }
 
 @test "aliases-builtin.zsh sintaxis válida" {
-  run zsh -n "$HOME/.dotfiles/vendor/shell-utils/zsh/aliases-builtin.zsh"
+  run zsh -n "$HOME/.config/zsh/aliases-builtin.zsh"
   [ "$status" -eq 0 ]
 }
 
 @test "PLATFORM se define al sourcear aliases-builtin" {
   run zsh -c "
-    source '$HOME/.dotfiles/vendor/shell-utils/zsh/aliases-builtin.zsh'
+    source '$HOME/.config/zsh/aliases-builtin.zsh'
     [[ -n \"\$PLATFORM\" ]]
   "
   [ "$status" -eq 0 ]

@@ -19,31 +19,18 @@ elif [[ -x /usr/local/bin/brew ]]; then
   eval "$(/usr/local/bin/brew shellenv)"
 fi
 
-# 2) Brew bundle
-if [[ -f "$DOTFILES_DIR/brew/Brewfile" ]]; then
-  echo "[*] Instalando dependencias (brew bundle)..."
-  brew bundle --file "$DOTFILES_DIR/brew/Brewfile"
-fi
-
-# 3) stow
+# 2) stow (necesario para "make install")
 if ! command -v stow >/dev/null 2>&1; then
   echo "[*] Instalando stow..."
   brew install stow
 fi
 
-echo "[*] Aplicando stow..."
+# 3) Delega en el Makefile: brew bundle (install/Brewfile) + stow runcom/config/bin
+echo "[*] Ejecutando make install..."
 cd "$DOTFILES_DIR"
-stow -v -t "$HOME" zsh git tmux brew scripts nvim ghostty containers
+make install
 
-# 4) Permisos de ejecución en scripts
-echo "[*] Aplicando chmod +x en ~/.local/bin..."
-chmod +x "$HOME/.local/bin/"* 2>/dev/null || true
-
-# 5) Estructura de workspace hunting
-echo "[*] Creando workspace ~/hunting..."
-mkdir -p "$HOME/hunting"/{targets,notes,scripts}
-
-# 6) Git identity local (si no existe)
+# 4) Git identity local (si no existe)
 if [[ ! -f "$HOME/.gitconfig.local" ]]; then
   echo "[!] ~/.gitconfig.local no existe."
   echo "    Créalo con:"

@@ -83,13 +83,7 @@ if command -v starship >/dev/null 2>&1; then
   eval "$(starship init zsh)"
 fi
 
-# -------------------------
-# shell-utils
-# -------------------------
-DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
-SHELL_UTILS_DIR="$DOTFILES_DIR/vendor/shell-utils"
-
-[[ -f "$SHELL_UTILS_DIR/zsh/aliases-builtin.zsh" ]] && source "$SHELL_UTILS_DIR/zsh/aliases-builtin.zsh"
+[[ -f "$HOME/.config/zsh/aliases-builtin.zsh" ]] && source "$HOME/.config/zsh/aliases-builtin.zsh"
 
 # zoxide — navegación inteligente de directorios
 if command -v zoxide >/dev/null 2>&1; then

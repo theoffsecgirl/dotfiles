@@ -25,7 +25,7 @@ jobs:
       - name: Syntax check — configs zsh
         run: |
           fail=0
-          for f in zsh/.config/zsh/*.zsh vendor/shell-utils/zsh/*.zsh; do
+          for f in config/.config/zsh/*.zsh; do
             [ -f "$f" ] || continue
             echo "zsh -n $f"
             zsh -n "$f" || fail=1
@@ -33,7 +33,7 @@ jobs:
           exit "$fail"
 
   test:
-    name: bats tests/
+    name: bats test/
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -45,14 +45,12 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y zsh
 
-      # Mismo método que documenta tests/README.md para Linux
+      # Mismo método que documenta test/README.md para Linux
       - name: Instalar bats-core
         run: |
           git clone https://github.com/bats-core/bats-core.git /tmp/bats-core
           sudo /tmp/bats-core/install.sh /usr/local
 
-      # tests/ son smoke tests: verifican rutas de error (sin args, dep
-      # faltante, fichero inexistente), no invocan subfinder/httpx/dnsx/etc.
-      # de verdad — ver tests/README.md. No hace falta instalar ese stack.
+      # test/ son smoke tests — ver test/README.md.
       - name: Run bats
-        run: bats --formatter tap tests/
+        run: bats --formatter tap test/

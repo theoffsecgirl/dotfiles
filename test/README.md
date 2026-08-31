@@ -17,19 +17,19 @@ sudo /tmp/bats-core/install.sh /usr/local
 
 ```bash
 # Todos los tests
-bats tests/
+bats test/
 
 # Solo zsh
-bats tests/test_zsh.bats
+bats test/test_zsh.bats
 
 # Solo dotfiles-ref (cobertura de cheatsheet)
-bats tests/test_dotfiles-ref.bats
+bats test/test_dotfiles-ref.bats
 
 # Con output detallado
-bats --verbose-run tests/
+bats --verbose-run test/
 
 # Modo TAP (para CI)
-bats --formatter tap tests/
+bats --formatter tap test/
 ```
 
 ## Tests disponibles
@@ -40,12 +40,10 @@ Verificación de sintaxis zsh:
 - `$PLATFORM` se define correctamente al sourcear
 
 ### `test_dotfiles-ref.bats`
-Cobertura del cheatsheet interactivo:
-- Todos los scripts ejecutables de `scripts/.local/bin/` tienen una entrada en `dotfiles-ref.zsh` o están en la lista de exclusión explícita (deprecated, wrappers de infraestructura).
+Salud básica del cheatsheet:
 - `dotfiles-ref.zsh` tiene sintaxis zsh válida.
 - Entradas críticas (`program-import-brief`, `tmux-recon`) existen en el cheatsheet.
 
 ## Convenciones
 
 - Cada test usa un `$HOME` temporal limpio (`mktemp -d`) para no contaminar el sistema real.
-- Los tests de scripts solo verifican comportamiento de error (smoke test), no ejecutan herramientas externas (`subfinder`, `httpx`, etc.).
