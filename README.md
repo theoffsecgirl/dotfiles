@@ -20,14 +20,14 @@ A macOS-first, terminal-centric bug bounty environment built around a reproducib
 ```bash
 git clone git@github.com:theoffsecgirl/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
-./install.sh
+make install
 exec zsh
 ```
 
 Preview Stow changes without applying them:
 
 ```bash
-./install.sh --dry-run
+stow -n -v -t "$HOME" runcom config bin
 ```
 
 Machine-specific configuration belongs in `~/.config/zsh/local.zsh`, which is not versioned:
@@ -167,37 +167,30 @@ type -a program-init scope-program program-import-brief scope webmap paramhunt-v
 
 Everything should resolve to `~/.local/bin/*`.
 
-## Tests and audit
+## Tests
 
 ```bash
 cd ~/.dotfiles
-bash -n scripts/.local/bin/hunt-ai
-bash -n scripts/.local/bin/hunt-doctor
-bats tests/test_hunt_ai.bats
-bash audit_dotfiles.sh ~/.dotfiles
+make test
 ```
 
 ## Structure
 
 ```text
 ~/.dotfiles/
-├── zsh/
-├── scripts/
-│   └── .local/
-│       ├── bin/
-│       ├── lib/
-│       └── share/hunt-ai/
+├── runcom/   # .zshrc, .zprofile
+├── config/   # zsh/, nvim/, tmux/, ghostty/, git/
+├── install/  # Brewfile
+├── macos/    # bootstrap-macos.sh
+├── bin/      # utilidades genéricas (tmux-popup, tmux-sessionizer)
+├── test/
 ├── docs/
-├── tests/
-├── tmux/
-├── nvim/
-├── ghostty/
-├── git/
-├── brew/
-├── tools/
-├── install.sh
-└── audit_dotfiles.sh
+└── Makefile
 ```
+
+> El pipeline de bug bounty (scripts, containers, hunting-template) vive
+> ahora en [theoffsecgirl/bugbounty-toolkit](https://github.com/theoffsecgirl/bugbounty-toolkit),
+> con su historial de commits conservado.
 
 Managed with GNU Stow.
 
