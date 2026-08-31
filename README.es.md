@@ -4,7 +4,7 @@
 ![Shell](https://img.shields.io/badge/Shell-zsh-brightgreen?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-red?style=flat-square)
 
-**Dotfiles para bug bounty y pentesting**  
+**Dotfiles personales**
 *by [TheOffSecGirl](https://github.com/theoffsecgirl)*
 
 > 🇬🇧 [English version](README.md)
@@ -13,7 +13,9 @@
 
 ## Qué es esto
 
-Un entorno de bug bounty orientado a macOS y terminal, construido alrededor de un workflow reproducible. El repositorio gestiona la configuración de shell, wrappers de hunting, instalación de tooling, estructura de targets y un flujo indexado para Claude Code.
+Un setup de dotfiles orientado a macOS y terminal, gestionado con [GNU Stow](https://www.gnu.org/software/stow/) y un `Makefile`. Cubre configuración de shell (zsh), Neovim, tmux, Ghostty y git.
+
+El pipeline de bug bounty / pentesting (scripts de recon, containers, plantilla de workspace de hunting) vivía antes en este repo. Se ha migrado, con todo su historial de commits, a [theoffsecgirl/bugbounty-toolkit](https://github.com/theoffsecgirl/bugbounty-toolkit) — un repo separado y privado. Este repo ya no lo contiene ni depende de él.
 
 ## Instalación
 
@@ -24,148 +26,41 @@ make install
 exec zsh
 ```
 
-Para simular Stow sin aplicar cambios:
+`make install` ejecuta `stow -t $HOME runcom config bin` y `brew bundle --file=install/Brewfile`.
+
+Para simular los cambios de Stow sin aplicarlos:
 
 ```bash
 stow -n -v -t "$HOME" runcom config bin
 ```
 
-La configuración específica de cada máquina vive en `~/.config/zsh/local.zsh`, que no se versiona:
-
-```zsh
-export HUNTING_HOME="$HOME/hunting"
-```
-
-Valida el entorno:
+En una Mac nueva, `make macos` instala Homebrew por sí mismo y luego delega en `make install`:
 
 ```bash
-hunt-doctor
-hunt-ai doctor
+make macos
 ```
 
-## Workflow de bug bounty
+La configuración específica de cada máquina vive en `~/.config/zsh/local.zsh`, que no se versiona.
 
-### Target de un solo dominio
+## Targets del Makefile
 
 ```bash
-mktarget example.com
-scope example.com
-webmap example.com
-paramhunt-v2 example.com
-```
-
-### Programa multi-dominio
-
-```bash
-program-init example
-nvim "$HUNTING_HOME/targets/example/in/brief.txt"
-program-import-brief example "$HUNTING_HOME/targets/example/in/brief.txt"
-
-nvim "$HUNTING_HOME/targets/example/in/roots.txt"
-nvim "$HUNTING_HOME/targets/example/in/scope-web.txt"
-nvim "$HUNTING_HOME/targets/example/in/out-of-scope.txt"
-
-scope-program example
-webmap example
-paramhunt-v2 example
-```
-
-Los outputs principales quedan dentro de `$HUNTING_HOME/targets/<target>/`:
-
-```text
-recon/subdomains.txt
-http/live.txt
-http/httpx.jsonl
-http/urls.txt
-http/api_candidates.txt
-http/graphql.txt
-js/files.txt
-fuzz/params.txt
-fuzz/sensitive_params.txt
-meta/*.json
-```
-
-## Workflow de IA indexado
-
-`hunt-ai` es el único punto de entrada soportado para IA. Los antiguos wrappers `claude-recon`, `claude-hypotheses` y `chatgpt-*` se eliminaron en lugar de conservar capas de compatibilidad muertas.
-
-```bash
-hunt-ai index <target>
-hunt-ai analyze <target> --prompt-only
-hunt-ai hypotheses <target> --prompt-only
-hunt-ai caido <target> --prompt-only
-hunt-ai report <target> --prompt-only
-```
-
-Quita `--prompt-only` para invocar Claude Code.
-
-El flujo está separado por fases:
-
-```text
-outputs brutos de recon
-    ↓
-hunt-ai index
-    ↓
-ai/context.json
-    ↓
-analyze → hypotheses → revisión en Caido → report
-```
-
-`index` es local y determinista. Resume ficheros grandes como `http/httpx.jsonl` en `ai/context.json`, de forma que Claude recibe contexto estructurado y compacto en lugar de volcados completos de recon.
-
-Artefactos generados:
-
-```text
-ai/context.json
-ai/analyze.prompt.md
-ai/analyze.md
-ai/hypotheses.prompt.md
-ai/hypotheses.md
-ai/caido.prompt.md
-ai/caido.md
-ai/report.prompt.md
-ai/report.md
-```
-
-Reglas:
-
-- se lee primero scope y out-of-scope;
-- una hipótesis no se trata como hallazgo confirmado;
-- `caido` funciona en solo lectura por defecto;
-- no se muestran secretos, cookies ni cabeceras de autorización;
-- `report` trabaja con evidencia validada, no con recon bruto;
-- cuando falta evidencia se indica, no se inventa.
-
-Consulta [`docs/ai-workflow.md`](docs/ai-workflow.md) para el diseño completo.
-
-## Caido MCP
-
-La integración opcional con Caido espera un servidor MCP local registrado como `caido` en Claude Code. `hunt-ai caido` prepara un análisis de solo lectura; no debe reenviar peticiones, ejecutar Automate, iniciar crawlers ni modificar tráfico.
-
-Comprueba la integración con:
-
-```bash
-hunt-ai doctor
-claude mcp get caido
+make help     # lista todos los targets
+make install  # stow runcom/config/bin + brew bundle
+make macos    # bootstrap de una Mac nueva (Homebrew + make install)
+make test     # corre la suite de tests con bats
+make update   # brew update/upgrade + re-aplica stow
+make clean    # elimina los symlinks creados por stow
+make edit     # abre el repo en $EDITOR
 ```
 
 ## Comandos útiles
 
 ```bash
-cdh        # $HUNTING_HOME
-cdt        # $HUNTING_HOME/targets
-dotfiles-ref  # referencia interactiva de todo el setup de dotfiles (shell, git, navegación, utilidades, bug bounty)
-hunt-doctor
-hunt-ai doctor
+dotfiles-ref   # cheatsheet interactivo de este setup de dotfiles
+tmux-popup     # terminal flotante en tmux (popup)
+tmux-sessionizer  # selector rápido de proyectos/sesiones con fzf
 ```
-
-Valida la resolución de comandos:
-
-```bash
-type -a program-init scope-program program-import-brief scope webmap paramhunt-v2 hunt-ai
-```
-
-Todo debería resolverse a `~/.local/bin/*`.
 
 ## Tests
 
@@ -188,15 +83,7 @@ make test
 └── Makefile
 ```
 
-> El pipeline de bug bounty (scripts, containers, hunting-template) vive
-> ahora en [theoffsecgirl/bugbounty-toolkit](https://github.com/theoffsecgirl/bugbounty-toolkit),
-> con su historial de commits conservado.
-
 Gestionado con GNU Stow.
-
-## Uso ético
-
-Solo se deben probar sistemas para los que exista autorización explícita.
 
 ## Licencia
 

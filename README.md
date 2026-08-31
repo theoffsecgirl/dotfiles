@@ -4,7 +4,7 @@
 ![Shell](https://img.shields.io/badge/Shell-zsh-brightgreen?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-red?style=flat-square)
 
-**Dotfiles for bug bounty and pentesting**  
+**Personal dotfiles**
 *by [TheOffSecGirl](https://github.com/theoffsecgirl)*
 
 > 🇪🇸 [Versión en español](README.es.md)
@@ -13,7 +13,9 @@
 
 ## What this is
 
-A macOS-first, terminal-centric bug bounty environment built around a reproducible workflow. The repository manages shell configuration, hunting wrappers, tooling installation, target structure and an indexed Claude Code workflow.
+A macOS-first, terminal-centric dotfiles setup managed with [GNU Stow](https://www.gnu.org/software/stow/) and a `Makefile`. It covers shell configuration (zsh), Neovim, tmux, Ghostty and git.
+
+The bug bounty / pentesting pipeline (recon scripts, containers, hunting workspace template) used to live in this repo. It has since moved, with its full commit history, to [theoffsecgirl/bugbounty-toolkit](https://github.com/theoffsecgirl/bugbounty-toolkit) — a separate, private repo. This repo no longer contains or depends on it.
 
 ## Install
 
@@ -24,148 +26,41 @@ make install
 exec zsh
 ```
 
-Preview Stow changes without applying them:
+`make install` runs `stow -t $HOME runcom config bin` and `brew bundle --file=install/Brewfile`.
+
+Preview the Stow changes without applying them:
 
 ```bash
 stow -n -v -t "$HOME" runcom config bin
 ```
 
-Machine-specific configuration belongs in `~/.config/zsh/local.zsh`, which is not versioned:
-
-```zsh
-export HUNTING_HOME="$HOME/hunting"
-```
-
-Validate the environment:
+On a brand-new Mac, `make macos` bootstraps Homebrew itself and then delegates to `make install`:
 
 ```bash
-hunt-doctor
-hunt-ai doctor
+make macos
 ```
 
-## Bug bounty workflow
+Machine-specific overrides belong in `~/.config/zsh/local.zsh`, which is not versioned.
 
-### Single-domain target
+## Makefile targets
 
 ```bash
-mktarget example.com
-scope example.com
-webmap example.com
-paramhunt-v2 example.com
-```
-
-### Multi-domain program
-
-```bash
-program-init example
-nvim "$HUNTING_HOME/targets/example/scopes/brief.txt"
-program-import-brief example "$HUNTING_HOME/targets/example/scopes/brief.txt"
-
-nvim "$HUNTING_HOME/targets/example/scopes/roots.txt"
-nvim "$HUNTING_HOME/targets/example/scopes/scope-web.txt"
-nvim "$HUNTING_HOME/targets/example/scopes/out-of-scope.txt"
-
-scope-program example
-webmap example
-paramhunt-v2 example
-```
-
-Core outputs are kept inside `$HUNTING_HOME/targets/<target>/`:
-
-```text
-recon/subdomains.txt
-recon/live.txt
-recon/httpx.jsonl
-recon/urls.txt
-recon/api_candidates.txt
-recon/graphql.txt
-recon/js_files.txt
-recon/params.txt
-recon/sensitive_params.txt
-scopes/*.json
-```
-
-## Indexed AI workflow
-
-`hunt-ai` is the only supported AI entry point. Old `claude-recon`, `claude-hypotheses` and `chatgpt-*` wrappers were removed rather than kept as dead compatibility layers.
-
-```bash
-hunt-ai index <target>
-hunt-ai analyze <target> --prompt-only
-hunt-ai hypotheses <target> --prompt-only
-hunt-ai caido <target> --prompt-only
-hunt-ai report <target> --prompt-only
-```
-
-Remove `--prompt-only` to invoke Claude Code.
-
-The workflow is deliberately staged:
-
-```text
-raw recon outputs
-    ↓
-hunt-ai index
-    ↓
-ai/context.json
-    ↓
-analyze → hypotheses → Caido review → report
-```
-
-`index` is local and deterministic. It summarizes large files such as `recon/httpx.jsonl` into `ai/context.json`, so Claude receives compact structured context instead of raw recon dumps.
-
-Generated artifacts:
-
-```text
-ai/context.json
-ai/analyze.prompt.md
-ai/analyze.md
-ai/hypotheses.prompt.md
-ai/hypotheses.md
-ai/caido.prompt.md
-ai/caido.md
-ai/report.prompt.md
-ai/report.md
-```
-
-Rules:
-
-- scope and out-of-scope are read first;
-- hypotheses are not treated as confirmed findings;
-- `caido` is read-only by default;
-- secrets, cookies and authorization headers must not be exposed;
-- `report` uses validated evidence, not raw recon;
-- missing evidence is stated instead of invented.
-
-See [`docs/ai-workflow.md`](docs/ai-workflow.md) for the full design.
-
-## Caido MCP
-
-The optional Caido MCP integration expects a local MCP server registered as `caido` in Claude Code. `hunt-ai caido` prepares a read-only analysis prompt; it must not replay requests, run Automate, start crawlers or modify traffic.
-
-Check the integration with:
-
-```bash
-hunt-ai doctor
-claude mcp get caido
+make help     # lists all targets
+make install  # stow runcom/config/bin + brew bundle
+make macos    # bootstrap a fresh macOS machine (Homebrew + make install)
+make test     # run the bats test suite
+make update   # brew update/upgrade + re-stow
+make clean    # remove the symlinks created by stow
+make edit     # open the repo in $EDITOR
 ```
 
 ## Useful commands
 
 ```bash
-cdh        # $HUNTING_HOME
-cdt        # $HUNTING_HOME/targets
-dotfiles-ref  # interactive reference for the whole dotfiles setup (shell, git, navigation, utilities, bug bounty)
-hunt-doctor
-hunt-ai doctor
+dotfiles-ref   # interactive cheatsheet for this dotfiles setup
+tmux-popup     # floating tmux popup terminal
+tmux-sessionizer  # fuzzy project/session switcher
 ```
-
-Validate command resolution:
-
-```bash
-type -a program-init scope-program program-import-brief scope webmap paramhunt-v2 hunt-ai
-```
-
-Everything should resolve to `~/.local/bin/*`.
 
 ## Tests
 
@@ -182,21 +77,13 @@ make test
 ├── config/   # zsh/, nvim/, tmux/, ghostty/, git/
 ├── install/  # Brewfile
 ├── macos/    # bootstrap-macos.sh
-├── bin/      # utilidades genéricas (tmux-popup, tmux-sessionizer)
+├── bin/      # generic utilities (tmux-popup, tmux-sessionizer)
 ├── test/
 ├── docs/
 └── Makefile
 ```
 
-> El pipeline de bug bounty (scripts, containers, hunting-template) vive
-> ahora en [theoffsecgirl/bugbounty-toolkit](https://github.com/theoffsecgirl/bugbounty-toolkit),
-> con su historial de commits conservado.
-
 Managed with GNU Stow.
-
-## Ethical use
-
-Only test systems for which you have explicit authorization.
 
 ## License
 
