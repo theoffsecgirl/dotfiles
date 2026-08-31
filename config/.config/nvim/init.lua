@@ -427,19 +427,15 @@ require("lazy").setup({
   {
     "nvimdev/dashboard-nvim",
     event = "VimEnter",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
+    dependencies = {
+      "nvim-tree/nvim-web-devicons",
+      { "MaximilianLloyd/ascii.nvim", dependencies = { "MunifTanjim/nui.nvim" } },
+    },
     config = function()
       require("dashboard").setup({
         theme = "doom",
         config = {
-          header = {
-            "",
-            " ___ _ __  _ _  __  _   _ __  _ ___  __     ___ ___ __    _____ ___  __  __ __   ",
-            [=[| _,\ |  \| | |/ / | | | |  \| | __/' _/   | _ \ __| _\  |_   _| __|/  \|  V  |  ]=],
-            [=[| v_/ | | ' |   <  | |_| | | ' | _|`._`._, | v / _|| v |   | | | _|| /\ | \_/ |_ ]=],
-            [=[|_| |_|_|\__|_|\_\ |___|_|_|\__|___|___[_/ |_|_\___|__/    |_| |___|_||_|_| |_\/]=],
-            "",
-          },
+          header = require("ascii").art.misc.skulls.angryskull,
           center = {
             { icon = "  ", desc = "Find file   ", key = "f", action = "Telescope find_files" },
             { icon = "  ", desc = "Recent      ", key = "r", action = "Telescope oldfiles" },
