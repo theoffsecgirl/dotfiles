@@ -1,8 +1,8 @@
 # =========================
 # Aliases builtin (cross-platform)
 # =========================
-# Cargado desde load.zsh como primer archivo de vendor.
-# Solo define lo que NO está en aliases-general.zsh ni bug-bounty.zsh.
+# Cargado desde load.zsh.
+# Solo define lo que NO está en aliases-general.zsh.
 
 
 # -------------------------
