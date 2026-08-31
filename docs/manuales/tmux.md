@@ -127,6 +127,12 @@ Esto es clave: te desconectas, pero todo sigue vivo.
 
 ## 8. Flujo recomendado para bug bounty
 
+> Los comandos de esta sección (`scope`, `webmap`, `paramhunt`, `jwt-decode`,
+> `race-run`, `idor-hints`, `mktarget`...) son del pipeline de bug bounty,
+> que vive en [theoffsecgirl/bugbounty-toolkit](https://github.com/theoffsecgirl/bugbounty-toolkit),
+> no en este repo de dotfiles. El patrón de organización en tmux (una sesión
+> por target, ventanas por fase) sigue siendo válido con cualquier tooling.
+
 ## Una sesión por target
 Ejemplo:
 ```bash
