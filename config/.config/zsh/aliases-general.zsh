@@ -249,6 +249,33 @@ quickvenv() {
 }
 
 # -------------------------
+# mkproject — crear carpeta de proyecto con subcarpetas
+# -------------------------
+mkproject() {
+  emulate -L zsh
+  set -euo pipefail
+
+  local name="${1:-}"
+  if [[ -z "$name" ]]; then
+    echo "Uso: mkproject nombre carpeta1,carpeta2,carpeta3"
+    return 1
+  fi
+
+  local -a dirs
+  if [[ -n "${2:-}" ]]; then
+    dirs=("${(@s:,:)2}")
+  fi
+
+  mkdir -p "$name"
+  for d in "${dirs[@]}"; do
+    mkdir -p "$name/$d"
+  done
+
+  echo "[✔] Creado: $name"
+  [[ ${#dirs[@]} -gt 0 ]] && echo "[→] Subcarpetas: ${dirs[*]}"
+}
+
+# -------------------------
 # Tips — cheatsheet interactivo curado
 # ENTER copia el comando al portapapeles.
 # -------------------------
@@ -407,6 +434,7 @@ tips() {
   _tips_alias wheremi "Copiar el directorio actual al portapapeles"
   _tips_func extra "Descomprimir cualquier archivo (tar/zip/rar/7z/gz/bz2)"
   _tips_func gotodir "Saltar al primer directorio que matchee un nombre"
+  _tips_func mkproject "Crear carpeta de proyecto con subcarpetas"
   _tips_func updateall "Actualizar sistema + pip + plugins de nvim"
 
 
