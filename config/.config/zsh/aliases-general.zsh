@@ -241,6 +241,14 @@ updateall() {
 }
 
 # -------------------------
+# quickvenv — crear y activar un virtualenv local
+# -------------------------
+quickvenv() {
+    python3 -m venv .venv && source .venv/bin/activate
+    echo "Virtualenv .venv activado"
+}
+
+# -------------------------
 # Tips — cheatsheet interactivo curado
 # ENTER copia el comando al portapapeles.
 # -------------------------
@@ -354,10 +362,7 @@ tips() {
   _tips_section "PYTHON"
   _tips_alias py "Ejecutar python3"
   _tips_alias pip "Ejecutar pip3 fuera de venv"
-  _tips_alias venv-create "Crear entorno virtual"
-  _tips_alias venv-activate "Activar entorno virtual local"
-  _tips_alias venv-deactivate "Desactivar entorno virtual"
-  _tips_func venv-auto "Detectar y activar venv automáticamente"
+  _tips_func quickvenv "Crear y activar un virtualenv local (.venv)"
 
   _tips_section "DOCKER / OFFSEC"
   _tips_alias dk "Alias corto de docker"
