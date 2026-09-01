@@ -131,7 +131,114 @@ if command -v docker >/dev/null 2>&1; then
   alias dkexec='docker exec -it'
   alias dklog='docker logs -f'
   alias dkprune='docker system prune -f'
+
+  # Atajos rescatados de vendor/shell-utils (pre-migración a bugbounty-toolkit)
+  alias dps='docker ps'
+  alias di='docker images'
+  alias dclean='docker system prune -af --volumes'
+
+  drm() {
+    local ids
+    ids="$(docker ps -aq)"
+    [[ -z "$ids" ]] && { echo "No hay contenedores."; return 0; }
+    docker rm $ids
+  }
+
+  dstopall() {
+    local ids
+    ids="$(docker ps -aq)"
+    [[ -z "$ids" ]] && { echo "No hay contenedores."; return 0; }
+    docker stop $ids
+  }
 fi
+
+# -------------------------
+# Edición rápida de configuración
+# -------------------------
+# ezsh abre el directorio zsh de los dotfiles. dalias/dfunctions apuntan al
+# mismo fichero: la reestructuración a runcom/config/bin fusionó aliases y
+# funciones en un único aliases-general.zsh (ya no hay ficheros separados).
+alias ezsh='nvim "${DOTFILES_DIR:-$HOME/.dotfiles}/config/.config/zsh/"'
+alias dalias='nvim "${DOTFILES_DIR:-$HOME/.dotfiles}/config/.config/zsh/aliases-general.zsh"'
+alias dfunctions='nvim "${DOTFILES_DIR:-$HOME/.dotfiles}/config/.config/zsh/aliases-general.zsh"'
+
+reloadzsh() {
+  exec zsh
+}
+
+showaliases() {
+  alias | sed 's/^alias //' | column -t -s'=' | less
+}
+
+# -------------------------
+# Utilidades rescatadas de vendor/shell-utils
+# -------------------------
+alias err='grep -i --color error'
+alias serve='python3 -m http.server 8000'
+
+bigfiles() {
+  local target="${1:-.}"
+  find "$target" -type f -size +100M -exec ls -lh {} \; 2>/dev/null \
+    | awk '{print $9 ": " $5}'
+}
+
+if [[ "${PLATFORM:-}" == "macos" ]]; then
+  alias copyip='curl -s --max-time 5 ifconfig.me | pbcopy'
+  alias wheremi='pwd | pbcopy && pwd'
+else
+  alias copyip='curl -s --max-time 5 ifconfig.me | xclip -selection clipboard'
+  alias wheremi='pwd | xclip -selection clipboard && pwd'
+fi
+
+extra() {
+    if [[ -f "$1" ]]; then
+        case "$1" in
+            *.tar.bz2) tar xjf "$1" ;; *.tar.gz)  tar xzf "$1" ;; *.tar.xz)  tar xJf "$1" ;;
+            *.tar)     tar xf  "$1" ;; *.tbz2)    tar xjf "$1" ;; *.tgz)     tar xzf "$1" ;;
+            *.zip)     unzip   "$1" ;; *.rar)      unrar x "$1" ;; *.7z)      7z x    "$1" ;;
+            *.gz)      gunzip  "$1" ;; *.bz2)      bunzip2 "$1" ;;
+            *) echo "'$1' no puede extraerse con extra()" ;;
+        esac
+    else
+        echo "'$1' no es un archivo válido"
+    fi
+}
+
+gotodir() {
+    local dir
+    dir=$(find . -type d -iname "*$1*" | head -n 1)
+    [[ -d "$dir" ]] && cd "$dir" && echo "Entro en $dir" || echo "No encontrado"
+}
+
+# -------------------------
+# Actualización de sistema
+# -------------------------
+# NOTA: 'make update' (Makefile) hace brew update/upgrade + re-stow, sin
+# tocar el propio sistema operativo. update_system/updateall van más allá
+# (softwareupdate/apt/dnf/pacman, pip, plugins de nvim) — se dejan como
+# funciones de shell en vez de un 'alias update' para no solaparse con el
+# target del Makefile.
+update_system() {
+    if [[ "$PLATFORM" == "macos" ]]; then
+        brew update && brew upgrade && brew cleanup
+        softwareupdate -l
+    else
+        if command -v apt &>/dev/null; then
+            sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y
+        elif command -v dnf &>/dev/null; then
+            sudo dnf upgrade -y && sudo dnf autoremove -y
+        elif command -v pacman &>/dev/null; then
+            sudo pacman -Syu --noconfirm
+        fi
+    fi
+}
+
+updateall() {
+    update_system
+    pip3 install --upgrade pip setuptools wheel
+    command -v nvim >/dev/null 2>&1 && nvim --headless "+Lazy! sync" +qa
+    echo "Todo actualizado."
+}
 
 # -------------------------
 # Tips — cheatsheet interactivo curado
@@ -285,6 +392,17 @@ tips() {
   _tips_func localip "Mostrar IP local"
   _tips_alias path "Mostrar PATH línea por línea"
   _tips_alias reload "Recargar shell zsh"
+  _tips_func reloadzsh "Recargar shell zsh (exec zsh)"
+  _tips_alias ezsh "Editar el directorio zsh de los dotfiles"
+  _tips_func showaliases "Listar todos los aliases activos"
+  _tips_alias err "grep -i --color error"
+  _tips_alias serve "Servidor HTTP rápido en el directorio actual (puerto 8000)"
+  _tips_func bigfiles "Listar ficheros >100M bajo un directorio"
+  _tips_alias copyip "Copiar la IP pública al portapapeles"
+  _tips_alias wheremi "Copiar el directorio actual al portapapeles"
+  _tips_func extra "Descomprimir cualquier archivo (tar/zip/rar/7z/gz/bz2)"
+  _tips_func gotodir "Saltar al primer directorio que matchee un nombre"
+  _tips_func updateall "Actualizar sistema + pip + plugins de nvim"
 
 
   _tips_section "TMUX"
