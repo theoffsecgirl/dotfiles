@@ -15,7 +15,7 @@
 
 Un setup de dotfiles orientado a macOS y terminal, gestionado con [GNU Stow](https://www.gnu.org/software/stow/) y un `Makefile`. Cubre configuración de shell (zsh), Neovim, tmux, Ghostty y git.
 
-El pipeline de bug bounty / pentesting (scripts de recon, containers, plantilla de workspace de hunting) vivía antes en este repo. Se ha migrado, con todo su historial de commits, a [theoffsecgirl/bugbounty-toolkit](https://github.com/theoffsecgirl/bugbounty-toolkit) — un repo separado y privado. Este repo ya no lo contiene ni depende de él.
+El pipeline de bug bounty / pentesting (scripts de recon, containers, plantilla de workspace de hunting) vivía antes en este repo. Se ha migrado a un repo separado y privado. Este repo ya no lo contiene ni depende de él.
 
 ## Instalación
 
@@ -58,8 +58,18 @@ make edit     # abre el repo en $EDITOR
 
 ```bash
 dotfiles-ref   # cheatsheet interactivo de este setup de dotfiles
+tips           # cheatsheet interactivo de aliases/funciones de shell
 tmux-popup     # terminal flotante en tmux (popup)
 tmux-sessionizer  # selector rápido de proyectos/sesiones con fzf
+
+mkproject nombre dir1,dir2,dir3  # crear carpeta de proyecto con subcarpetas
+ezsh           # abrir el directorio zsh de los dotfiles en $EDITOR
+reloadzsh      # relanzar una sesión de zsh limpia
+showaliases    # listar todos los aliases activos
+extra archivo.tar.gz  # descomprimir cualquier formato (tar/zip/rar/7z/gz/bz2)
+gotodir nombre # cd al primer directorio que matchee un fragmento de nombre
+quickvenv      # crear y activar un .venv local
+updateall      # update_system (paquetes del SO) + pip + plugins de nvim
 ```
 
 ## Tests
