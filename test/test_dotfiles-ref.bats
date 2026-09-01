@@ -2,10 +2,9 @@
 # test/test_dotfiles-ref.bats — verifica la salud básica del cheatsheet dotfiles-ref.zsh.
 # Ejecutar con: bats test/test_dotfiles-ref.bats
 #
-# El check de drift entre scripts/.local/bin/ y dotfiles-ref.zsh se retiró:
-# scripts/ ya no vive en este repo (migrado a bugbounty-toolkit con su
-# historial vía git subtree split). dotfiles-ref.zsh se conserva aquí como
-# cheatsheet de referencia para los comandos que instala ese otro repo.
+# dotfiles-ref.zsh cubre únicamente utilidades genéricas de este repo. El
+# pipeline de bug bounty (recon, hunt-ai, etc.) vive en el repo separado
+# bugbounty-toolkit y no tiene entradas aquí.
 
 setup() {
   REPO_ROOT="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
@@ -17,10 +16,14 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
-@test "program-import-brief tiene entrada en dotfiles-ref.zsh" {
-  grep -q '"program-import-brief"' "$DOTFILES_REF"
+@test "mkproject tiene entrada en dotfiles-ref.zsh" {
+  grep -q '"mkproject"' "$DOTFILES_REF"
 }
 
-@test "tmux-recon tiene entrada en dotfiles-ref.zsh" {
-  grep -q '"tmux-recon"' "$DOTFILES_REF"
+@test "tmux-sessionizer tiene entrada en dotfiles-ref.zsh" {
+  grep -q '"tmux-sessionizer"' "$DOTFILES_REF"
+}
+
+@test "dotfiles-ref.zsh no referencia comandos migrados a bugbounty-toolkit" {
+  ! grep -qE '"(program-import-brief|scope-program|webmap|paramhunt-v2|hunt-ai|hunt-doctor|nmap-scope)"' "$DOTFILES_REF"
 }
