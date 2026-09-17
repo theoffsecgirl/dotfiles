@@ -19,6 +19,8 @@ El pipeline de bug bounty / pentesting (scripts de recon, containers, plantilla 
 
 ## Instalación
 
+> ⚠️ **¿Mac recién formateada o nueva (sin Homebrew)?** Salta directamente a `make macos` más abajo — `make install` solo fallará con `stow: No such file or directory` porque Homebrew y Stow aún no están instalados.
+
 ```bash
 git clone git@github.com:theoffsecgirl/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
@@ -26,7 +28,7 @@ make install
 exec zsh
 ```
 
-`make install` ejecuta `stow -t $HOME runcom config bin` y `brew bundle --file=install/Brewfile`.
+`make install` ejecuta `stow -t $HOME runcom config bin` y `brew bundle --file=install/Brewfile`. Úsalo solo si Homebrew ya está instalado.
 
 Para simular los cambios de Stow sin aplicarlos:
 
@@ -34,7 +36,7 @@ Para simular los cambios de Stow sin aplicarlos:
 stow -n -v -t "$HOME" runcom config bin
 ```
 
-En una Mac nueva, `make macos` instala Homebrew por sí mismo y luego delega en `make install`:
+En una Mac nueva, `make macos` instala Homebrew por sí mismo y luego delega en `make install` — **usa este primero en una máquina nueva**:
 
 ```bash
 make macos
