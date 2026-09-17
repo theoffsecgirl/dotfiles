@@ -49,8 +49,8 @@ grh() {
 # Utilidades generales
 # -------------------------
 if command -v eza >/dev/null 2>&1; then
-  alias ll='eza -la --group-directories-first'
-  alias la='eza -a'
+  alias ll='eza -la --group-directories-first --icons'
+  alias la='eza -a --icons'
 elif command -v lsd >/dev/null 2>&1; then
   alias ll='lsd -la --group-dirs=first'
   alias la='lsd -a'

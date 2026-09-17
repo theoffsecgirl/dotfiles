@@ -57,8 +57,8 @@ if command -v lsd &>/dev/null; then
   alias l='lsd'
   alias cl='clear && lsd'
 elif command -v eza &>/dev/null; then
-  alias l='eza'
-  alias cl='clear && eza'
+  alias l='eza --icons'
+  alias cl='clear && eza --icons'
 else
   if [[ "$PLATFORM" == "linux" ]]; then
     alias l='ls --color=auto'
