@@ -124,6 +124,11 @@ unset _entry _TOOL_COMPLETIONS
 # Local overrides (no se versiona)
 [[ -f "$HOME/.config/zsh/local.zsh" ]] && source "$HOME/.config/zsh/local.zsh"
 
+# Fastfetch al abrir una terminal nueva (solo shells interactivas, no en subshells/scripts)
+if [[ -o interactive ]] && command -v fastfetch >/dev/null 2>&1; then
+  fastfetch
+fi
+
 # zsh-syntax-highlighting al final para evitar interferencias con widgets/completions
 for _plugin in \
   "$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" \

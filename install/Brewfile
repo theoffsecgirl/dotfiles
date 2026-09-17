@@ -65,6 +65,9 @@ brew "docker-compose"
 brew "pipx"
 brew "python@3.12"
 
+# ── Info de sistema al abrir terminal ──────────────────────────────────────────
+brew "fastfetch"
+
 # ── Fuentes (Nerd Font para iconos en eza/starship/etc.) ──────────────────────
 cask "font-jetbrains-mono-nerd-font"
 
