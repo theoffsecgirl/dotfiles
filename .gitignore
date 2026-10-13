@@ -48,3 +48,9 @@ tests/tmp/
 tools/bin/
 tools/src/
 *.patch
+
+# Config generada por apps (puede contener tokens)
+config/.config/gh/
+config/.config/atuin/
+config/.config/cagent/
+config/.config/wireshark/
