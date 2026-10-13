@@ -45,18 +45,15 @@ font-family = "SF Mono"
 
 ## Theme
 
-Usa Catppuccin Mocha por defecto. Para cambiar:
+Usa **Neon Fuchsia** (`themes/neon-fuchsia`): fondo morado casi negro, fucsia/rosa neón y cian de contraste.
+Para cambiar, edita la línea `theme =` en `config`:
 
 ```
-theme = dark:tokyo-night
-# O
-theme = light:solarized-light
+theme = neon-fuchsia
+# O cualquiera de: ghostty +list-themes
 ```
 
-Ver temas disponibles:
-```bash
-ghostty +list-themes
-```
+Recargar sin cerrar: `Cmd+Shift+,`
 
 ## Personalización
 

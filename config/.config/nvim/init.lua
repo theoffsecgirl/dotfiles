@@ -1,6 +1,6 @@
 -- ============================================================
 --  init.lua — Ari's Neovim config (lazy.nvim)
---  Catppuccin Mocha · LSP · Telescope · Harpoon · etc.
+--  Neon Fuchsia (Catppuccin con paleta propia) · LSP · Telescope · Harpoon · etc.
 -- ============================================================
 
 -- ── Bootstrap lazy.nvim ─────────────────────────────────────
@@ -56,6 +56,34 @@ require("lazy").setup({
     priority = 1000,
     opts = {
       flavour = "mocha",
+      -- Paleta Neon Fuchsia (misma que Ghostty/tmux/fastfetch)
+      color_overrides = {
+        mocha = {
+          rosewater = "#ffc2ee", flamingo = "#ff9ad8", pink     = "#ff2bd6",
+          mauve     = "#ff7ae6", red      = "#ff2e63", maroon   = "#ff6b9d",
+          peach     = "#ff8fb1", yellow   = "#ffd166", green    = "#3dffb0",
+          teal      = "#7af4ff", sky      = "#00e5ff", sapphire = "#4fd8ff",
+          blue      = "#8a7bff", lavender = "#c9a7ff",
+          text      = "#f5e1ff", subtext1 = "#dcc6f2", subtext0 = "#c0a8db",
+          overlay2  = "#a48bc2", overlay1 = "#8a6fae", overlay0 = "#6f5491",
+          surface2  = "#4a2f6b", surface1 = "#3a2357", surface0 = "#2a1842",
+          base      = "#0b0613", mantle   = "#08040e", crust    = "#050209",
+        },
+      },
+      custom_highlights = function(c)
+        return {
+          CursorLineNr     = { fg = c.pink, style = { "bold" } },
+          Visual           = { bg = "#4a1a6b" },
+          FloatBorder      = { fg = c.pink },
+          WinSeparator     = { fg = c.surface2 },
+          DashboardHeader  = { fg = c.pink, style = { "bold" } },
+          DashboardIcon    = { fg = c.sky },
+          DashboardDesc    = { fg = c.mauve },
+          DashboardKey     = { fg = c.sky, style = { "bold" } },
+          DashboardFooter  = { fg = c.overlay2, style = { "italic" } },
+          DashboardCyber   = { fg = c.sky },
+        }
+      end,
       integrations = {
         telescope   = true,
         which_key   = true,
@@ -261,7 +289,7 @@ require("lazy").setup({
     dependencies = { "nvim-tree/nvim-web-devicons" },
     opts = {
       options = {
-        theme                = "catppuccin-mocha",
+        theme                = "catppuccin",
         component_separators = { left = "│", right = "│" },
         section_separators   = { left = "", right = "" },
         globalstatus         = true,
@@ -427,15 +455,27 @@ require("lazy").setup({
   {
     "nvimdev/dashboard-nvim",
     event = "VimEnter",
-    dependencies = {
-      "nvim-tree/nvim-web-devicons",
-      { "MaximilianLloyd/ascii.nvim", dependencies = { "MunifTanjim/nui.nvim" } },
-    },
+    dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
+      local header = {
+        "",
+        "  ▓▒░ root@theoffsecgirl :: session established ░▒▓  ",
+        "",
+        " ██████╗ ███████╗███████╗███████╗███████╗ ██████╗ ",
+        "██╔═══██╗██╔════╝██╔════╝██╔════╝██╔════╝██╔════╝ ",
+        "██║   ██║█████╗  █████╗  ███████╗█████╗  ██║      ",
+        "██║   ██║██╔══╝  ██╔══╝  ╚════██║██╔══╝  ██║      ",
+        "╚██████╔╝██║     ██║     ███████║███████╗╚██████╗ ",
+        " ╚═════╝ ╚═╝     ╚═╝     ╚══════╝╚══════╝ ╚═════╝ ",
+        "",
+        "      ─────────[  g  i  r  l  ]─────────      ",
+        "",
+        "",
+      }
       require("dashboard").setup({
         theme = "doom",
         config = {
-          header = require("ascii").art.misc.skulls.angryskull,
+          header = header,
           center = {
             { icon = "  ", desc = "Find file   ", key = "f", action = "Telescope find_files" },
             { icon = "  ", desc = "Recent      ", key = "r", action = "Telescope oldfiles" },
@@ -444,7 +484,7 @@ require("lazy").setup({
             { icon = "  ", desc = "Lazy        ", key = "l", action = "Lazy" },
             { icon = "  ", desc = "Quit        ", key = "q", action = "qa" },
           },
-          footer = { "  theoffsecgirl · bug hunter · teacher" },
+          footer = { "", "  theoffsecgirl · bug hunter · teacher", "  // hack the planet" },
         },
       })
     end,

@@ -1,0 +1,31 @@
+# Neon Fuchsia — theoffsecgirl
+# Fondo morado casi negro, acentos fucsia/rosa neón y cian como contraste "cyber".
+
+background = 0b0613
+foreground = f5e1ff
+
+cursor-color = ff2bd6
+cursor-text = 0b0613
+
+selection-background = 4a1a6b
+selection-foreground = ffffff
+
+# normales
+palette = 0=#1a0f2e
+palette = 1=#ff2e63
+palette = 2=#3dffb0
+palette = 3=#ffd166
+palette = 4=#8a7bff
+palette = 5=#ff2bd6
+palette = 6=#00e5ff
+palette = 7=#d8c4f0
+
+# brillantes
+palette = 8=#5a3d85
+palette = 9=#ff6b9d
+palette = 10=#8affcf
+palette = 11=#ffe29a
+palette = 12=#b8abff
+palette = 13=#ff7ae6
+palette = 14=#7af4ff
+palette = 15=#ffffff

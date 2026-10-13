@@ -1,0 +1,78 @@
+# Starship — Neon Fuchsia · theoffsecgirl
+"$schema" = "https://starship.rs/config-schema.json"
+
+add_newline = true
+palette = "neon_fuchsia"
+
+format = """
+[╭─](bold fuchsia)[ ](fuchsia)$username[@](cyan)$hostname $directory$git_branch$git_status$python$golang$nodejs$docker_context$cmd_duration
+[╰─](bold fuchsia)$character"""
+
+[palettes.neon_fuchsia]
+fuchsia = "#ff2bd6"
+pink    = "#ff7ae6"
+cyan    = "#00e5ff"
+violet  = "#8a7bff"
+muted   = "#a48bc2"
+red     = "#ff2e63"
+green   = "#3dffb0"
+yellow  = "#ffd166"
+
+[username]
+show_always = true
+style_user  = "bold pink"
+style_root  = "bold red"
+format      = "[$user]($style)"
+
+[hostname]
+ssh_only = false
+style    = "bold cyan"
+format   = "[$hostname]($style)"
+trim_at  = "-de-"
+
+[directory]
+style             = "bold fuchsia"
+read_only         = " 󰌾"
+read_only_style   = "red"
+truncation_length = 3
+truncation_symbol = "…/"
+format            = "[ ](muted)[$path]($style)[$read_only]($read_only_style) "
+
+[git_branch]
+symbol = " "
+style  = "bold violet"
+format = "[on](muted) [$symbol$branch]($style) "
+
+[git_status]
+style  = "bold yellow"
+format = "([\\[$all_status$ahead_behind\\]]($style) )"
+
+[python]
+symbol = " "
+style  = "cyan"
+format = "[$symbol$version(\\($virtualenv\\))]($style) "
+
+[golang]
+symbol = " "
+style  = "cyan"
+format = "[$symbol$version]($style) "
+
+[nodejs]
+symbol = " "
+style  = "green"
+format = "[$symbol$version]($style) "
+
+[docker_context]
+symbol = " "
+style  = "cyan"
+format = "[$symbol$context]($style) "
+
+[cmd_duration]
+min_time = 2000
+style    = "muted"
+format   = "[ $duration]($style) "
+
+[character]
+success_symbol = "[❯](bold fuchsia)[❯](bold pink)[❯](bold cyan)"
+error_symbol   = "[✗](bold red)"
+vimcmd_symbol  = "[❮](bold cyan)"

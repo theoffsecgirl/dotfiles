@@ -65,7 +65,10 @@ if command -v fzf >/dev/null 2>&1; then
   [[ -f /usr/share/fzf/completion.zsh ]] && source /usr/share/fzf/completion.zsh
   [[ -n "$BREW_PREFIX" && -f "$BREW_PREFIX/opt/fzf/shell/key-bindings.zsh" ]] && source "$BREW_PREFIX/opt/fzf/shell/key-bindings.zsh"
   [[ -n "$BREW_PREFIX" && -f "$BREW_PREFIX/opt/fzf/shell/completion.zsh" ]] && source "$BREW_PREFIX/opt/fzf/shell/completion.zsh"
-  export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
+  export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border=rounded \
+    --color=bg+:#2a1842,bg:-1,spinner:#00e5ff,hl:#ff2bd6 \
+    --color=fg:#d8c4f0,header:#ff7ae6,info:#a48bc2,pointer:#ff2bd6 \
+    --color=marker:#00e5ff,fg+:#ffffff,prompt:#ff2bd6,hl+:#00e5ff,border:#5a3d85"
 fi
 
 # Autosuggestions primero
