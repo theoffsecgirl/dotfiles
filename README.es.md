@@ -110,9 +110,23 @@ theme reset              # volver a neon-fuchsia
 | `mint-breeze` 🌿 | **Claro**: blanco menta, verde bosque y azul petróleo |
 | `cotton-candy` 🍬 | **Claro**: rosa chicle, azul algodón y lila |
 
+### Galería
+
+<table>
+<tr><td align="center"><img src="docs/themes/neon-fuchsia.png" width="400" alt="neon-fuchsia"><br><code>neon-fuchsia</code></td><td align="center"><img src="docs/themes/pumpkin-spice.png" width="400" alt="pumpkin-spice"><br><code>pumpkin-spice</code></td></tr>
+<tr><td align="center"><img src="docs/themes/trick-or-treat.png" width="400" alt="trick-or-treat"><br><code>trick-or-treat</code></td><td align="center"><img src="docs/themes/maple-forest.png" width="400" alt="maple-forest"><br><code>maple-forest</code></td></tr>
+<tr><td align="center"><img src="docs/themes/witching-hour.png" width="400" alt="witching-hour"><br><code>witching-hour</code></td><td align="center"><img src="docs/themes/matrix-terminal.png" width="400" alt="matrix-terminal"><br><code>matrix-terminal</code></td></tr>
+<tr><td align="center"><img src="docs/themes/deep-sea.png" width="400" alt="deep-sea"><br><code>deep-sea</code></td><td align="center"><img src="docs/themes/sakura-bloom.png" width="400" alt="sakura-bloom"><br><code>sakura-bloom</code></td></tr>
+<tr><td align="center"><img src="docs/themes/arctic-frost.png" width="400" alt="arctic-frost"><br><code>arctic-frost</code></td><td align="center"><img src="docs/themes/synthwave-sunset.png" width="400" alt="synthwave-sunset"><br><code>synthwave-sunset</code></td></tr>
+<tr><td align="center"><img src="docs/themes/lava-core.png" width="400" alt="lava-core"><br><code>lava-core</code></td><td align="center"><img src="docs/themes/desert-dune.png" width="400" alt="desert-dune"><br><code>desert-dune</code></td></tr>
+<tr><td align="center"><img src="docs/themes/mono-ink.png" width="400" alt="mono-ink"><br><code>mono-ink</code></td><td align="center"><img src="docs/themes/amber-crt.png" width="400" alt="amber-crt"><br><code>amber-crt</code></td></tr>
+<tr><td align="center"><img src="docs/themes/high-contrast.png" width="400" alt="high-contrast"><br><code>high-contrast</code></td><td align="center"><img src="docs/themes/paper-latte.png" width="400" alt="paper-latte"><br><code>paper-latte</code></td></tr>
+<tr><td align="center"><img src="docs/themes/mint-breeze.png" width="400" alt="mint-breeze"><br><code>mint-breeze</code></td><td align="center"><img src="docs/themes/cotton-candy.png" width="400" alt="cotton-candy"><br><code>cotton-candy</code></td></tr>
+</table>
+
 La terminal actual cambia al momento; en el resto de pestañas de Ghostty pulsa `Cmd+Shift+,` y Neovim lo coge al reabrirlo. La elección se guarda en `~/.local/state/theme/` (fuera del repo).
 
-**Crear un tema nuevo:** copia cualquier `config/.config/themes/*.theme`, cambia los colores y ya aparece en `theme list`. Para uno claro, añade `THEME_MODE="light"` y `bright="<color de texto más oscuro>"` (mira `paper-latte`).
+**Crear un tema nuevo:** copia cualquier `config/.config/themes/*.theme`, cambia los colores y ya aparece en `theme list`. Para uno claro, añade `THEME_MODE="light"` y `bright="<color de texto más oscuro>"` (mira `paper-latte`). Para su imagen de la galería: `python3 docs/themes/gen-previews.py`.
 
 ## Tests
 

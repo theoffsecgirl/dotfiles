@@ -110,7 +110,21 @@ theme reset              # back to neon-fuchsia
 | `mint-breeze` 🌿 | **Light**: mint white, forest green and petrol blue |
 | `cotton-candy` 🍬 | **Light**: bubblegum pink, cotton blue and lilac |
 
-The current terminal changes instantly; other Ghostty tabs pick it up with `Cmd+Shift+,`, Neovim on next launch. The choice lives in `~/.local/state/theme/` (outside the repo). To add a theme, copy any `config/.config/themes/*.theme` and edit the colors.
+### Gallery
+
+<table>
+<tr><td align="center"><img src="docs/themes/neon-fuchsia.png" width="400" alt="neon-fuchsia"><br><code>neon-fuchsia</code></td><td align="center"><img src="docs/themes/pumpkin-spice.png" width="400" alt="pumpkin-spice"><br><code>pumpkin-spice</code></td></tr>
+<tr><td align="center"><img src="docs/themes/trick-or-treat.png" width="400" alt="trick-or-treat"><br><code>trick-or-treat</code></td><td align="center"><img src="docs/themes/maple-forest.png" width="400" alt="maple-forest"><br><code>maple-forest</code></td></tr>
+<tr><td align="center"><img src="docs/themes/witching-hour.png" width="400" alt="witching-hour"><br><code>witching-hour</code></td><td align="center"><img src="docs/themes/matrix-terminal.png" width="400" alt="matrix-terminal"><br><code>matrix-terminal</code></td></tr>
+<tr><td align="center"><img src="docs/themes/deep-sea.png" width="400" alt="deep-sea"><br><code>deep-sea</code></td><td align="center"><img src="docs/themes/sakura-bloom.png" width="400" alt="sakura-bloom"><br><code>sakura-bloom</code></td></tr>
+<tr><td align="center"><img src="docs/themes/arctic-frost.png" width="400" alt="arctic-frost"><br><code>arctic-frost</code></td><td align="center"><img src="docs/themes/synthwave-sunset.png" width="400" alt="synthwave-sunset"><br><code>synthwave-sunset</code></td></tr>
+<tr><td align="center"><img src="docs/themes/lava-core.png" width="400" alt="lava-core"><br><code>lava-core</code></td><td align="center"><img src="docs/themes/desert-dune.png" width="400" alt="desert-dune"><br><code>desert-dune</code></td></tr>
+<tr><td align="center"><img src="docs/themes/mono-ink.png" width="400" alt="mono-ink"><br><code>mono-ink</code></td><td align="center"><img src="docs/themes/amber-crt.png" width="400" alt="amber-crt"><br><code>amber-crt</code></td></tr>
+<tr><td align="center"><img src="docs/themes/high-contrast.png" width="400" alt="high-contrast"><br><code>high-contrast</code></td><td align="center"><img src="docs/themes/paper-latte.png" width="400" alt="paper-latte"><br><code>paper-latte</code></td></tr>
+<tr><td align="center"><img src="docs/themes/mint-breeze.png" width="400" alt="mint-breeze"><br><code>mint-breeze</code></td><td align="center"><img src="docs/themes/cotton-candy.png" width="400" alt="cotton-candy"><br><code>cotton-candy</code></td></tr>
+</table>
+
+The current terminal changes instantly; other Ghostty tabs pick it up with `Cmd+Shift+,`, Neovim on next launch. The choice lives in `~/.local/state/theme/` (outside the repo). To add a theme, copy any `config/.config/themes/*.theme` and edit the colors; regenerate the gallery images with `python3 docs/themes/gen-previews.py`.
 
 ## Tests
 
