@@ -1,0 +1,30 @@
+# Arctic Frost — hielo y aurora boreal
+# Gris azulado frío, azul hielo, turquesa y violeta de aurora.
+
+THEME_DESC="Ártico: azul hielo, aurora turquesa y violeta sobre gris pizarra"
+THEME_ICON="🧊"
+THEME_FF_HEADER="BELOW ZERO"
+THEME_FF_SUB="// keep it cool"
+
+text="#e6edf5"; subtext1="#c5d0dc"; subtext0="#a3b1c2"
+overlay2="#8090a6"; overlay1="#64758c"; overlay0="#4a5a70"
+surface2="#303e52"; surface1="#253142"; surface0="#1b2533"
+base="#0f1621"; mantle="#0b111a"; crust="#070b12"
+
+rosewater="#f2dcd8"; flamingo="#e8c2c0"; pink="#e0a8c8"; mauve="#b9a4e0"
+red="#e8707a"; maroon="#d08a96"; peach="#e8a87c"; yellow="#ead18f"
+green="#a3d6a8"; teal="#8fd6d0"; sky="#9ad8f5"; sapphire="#7cbbe8"
+blue="#82a8f0"; lavender="#b8c4f5"
+
+primary="#9ad8f5"  # hielo
+secondary="#8fd6d0"  # aurora
+accent="#b9a4e0"  # violeta
+extra="#ead18f"  # sol polar
+
+selection="#2a3a52"
+cursor="#9ad8f5"
+
+c0="#1b2533"; c1="#e8707a"; c2="#a3d6a8"; c3="#ead18f"
+c4="#82a8f0"; c5="#b9a4e0"; c6="#8fd6d0"; c7="#c5d0dc"
+c8="#4a5a70"; c9="#f08f98"; c10="#bfe6c2"; c11="#f2e2b0"
+c12="#a6c2f5"; c13="#d0c0ee"; c14="#b0e6e2"; c15="#f5f9fc"

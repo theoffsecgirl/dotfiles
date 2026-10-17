@@ -1,0 +1,30 @@
+# Sakura Bloom — pastel de primavera
+# Ciruela suave, rosa cerezo, lila y verde hoja.
+
+THEME_DESC="Pastel japonés: rosa cerezo, lila y verde hoja sobre ciruela suave"
+THEME_ICON="🌸"
+THEME_FF_HEADER="HANAMI MODE"
+THEME_FF_SUB="// petals & packets"
+
+text="#f5e8f0"; subtext1="#d8c8dc"; subtext0="#bba9c0"
+overlay2="#9d8aa4"; overlay1="#82708a"; overlay0="#685770"
+surface2="#4a3b50"; surface1="#3a2e3f"; surface0="#2c2230"
+base="#1d1620"; mantle="#18121b"; crust="#120d15"
+
+rosewater="#ffe0e8"; flamingo="#ffc8d6"; pink="#ffa6c9"; mauve="#d4a6ff"
+red="#ff6b8b"; maroon="#e88aa0"; peach="#ffb5a0"; yellow="#ffe1a8"
+green="#a8e6b8"; teal="#9ee0d6"; sky="#a6d8ff"; sapphire="#8cc4f0"
+blue="#a6b4ff"; lavender="#cdbfff"
+
+primary="#ffa6c9"  # cerezo
+secondary="#d4a6ff"  # lila
+accent="#a8e6b8"  # hoja
+extra="#a6d8ff"  # cielo
+
+selection="#4a3550"
+cursor="#ffa6c9"
+
+c0="#2c2230"; c1="#ff6b8b"; c2="#a8e6b8"; c3="#ffe1a8"
+c4="#a6b4ff"; c5="#ffa6c9"; c6="#9ee0d6"; c7="#d8c8dc"
+c8="#5a4a60"; c9="#ff8fa8"; c10="#c6f0d0"; c11="#ffeec8"
+c12="#c4ceff"; c13="#ffc4dc"; c14="#bff0e8"; c15="#fff7fb"

@@ -77,9 +77,9 @@ require("lazy").setup({
     name     = "catppuccin",
     priority = 1000,
     opts = {
-      flavour = "mocha",
+      flavour = theme_palette._flavour or "mocha",   -- "latte" en temas claros
       -- Paleta del tema elegido con `theme` (misma que Ghostty/tmux/fastfetch)
-      color_overrides = { mocha = theme_palette },
+      color_overrides = { [theme_palette._flavour or "mocha"] = theme_palette },
       custom_highlights = function(c)
         -- Roles del tema (primary/secondary/accent), con fallback a Catppuccin
         local p, s, a = theme_palette._primary or c.pink, theme_palette._secondary or c.mauve, theme_palette._accent or c.sky

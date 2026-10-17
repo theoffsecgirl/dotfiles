@@ -1,0 +1,34 @@
+# Paper Latte — tema CLARO para el día
+# Papel crema, tinta marrón, terracota, mostaza y verde azulado.
+
+THEME_DESC="Claro y cálido: papel crema, terracota y mostaza (para el día)"
+THEME_ICON="☕"
+THEME_FF_HEADER="GOOD MORNING"
+THEME_FF_SUB="// coffee first, exploits later"
+
+# Tema claro: Ghostty usa barra clara, Neovim "latte" y el texto fuerte es oscuro
+THEME_MODE="light"
+bright="#1f1812"
+
+text="#3a2f25"; subtext1="#4a3e32"; subtext0="#5e5040"
+overlay2="#75654f"; overlay1="#8e7d66"; overlay0="#a8977e"
+surface2="#c7b8a0"; surface1="#d6c9b4"; surface0="#e3d8c6"
+base="#f6efe4"; mantle="#efe6d8"; crust="#e6dccb"
+
+rosewater="#a8574f"; flamingo="#b5604f"; pink="#b84a7a"; mauve="#8a4fb0"
+red="#c0392b"; maroon="#a04a4a"; peach="#c8642a"; yellow="#a87a00"
+green="#5f8a2f"; teal="#2f8a7a"; sky="#2a7fa8"; sapphire="#2f6fa0"
+blue="#3d5fb8"; lavender="#6a5fb8"
+
+primary="#c8642a"  # terracota
+secondary="#a87a00"  # mostaza
+accent="#2f8a7a"  # verde azulado
+extra="#8a4fb0"  # ciruela
+
+selection="#e2c9a4"
+cursor="#c8642a"
+
+c0="#3a2f25"; c1="#c0392b"; c2="#5f8a2f"; c3="#a87a00"
+c4="#3d5fb8"; c5="#a04a8a"; c6="#2f8a7a"; c7="#d6c9b4"
+c8="#75654f"; c9="#d9533f"; c10="#77a33f"; c11="#c49a1a"
+c12="#5577cc"; c13="#b866a0"; c14="#3fa898"; c15="#fbf7f0"

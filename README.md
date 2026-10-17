@@ -96,6 +96,12 @@ theme reset              # back to neon-fuchsia
 | `trick-or-treat` 🎃 | Classic Halloween: pumpkin, candy corn, slime green, witch purple |
 | `maple-forest` 🍁 | Autumn forest: rust, maple red, gold and moss |
 | `witching-hour` 🦇 | Halloween night: orange moon and violet on midnight blue |
+| `matrix-terminal` 👾 | Hacker CRT: phosphor green, lime and amber on black |
+| `deep-sea` 🐙 | Deep ocean: bioluminescent teal, jellyfish pink and coral |
+| `sakura-bloom` 🌸 | Japanese pastel: cherry pink, lilac and leaf green |
+| `arctic-frost` 🧊 | Arctic: ice blue, aurora teal and violet |
+| `synthwave-sunset` 🌆 | 80s retro: sunset orange, neon pink and yellow on purple |
+| `paper-latte` ☕ | **Light**: cream paper, terracotta and mustard (for daytime) |
 
 The current terminal changes instantly; other Ghostty tabs pick it up with `Cmd+Shift+,`, Neovim on next launch. The choice lives in `~/.local/state/theme/` (outside the repo). To add a theme, copy any `config/.config/themes/*.theme` and edit the colors.
 

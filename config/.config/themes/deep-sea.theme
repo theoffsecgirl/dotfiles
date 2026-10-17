@@ -1,0 +1,30 @@
+# Deep Sea — abismo bioluminiscente
+# Azul abisal, turquesa luminoso, rosa medusa y coral.
+
+THEME_DESC="Fondo marino: turquesa bioluminiscente, medusa y coral sobre azul abisal"
+THEME_ICON="🐙"
+THEME_FF_HEADER="DEEP DIVE"
+THEME_FF_SUB="// pressure nominal"
+
+text="#d8eef2"; subtext1="#aed2dc"; subtext0="#86b5c4"
+overlay2="#6297aa"; overlay1="#467b90"; overlay0="#2f5f75"
+surface2="#1c4054"; surface1="#143041"; surface0="#0e2230"
+base="#06121a"; mantle="#040d13"; crust="#02080c"
+
+rosewater="#ffd6cc"; flamingo="#ffb3a7"; pink="#ff7eb6"; mauve="#b28cff"
+red="#ff5c6c"; maroon="#e07a8a"; peach="#ff9e6b"; yellow="#ffe08a"
+green="#5cf2b0"; teal="#2de2d0"; sky="#4fd6ff"; sapphire="#2fb0e8"
+blue="#5f8cff"; lavender="#a3b8ff"
+
+primary="#2de2d0"  # turquesa
+secondary="#4fd6ff"  # azul luminoso
+accent="#ff7eb6"  # medusa
+extra="#ff9e6b"  # coral
+
+selection="#1d4a5c"
+cursor="#2de2d0"
+
+c0="#0e2230"; c1="#ff5c6c"; c2="#5cf2b0"; c3="#ffe08a"
+c4="#5f8cff"; c5="#ff7eb6"; c6="#2de2d0"; c7="#aed2dc"
+c8="#2f5f75"; c9="#ff8590"; c10="#8cf7c8"; c11="#fff0b3"
+c12="#8fb0ff"; c13="#ffa6cc"; c14="#7ff0e5"; c15="#f0fbfd"

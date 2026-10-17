@@ -96,10 +96,16 @@ theme reset              # volver a neon-fuchsia
 | `trick-or-treat` 🎃 | Halloween clásico: calabaza, candy corn, verde baba y morado bruja |
 | `maple-forest` 🍁 | Bosque otoñal: óxido, rojo arce, dorado y musgo |
 | `witching-hour` 🦇 | Noche de brujas: luna naranja y violeta sobre azul medianoche |
+| `matrix-terminal` 👾 | Hacker CRT: verde fósforo, lima y ámbar sobre negro |
+| `deep-sea` 🐙 | Fondo marino: turquesa bioluminiscente, medusa y coral |
+| `sakura-bloom` 🌸 | Pastel japonés: rosa cerezo, lila y verde hoja |
+| `arctic-frost` 🧊 | Ártico: azul hielo, aurora turquesa y violeta |
+| `synthwave-sunset` 🌆 | Retro 80s: sol naranja, rosa neón y amarillo sobre morado |
+| `paper-latte` ☕ | **Claro**: papel crema, terracota y mostaza (para el día) |
 
 La terminal actual cambia al momento; en el resto de pestañas de Ghostty pulsa `Cmd+Shift+,` y Neovim lo coge al reabrirlo. La elección se guarda en `~/.local/state/theme/` (fuera del repo).
 
-**Crear un tema nuevo:** copia cualquier `config/.config/themes/*.theme`, cambia los colores y ya aparece en `theme list`.
+**Crear un tema nuevo:** copia cualquier `config/.config/themes/*.theme`, cambia los colores y ya aparece en `theme list`. Para uno claro, añade `THEME_MODE="light"` y `bright="<color de texto más oscuro>"` (mira `paper-latte`).
 
 ## Tests
 

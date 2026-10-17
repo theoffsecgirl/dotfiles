@@ -1,0 +1,30 @@
+# Synthwave Sunset — atardecer retro de los 80
+# Morado noche, naranja de sol, rosa neón, amarillo y azul de rejilla.
+
+THEME_DESC="Retro 80s: sol naranja, rosa neón y amarillo sobre morado noche"
+THEME_ICON="🌆"
+THEME_FF_HEADER="OUTRUN MODE"
+THEME_FF_SUB="// drive into the sunset"
+
+text="#f7ecff"; subtext1="#dccdee"; subtext0="#bba8d6"
+overlay2="#9c86bd"; overlay1="#8069a3"; overlay0="#66508a"
+surface2="#472d6b"; surface1="#382357"; surface0="#2b1a45"
+base="#1c1030"; mantle="#160c27"; crust="#10081d"
+
+rosewater="#ffd1e8"; flamingo="#ffaad4"; pink="#ff4fa3"; mauve="#c25bff"
+red="#ff4466"; maroon="#ff6f8e"; peach="#ff8a3d"; yellow="#ffd23f"
+green="#50fa9b"; teal="#3fe8e0"; sky="#36c9ff"; sapphire="#3da8ff"
+blue="#6a7dff"; lavender="#b29dff"
+
+primary="#ff8a3d"  # sol
+secondary="#ff4fa3"  # rosa neón
+accent="#ffd23f"  # amarillo
+extra="#36c9ff"  # rejilla
+
+selection="#4a2a6b"
+cursor="#ff8a3d"
+
+c0="#2b1a45"; c1="#ff4466"; c2="#50fa9b"; c3="#ffd23f"
+c4="#6a7dff"; c5="#ff4fa3"; c6="#36c9ff"; c7="#dccdee"
+c8="#5a4580"; c9="#ff6f8e"; c10="#8affbd"; c11="#ffe47a"
+c12="#98a5ff"; c13="#ff85c0"; c14="#7adcff"; c15="#ffffff"

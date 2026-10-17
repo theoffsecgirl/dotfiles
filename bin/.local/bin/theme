@@ -51,6 +51,8 @@ load_theme() {
   # shellcheck disable=SC1090
   . "$f"
   THEME_NAME="$1"
+  THEME_MODE="${THEME_MODE:-dark}"   # dark | light
+  bright="${bright:-$c15}"           # texto más fuerte (selección, fzf); en temas claros es oscuro
   local v
   for v in base text primary secondary accent extra surface0 overlay2 c0 c15; do
     [ -n "${!v:-}" ] || die "al tema '$1' le falta la variable '$v'"
@@ -73,12 +75,13 @@ gen_ghostty() {
     printf '# Generado por `theme` (%s) — no editar a mano\n' "$THEME_NAME"
     printf 'background = %s\nforeground = %s\n' "${base#\#}" "${text#\#}"
     printf 'cursor-color = %s\ncursor-text = %s\n' "${cursor#\#}" "${base#\#}"
-    printf 'selection-background = %s\nselection-foreground = %s\n' "${selection#\#}" "${c15#\#}"
+    printf 'selection-background = %s\nselection-foreground = %s\n' "${selection#\#}" "${bright#\#}"
     local i v
     for i in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
       v="c$i"
       printf 'palette = %d=%s\n' "$i" "${!v}"
     done
+    printf 'window-theme = %s\n' "$THEME_MODE"
   } >"$STATE_DIR/ghostty"
 
   # Ghostty carga `config-file = ?current-theme.local` relativo a su config.
@@ -123,12 +126,15 @@ gen_fastfetch() {
   local src="$CONFIG_HOME/fastfetch/config.jsonc"
   [ -f "$src" ] || return 0
   local p s a
+  local t
   p="38;2;$(hex_rgb "$primary")"; s="38;2;$(hex_rgb "$secondary")"; a="38;2;$(hex_rgb "$accent")"
+  t="38;2;$(hex_rgb "$text")"
   # El config base usa magenta / bright_magenta / cyan → los cambiamos por los
   # colores del tema (códigos truecolor) y personalizamos la cabecera.
   sed -e "s/bright_magenta/$s/g" \
       -e "s/\"magenta\"/\"$p\"/g" -e "s/{#magenta}/{#$p}/g" \
       -e "s/\"cyan\"/\"$a\"/g"    -e "s/{#cyan}/{#$a}/g" \
+      -e "s/\"white\"/\"$t\"/g" \
       -e "s|SYSTEM ONLINE|${THEME_FF_HEADER:-SYSTEM ONLINE}|" \
       -e "s|// access granted|${THEME_FF_SUB:-// access granted}|" \
       "$src" >"$STATE_DIR/fastfetch.jsonc"
@@ -161,7 +167,9 @@ gen_nvim() {
       printf '  %s = "%s",\n' "$k" "${!k}"
     done
     printf '  _primary = "%s", _secondary = "%s", _accent = "%s",\n' "$primary" "$secondary" "$accent"
-    printf '  _visual = "%s",\n}\n' "$selection"
+    printf '  _visual = "%s",\n' "$selection"
+    if [ "$THEME_MODE" = light ]; then printf '  _flavour = "latte",\n'; else printf '  _flavour = "mocha",\n'; fi
+    printf '}\n'
   } >"$STATE_DIR/nvim.lua"
 }
 
@@ -175,7 +183,7 @@ export THEME_FASTFETCH_CONFIG="$STATE_DIR/fastfetch.jsonc"
 export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border=rounded \\
   --color=bg+:$surface0,bg:-1,spinner:$accent,hl:$primary \\
   --color=fg:$subtext1,header:$secondary,info:$overlay2,pointer:$primary \\
-  --color=marker:$accent,fg+:$c15,prompt:$primary,hl+:$accent,border:$surface2"
+  --color=marker:$accent,fg+:$bright,prompt:$primary,hl+:$accent,border:$surface2"
 EOF
 }
 
@@ -253,7 +261,7 @@ cmd_list() {
   cur="$(current_name)"
   while IFS= read -r n; do
     desc="$(sed -n 's/^THEME_DESC="\(.*\)"$/\1/p' "$(theme_file "$n")")"
-    if [ "$n" = "$cur" ]; then printf '★ %-16s %s\n' "$n" "$desc"; else printf '  %-16s %s\n' "$n" "$desc"; fi
+    if [ "$n" = "$cur" ]; then printf '★ %-18s %s\n' "$n" "$desc"; else printf '  %-18s %s\n' "$n" "$desc"; fi
   done < <(list_names)
 }
 

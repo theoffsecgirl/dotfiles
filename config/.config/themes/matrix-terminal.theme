@@ -1,0 +1,30 @@
+# Matrix Terminal — fósforo verde de CRT
+# Negro puro, verde fósforo, lima y un toque ámbar de monitor antiguo.
+
+THEME_DESC="Hacker CRT: verde fósforo, lima y ámbar sobre negro"
+THEME_ICON="👾"
+THEME_FF_HEADER="FOLLOW THE GREEN"
+THEME_FF_SUB="// root shell acquired"
+
+text="#c8f7cc"; subtext1="#a3dcaa"; subtext0="#7fbf88"
+overlay2="#5c9a66"; overlay1="#437a4c"; overlay0="#2f5a37"
+surface2="#1f3a24"; surface1="#16291a"; surface0="#0f1d12"
+base="#050a06"; mantle="#030704"; crust="#010402"
+
+rosewater="#d9ffd0"; flamingo="#b8f5a8"; pink="#9dff8a"; mauve="#6bff9a"
+red="#ff4d4d"; maroon="#e06666"; peach="#ffb347"; yellow="#e6ff5c"
+green="#39ff6a"; teal="#2ee6a8"; sky="#5cf2c8"; sapphire="#3ccfa0"
+blue="#6fc8a0"; lavender="#a8f5c8"
+
+primary="#39ff6a"  # fósforo
+secondary="#b8ff5c"  # lima
+accent="#ffb347"  # ámbar
+extra="#2ee6a8"  # menta
+
+selection="#1f4a2a"
+cursor="#39ff6a"
+
+c0="#0f1d12"; c1="#ff4d4d"; c2="#39ff6a"; c3="#e6ff5c"
+c4="#4fc3a1"; c5="#a3ff7a"; c6="#2ee6a8"; c7="#a3dcaa"
+c8="#2f5a37"; c9="#ff7a7a"; c10="#7dffa0"; c11="#f0ff8f"
+c12="#7ae0c0"; c13="#c8ffa6"; c14="#6ff5cc"; c15="#e6ffe8"
