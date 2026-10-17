@@ -1,0 +1,298 @@
+#!/usr/bin/env bash
+# theme — selector de temas para la terminal · theoffsecgirl
+#
+# Un tema = un fichero ~/.config/themes/<nombre>.theme con la paleta.
+# Al aplicarlo se generan (en ~/.local/state/theme/) los colores para:
+#   Ghostty · Starship · fzf · tmux · fastfetch · Neovim
+# y se recolorea al momento la terminal actual.
+#
+# Uso:
+#   theme                 selector interactivo con fzf (con preview)
+#   theme <nombre>        aplica un tema (atajo de `theme set`)
+#   theme set <nombre>    aplica un tema
+#   theme list            lista los temas (★ = actual)
+#   theme current         muestra el tema actual
+#   theme preview <nom>   muestra la paleta y un prompt de ejemplo
+#   theme random          aplica uno al azar (distinto del actual)
+#   theme reset           vuelve a neon-fuchsia
+#
+# Compatible con el bash 3.2 de macOS (sin arrays asociativos).
+
+set -euo pipefail
+
+CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+THEMES_DIR="${THEMES_DIR:-$CONFIG_HOME/themes}"
+STATE_DIR="${THEME_STATE_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/theme}"
+DEFAULT_THEME="neon-fuchsia"
+
+die() { printf 'theme: %s\n' "$*" >&2; exit 1; }
+
+theme_file() { printf '%s/%s.theme' "$THEMES_DIR" "$1"; }
+
+list_names() {
+  [ -d "$THEMES_DIR" ] || die "no encuentro $THEMES_DIR (¿falta hacer stow?)"
+  local f
+  for f in "$THEMES_DIR"/*.theme; do
+    [ -e "$f" ] || continue
+    f="${f##*/}"
+    printf '%s\n' "${f%.theme}"
+  done
+}
+
+current_name() {
+  if [ -f "$STATE_DIR/current" ]; then cat "$STATE_DIR/current"; else printf '%s\n' "$DEFAULT_THEME"; fi
+}
+
+# Carga las variables de un tema en el shell actual (subshell del script)
+load_theme() {
+  local f
+  f="$(theme_file "$1")"
+  [ -f "$f" ] || die "no existe el tema '$1' — prueba: theme list"
+  # shellcheck disable=SC1090
+  . "$f"
+  THEME_NAME="$1"
+  local v
+  for v in base text primary secondary accent extra surface0 overlay2 c0 c15; do
+    [ -n "${!v:-}" ] || die "al tema '$1' le falta la variable '$v'"
+  done
+}
+
+# "#ff8c3a" -> "255;140;58"
+hex_rgb() {
+  local h="${1#\#}"
+  printf '%d;%d;%d' "0x${h:0:2}" "0x${h:2:2}" "0x${h:4:2}"
+}
+fg() { printf '\033[38;2;%sm' "$(hex_rgb "$1")"; }
+bg() { printf '\033[48;2;%sm' "$(hex_rgb "$1")"; }
+RST=$'\033[0m'
+
+# ── Generadores ──────────────────────────────────────────────────────────────
+
+gen_ghostty() {
+  {
+    printf '# Generado por `theme` (%s) — no editar a mano\n' "$THEME_NAME"
+    printf 'background = %s\nforeground = %s\n' "${base#\#}" "${text#\#}"
+    printf 'cursor-color = %s\ncursor-text = %s\n' "${cursor#\#}" "${base#\#}"
+    printf 'selection-background = %s\nselection-foreground = %s\n' "${selection#\#}" "${c15#\#}"
+    local i v
+    for i in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
+      v="c$i"
+      printf 'palette = %d=%s\n' "$i" "${!v}"
+    done
+  } >"$STATE_DIR/ghostty"
+
+  # Ghostty carga `config-file = ?current-theme.local` relativo a su config.
+  # Lo copiamos junto a la ruta del symlink y junto a su destino real (stow),
+  # para que funcione resuelva Ghostty el symlink o no.
+  local gdir="$CONFIG_HOME/ghostty" cfg link dir
+  [ -d "$gdir" ] || return 0
+  cp "$STATE_DIR/ghostty" "$gdir/current-theme.local"
+  cfg="$gdir/config"
+  if [ -L "$cfg" ]; then
+    link="$(readlink "$cfg")"
+    case "$link" in /*) ;; *) link="$gdir/$link" ;; esac
+    dir="$(cd "$(dirname "$link")" 2>/dev/null && pwd -P)" || return 0
+    if [ "$dir" != "$(cd "$gdir" && pwd -P)" ]; then
+      cp "$STATE_DIR/ghostty" "$dir/current-theme.local"
+    fi
+  fi
+}
+
+gen_starship() {
+  local src="$CONFIG_HOME/starship.toml"
+  [ -f "$src" ] || return 0
+  {
+    # Todo lo de antes del bloque de paletas, cambiando la paleta activa
+    sed -e '/^# >>> palettes/,$d' -e 's/^palette = .*/palette = "theme"/' "$src"
+    cat <<EOF
+# >>> palettes — generado por \`theme\` ($THEME_NAME)
+[palettes.theme]
+primary   = "$primary"
+secondary = "$secondary"
+accent    = "$accent"
+extra     = "$extra"
+muted     = "$overlay2"
+red       = "$red"
+green     = "$green"
+yellow    = "$yellow"
+EOF
+  } >"$STATE_DIR/starship.toml"
+}
+
+gen_fastfetch() {
+  local src="$CONFIG_HOME/fastfetch/config.jsonc"
+  [ -f "$src" ] || return 0
+  local p s a
+  p="38;2;$(hex_rgb "$primary")"; s="38;2;$(hex_rgb "$secondary")"; a="38;2;$(hex_rgb "$accent")"
+  # El config base usa magenta / bright_magenta / cyan → los cambiamos por los
+  # colores del tema (códigos truecolor) y personalizamos la cabecera.
+  sed -e "s/bright_magenta/$s/g" \
+      -e "s/\"magenta\"/\"$p\"/g" -e "s/{#magenta}/{#$p}/g" \
+      -e "s/\"cyan\"/\"$a\"/g"    -e "s/{#cyan}/{#$a}/g" \
+      -e "s|SYSTEM ONLINE|${THEME_FF_HEADER:-SYSTEM ONLINE}|" \
+      -e "s|// access granted|${THEME_FF_SUB:-// access granted}|" \
+      "$src" >"$STATE_DIR/fastfetch.jsonc"
+}
+
+gen_tmux() {
+  cat >"$STATE_DIR/tmux.conf" <<EOF
+# Generado por \`theme\` ($THEME_NAME) — no editar a mano
+set -g status-style "bg=$base fg=$text"
+set -g status-left "#[fg=$base,bg=$primary,bold] 󰊠 #S #[fg=$primary,bg=$surface0,nobold]#[fg=$accent,bg=$surface0] #(whoami) #[fg=$surface0,bg=$base] "
+set -g status-right " #[fg=$surface0,bg=$base]#[fg=$overlay2,bg=$surface0] #{b:pane_current_path}  #[fg=$accent] %H:%M #[fg=$surface0,bg=$primary]#[fg=$base,bg=$primary,bold] %d %b "
+setw -g window-status-current-style  "fg=$base bg=$secondary bold"
+setw -g window-status-current-format "#[fg=$base,bg=$secondary,bold]  #I  #W #[fg=$secondary,bg=$base,nobold]"
+setw -g window-status-style          "fg=$overlay0 bg=$base"
+set -g pane-border-style        "fg=$surface0"
+set -g pane-active-border-style "fg=$primary"
+set -g message-style         "fg=$base bg=$accent bold"
+set -g message-command-style "fg=$base bg=$primary bold"
+setw -g mode-style           "fg=$base bg=$secondary bold"
+EOF
+}
+
+gen_nvim() {
+  local k
+  {
+    printf -- '-- Generado por `theme` (%s) — no editar a mano\nreturn {\n' "$THEME_NAME"
+    for k in rosewater flamingo pink mauve red maroon peach yellow green teal sky sapphire \
+             blue lavender text subtext1 subtext0 overlay2 overlay1 overlay0 \
+             surface2 surface1 surface0 base mantle crust; do
+      printf '  %s = "%s",\n' "$k" "${!k}"
+    done
+    printf '  _primary = "%s", _secondary = "%s", _accent = "%s",\n' "$primary" "$secondary" "$accent"
+    printf '  _visual = "%s",\n}\n' "$selection"
+  } >"$STATE_DIR/nvim.lua"
+}
+
+gen_env() {
+  cat >"$STATE_DIR/env.zsh" <<EOF
+# Generado por \`theme\` ($THEME_NAME) — lo carga ~/.config/zsh/theme.zsh
+export THEME_NAME="$THEME_NAME"
+$(if [ -n "${THEME_ICON:-}" ]; then printf 'export THEME_ICON="%s"' "$THEME_ICON"; else printf 'unset THEME_ICON'; fi)
+export STARSHIP_CONFIG="$STATE_DIR/starship.toml"
+export THEME_FASTFETCH_CONFIG="$STATE_DIR/fastfetch.jsonc"
+export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border=rounded \\
+  --color=bg+:$surface0,bg:-1,spinner:$accent,hl:$primary \\
+  --color=fg:$subtext1,header:$secondary,info:$overlay2,pointer:$primary \\
+  --color=marker:$accent,fg+:$c15,prompt:$primary,hl+:$accent,border:$surface2"
+EOF
+}
+
+# Recolorea la terminal actual con secuencias OSC (Ghostty, iTerm, kitty…)
+live_recolor() {
+  [ -t 1 ] || [ -t 2 ] || return 0       # solo en una terminal interactiva
+  [ -z "${NVIM:-}" ] || return 0         # no dentro de :terminal de Neovim
+  local seq="" i v
+  for i in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
+    v="c$i"; seq+=$'\033]4;'"$i;${!v}"$'\007'
+  done
+  seq+=$'\033]10;'"$text"$'\007'$'\033]11;'"$base"$'\007'$'\033]12;'"$cursor"$'\007'
+  if [ -n "${TMUX:-}" ]; then
+    # passthrough de tmux (requiere allow-passthrough on): duplicar los ESC
+    seq="${seq//$'\033'/$'\033\033'}"
+    seq=$'\033Ptmux;'"$seq"$'\033\\'
+  fi
+  { printf '%s' "$seq" >/dev/tty; } 2>/dev/null || true
+}
+
+apply_theme() {
+  load_theme "$1"
+  mkdir -p "$STATE_DIR"
+  gen_ghostty
+  gen_starship
+  gen_fastfetch
+  gen_tmux
+  gen_nvim
+  gen_env
+  printf '%s\n' "$THEME_NAME" >"$STATE_DIR/current"
+
+  if command -v tmux >/dev/null 2>&1 && tmux info >/dev/null 2>&1; then
+    tmux source-file "$STATE_DIR/tmux.conf" >/dev/null 2>&1 || true
+  fi
+  live_recolor
+
+  printf '%s%s %s%s%s aplicado%s\n' "$(fg "$primary")" "${THEME_ICON:-●}" "$(fg "$secondary")" "$THEME_NAME" "$(fg "$overlay2")" "$RST"
+  printf '%s  · Otras pestañas de Ghostty: Cmd+Shift+,  · Neovim: al reabrirlo%s\n' "$(fg "$overlay2")" "$RST"
+}
+
+# ── Preview ──────────────────────────────────────────────────────────────────
+
+preview_theme() {
+  load_theme "$1"
+  local B T
+  B="$(bg "$base")"; T="$(fg "$text")"
+  local line i v sw=""
+  printf '%s%s  %s %s%s%s  %s\n' "$B" "$(fg "$primary")" "${THEME_ICON:-●}" "$(fg "$secondary")" "$THEME_NAME" "$(fg "$overlay2")" "$RST"
+  printf '%s  %s%s\n\n' "$(fg "$overlay2")" "${THEME_DESC:-}" "$RST"
+
+  # Fila de roles
+  for v in primary secondary accent extra; do
+    sw+="$(bg "${!v}")$(fg "$base") $v $RST "
+  done
+  printf '  %s\n\n' "$sw"
+
+  # ANSI 0-7 / 8-15
+  line="  "; for i in 0 1 2 3 4 5 6 7;        do v="c$i"; line+="$(bg "${!v}")    "; done; printf '%s%s\n' "$line" "$RST"
+  line="  "; for i in 8 9 10 11 12 13 14 15;  do v="c$i"; line+="$(bg "${!v}")    "; done; printf '%s%s\n\n' "$line" "$RST"
+
+  # Prompt de ejemplo
+  printf '%s%s ╭─ %s%sari%s@%smac %s %s~/hunting %son %s main %s[!]%s\n' \
+    "$B" "$(fg "$primary")" "${THEME_ICON:+$THEME_ICON }" "$(fg "$secondary")" "$(fg "$accent")" "$(fg "$accent")" \
+    "$(fg "$overlay2")" "$(fg "$primary")" "$(fg "$overlay2")" "$(fg "$extra")" "$(fg "$yellow")" "$RST"
+  printf '%s%s ╰─%s❯%s❯%s❯ %snmap -sV target.local%s\n' \
+    "$B" "$(fg "$primary")" "$(fg "$primary")" "$(fg "$secondary")" "$(fg "$accent")" "$T" "$RST"
+  printf '%s%s    %s✓ 22/tcp open ssh  %s✗ 445 filtered  %s# comentario%s\n' \
+    "$B" "$T" "$(fg "$green")" "$(fg "$red")" "$(fg "$overlay1")" "$RST"
+}
+
+# ── Comandos ─────────────────────────────────────────────────────────────────
+
+cmd_list() {
+  local cur n desc
+  cur="$(current_name)"
+  while IFS= read -r n; do
+    desc="$(sed -n 's/^THEME_DESC="\(.*\)"$/\1/p' "$(theme_file "$n")")"
+    if [ "$n" = "$cur" ]; then printf '★ %-16s %s\n' "$n" "$desc"; else printf '  %-16s %s\n' "$n" "$desc"; fi
+  done < <(list_names)
+}
+
+cmd_pick() {
+  if ! command -v fzf >/dev/null 2>&1; then
+    cmd_list; printf '\nUsa: theme <nombre>\n'; return 0
+  fi
+  local self choice
+  self="$(cd "$(dirname "$0")" && pwd -P)/$(basename "$0")"
+  choice="$(list_names | fzf --height 70% --layout=reverse --border=rounded \
+    --prompt='tema ❯ ' --header="actual: $(current_name) · ENTER aplica · ESC sale" \
+    --preview "'$self' preview {}" --preview-window='right,65%,border-left')" || return 0
+  [ -n "$choice" ] && apply_theme "$choice"
+}
+
+cmd_random() {
+  local cur pick
+  cur="$(current_name)"
+  pick="$(list_names | grep -vx "$cur" | awk 'BEGIN{srand()} {a[NR]=$0} END{if(NR) print a[int(rand()*NR)+1]}')"
+  [ -n "$pick" ] || die "no hay otros temas"
+  apply_theme "$pick"
+}
+
+usage() { sed -n '2,20s/^# \{0,1\}//p' "$0"; }
+
+main() {
+  local cmd="${1:-pick}"
+  case "$cmd" in
+    pick)            cmd_pick ;;
+    set|use|apply)   [ $# -ge 2 ] || die "falta el nombre — theme list"; apply_theme "$2" ;;
+    list|ls)         cmd_list ;;
+    names)           list_names ;;
+    current)         current_name ;;
+    preview|show)    preview_theme "${2:-$(current_name)}" ;;
+    random)          cmd_random ;;
+    reset)           apply_theme "$DEFAULT_THEME" ;;
+    -h|--help|help)  usage ;;
+    *)               apply_theme "$cmd" ;;
+  esac
+}
+
+main "$@"

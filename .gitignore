@@ -21,6 +21,8 @@ Thumbs.db
 *.local
 !scripts/.local/
 !scripts/.local/bin/
+!bin/.local/
+!bin/.local/bin/
 
 .env
 .env.*
