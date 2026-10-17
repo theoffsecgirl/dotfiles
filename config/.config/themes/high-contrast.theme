@@ -1,0 +1,30 @@
+# High Contrast — máximo contraste y legibilidad
+# Negro puro, blanco puro y colores primarios muy saturados.
+
+THEME_DESC="Máxima legibilidad: negro puro, blanco y primarios intensos"
+THEME_ICON="⚡"
+THEME_FF_HEADER="FULL CONTRAST"
+THEME_FF_SUB="// no squinting"
+
+text="#ffffff"; subtext1="#f0f0f0"; subtext0="#dddddd"
+overlay2="#bbbbbb"; overlay1="#999999"; overlay0="#777777"
+surface2="#444444"; surface1="#2a2a2a"; surface0="#1a1a1a"
+base="#000000"; mantle="#000000"; crust="#000000"
+
+rosewater="#ffd0d0"; flamingo="#ffb0b0"; pink="#ff5fd2"; mauve="#c77dff"
+red="#ff3030"; maroon="#ff6060"; peach="#ff9020"; yellow="#ffee00"
+green="#00ff40"; teal="#00ffd0"; sky="#00d0ff"; sapphire="#40a0ff"
+blue="#4080ff"; lavender="#a0a0ff"
+
+primary="#ffee00"  # amarillo
+secondary="#00d0ff"  # cian
+accent="#00ff40"  # verde
+extra="#ff5fd2"  # magenta
+
+selection="#0040a0"
+cursor="#ffee00"
+
+c0="#1a1a1a"; c1="#ff3030"; c2="#00ff40"; c3="#ffee00"
+c4="#4080ff"; c5="#ff5fd2"; c6="#00d0ff"; c7="#e0e0e0"
+c8="#777777"; c9="#ff6060"; c10="#60ff80"; c11="#ffff60"
+c12="#80b0ff"; c13="#ff90e0"; c14="#60e8ff"; c15="#ffffff"

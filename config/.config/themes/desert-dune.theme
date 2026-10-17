@@ -1,0 +1,30 @@
+# Desert Dune — atardecer en el desierto
+# Arena oscura, terracota, turquesa de oasis y cielo malva.
+
+THEME_DESC="Desierto: arena, terracota, turquesa de oasis y cielo malva"
+THEME_ICON="🐪"
+THEME_FF_HEADER="DESERT RUN"
+THEME_FF_SUB="// mirage detected"
+
+text="#f2e6d6"; subtext1="#dccbb4"; subtext0="#c2ae94"
+overlay2="#a69276"; overlay1="#89765c"; overlay0="#6d5c45"
+surface2="#4b3f30"; surface1="#3a3126"; surface0="#2b241c"
+base="#1a1611"; mantle="#14110d"; crust="#0e0c09"
+
+rosewater="#f5d5c0"; flamingo="#e8b8a0"; pink="#d98a9a"; mauve="#b58ab8"
+red="#d95f4a"; maroon="#b86a5a"; peach="#e07b4f"; yellow="#e8c46a"
+green="#a8b870"; teal="#3fbfb0"; sky="#6fc0d0"; sapphire="#4fa0c0"
+blue="#7a96c8"; lavender="#b0a0d0"
+
+primary="#e07b4f"  # terracota
+secondary="#e8c46a"  # arena
+accent="#3fbfb0"  # oasis
+extra="#b58ab8"  # cielo malva
+
+selection="#4a3a2a"
+cursor="#e07b4f"
+
+c0="#2b241c"; c1="#d95f4a"; c2="#a8b870"; c3="#e8c46a"
+c4="#7a96c8"; c5="#b58ab8"; c6="#3fbfb0"; c7="#dccbb4"
+c8="#6d5c45"; c9="#ef7f6a"; c10="#c4d490"; c11="#f5d88a"
+c12="#9ab2e0"; c13="#d0a8d2"; c14="#6fd8cc"; c15="#fbf4ea"

@@ -102,6 +102,13 @@ theme reset              # back to neon-fuchsia
 | `arctic-frost` 🧊 | Arctic: ice blue, aurora teal and violet |
 | `synthwave-sunset` 🌆 | 80s retro: sunset orange, neon pink and yellow on purple |
 | `paper-latte` ☕ | **Light**: cream paper, terracotta and mustard (for daytime) |
+| `mono-ink` 🖤 | Minimal: ink grays with a single red accent |
+| `amber-crt` 📟 | Retro mono: amber phosphor on black, VT220 style |
+| `high-contrast` ⚡ | Max legibility: pure black, white and vivid primaries |
+| `lava-core` 🌋 | Volcanic: magma red, glowing orange and sulfur |
+| `desert-dune` 🐪 | Desert: sand, terracotta, oasis turquoise and mauve sky |
+| `mint-breeze` 🌿 | **Light**: mint white, forest green and petrol blue |
+| `cotton-candy` 🍬 | **Light**: bubblegum pink, cotton blue and lilac |
 
 The current terminal changes instantly; other Ghostty tabs pick it up with `Cmd+Shift+,`, Neovim on next launch. The choice lives in `~/.local/state/theme/` (outside the repo). To add a theme, copy any `config/.config/themes/*.theme` and edit the colors.
 

@@ -1,0 +1,30 @@
+# Lava Core — volcán activo
+# Roca negra, magma rojo, naranja incandescente y amarillo azufre.
+
+THEME_DESC="Volcánico: magma rojo, naranja incandescente y azufre sobre roca negra"
+THEME_ICON="🌋"
+THEME_FF_HEADER="MAGMA RISING"
+THEME_FF_SUB="// core temp critical"
+
+text="#f5e0d8"; subtext1="#dcc0b6"; subtext0="#c09e92"
+overlay2="#a07c70"; overlay1="#806056"; overlay0="#62463e"
+surface2="#432c27"; surface1="#33201c"; surface0="#241614"
+base="#120a09"; mantle="#0d0706"; crust="#080404"
+
+rosewater="#ffd6c8"; flamingo="#ffb39c"; pink="#ff6b6b"; mauve="#d9577a"
+red="#ff2a1a"; maroon="#c93a30"; peach="#ff6a00"; yellow="#ffc400"
+green="#b5c26a"; teal="#8ab0a0"; sky="#a0b8c8"; sapphire="#8098b0"
+blue="#8a8fc0"; lavender="#b8a0c8"
+
+primary="#ff4a1a"  # magma
+secondary="#ffc400"  # azufre
+accent="#ff8c00"  # incandescente
+extra="#d9577a"  # granate
+
+selection="#4a1f18"
+cursor="#ff4a1a"
+
+c0="#241614"; c1="#ff2a1a"; c2="#b5c26a"; c3="#ffc400"
+c4="#8a8fc0"; c5="#d9577a"; c6="#8ab0a0"; c7="#dcc0b6"
+c8="#62463e"; c9="#ff5a40"; c10="#d0dc8a"; c11="#ffd84a"
+c12="#aab0e0"; c13="#f07a98"; c14="#aad0c0"; c15="#fff2ec"

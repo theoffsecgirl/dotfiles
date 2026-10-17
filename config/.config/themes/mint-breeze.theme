@@ -1,0 +1,34 @@
+# Mint Breeze — tema CLARO fresco
+# Blanco menta, verde bosque, azul petróleo y coral suave.
+
+THEME_DESC="Claro y fresco: blanco menta, verde bosque y azul petróleo"
+THEME_ICON="🌿"
+THEME_FF_HEADER="FRESH START"
+THEME_FF_SUB="// clean slate"
+
+# Tema claro
+THEME_MODE="light"
+bright="#0f241f"
+
+text="#1f3a33"; subtext1="#2c4a42"; subtext0="#3d5c53"
+overlay2="#557268"; overlay1="#6f8a80"; overlay0="#8ca49a"
+surface2="#b4cbc2"; surface1="#c9ddd5"; surface0="#dceae4"
+base="#f2f9f6"; mantle="#e8f3ee"; crust="#dcebe5"
+
+rosewater="#b35a5a"; flamingo="#c0685e"; pink="#c2507a"; mauve="#7a52a8"
+red="#c23a3a"; maroon="#a04848"; peach="#d0603a"; yellow="#a08000"
+green="#2e8b4a"; teal="#14857a"; sky="#1f7aa0"; sapphire="#22669a"
+blue="#3555b0"; lavender="#6458b0"
+
+primary="#2e8b4a"  # verde bosque
+secondary="#14857a"  # petróleo
+accent="#d0603a"  # coral
+extra="#7a52a8"  # lavanda
+
+selection="#bfe0d2"
+cursor="#2e8b4a"
+
+c0="#1f3a33"; c1="#c23a3a"; c2="#2e8b4a"; c3="#a08000"
+c4="#3555b0"; c5="#a0488a"; c6="#14857a"; c7="#c9ddd5"
+c8="#557268"; c9="#d9544a"; c10="#3fa860"; c11="#c09a10"
+c12="#5070c8"; c13="#b866a0"; c14="#20a090"; c15="#ffffff"

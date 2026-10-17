@@ -1,0 +1,30 @@
+# Amber CRT — monitor de fósforo ámbar de los 80
+# Todo en tonos ámbar sobre negro cálido, como un terminal VT220.
+
+THEME_DESC="Retro monocromo: fósforo ámbar sobre negro, estilo VT220"
+THEME_ICON="📟"
+THEME_FF_HEADER="READY."
+THEME_FF_SUB="// 9600 baud"
+
+text="#ffcc80"; subtext1="#f0b860"; subtext0="#d9a050"
+overlay2="#b88640"; overlay1="#946a32"; overlay0="#704f24"
+surface2="#4a3416"; surface1="#382710"; surface0="#281c0b"
+base="#120c04"; mantle="#0d0803"; crust="#080502"
+
+rosewater="#ffe0b0"; flamingo="#ffd090"; pink="#ffb060"; mauve="#e8a050"
+red="#ff6a3d"; maroon="#d9744a"; peach="#ff9d2e"; yellow="#ffd060"
+green="#e0c070"; teal="#d0b070"; sky="#f0c080"; sapphire="#c89a50"
+blue="#d8a860"; lavender="#f0d0a0"
+
+primary="#ffb000"  # ámbar
+secondary="#ffd060"  # ámbar claro
+accent="#ff6a3d"  # naranja
+extra="#d9a050"  # bronce
+
+selection="#4a3416"
+cursor="#ffb000"
+
+c0="#281c0b"; c1="#ff6a3d"; c2="#e0c070"; c3="#ffd060"
+c4="#c89a50"; c5="#e8a050"; c6="#d0b070"; c7="#f0b860"
+c8="#704f24"; c9="#ff8a5d"; c10="#f0d890"; c11="#ffe090"
+c12="#e0b870"; c13="#f8c070"; c14="#e8c890"; c15="#fff0d0"

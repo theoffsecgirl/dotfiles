@@ -102,6 +102,13 @@ theme reset              # volver a neon-fuchsia
 | `arctic-frost` 🧊 | Ártico: azul hielo, aurora turquesa y violeta |
 | `synthwave-sunset` 🌆 | Retro 80s: sol naranja, rosa neón y amarillo sobre morado |
 | `paper-latte` ☕ | **Claro**: papel crema, terracota y mostaza (para el día) |
+| `mono-ink` 🖤 | Minimalista: grises de tinta con un único acento rojo |
+| `amber-crt` 📟 | Retro monocromo: fósforo ámbar sobre negro, estilo VT220 |
+| `high-contrast` ⚡ | Máxima legibilidad: negro puro, blanco y primarios intensos |
+| `lava-core` 🌋 | Volcánico: magma rojo, naranja incandescente y azufre |
+| `desert-dune` 🐪 | Desierto: arena, terracota, turquesa de oasis y cielo malva |
+| `mint-breeze` 🌿 | **Claro**: blanco menta, verde bosque y azul petróleo |
+| `cotton-candy` 🍬 | **Claro**: rosa chicle, azul algodón y lila |
 
 La terminal actual cambia al momento; en el resto de pestañas de Ghostty pulsa `Cmd+Shift+,` y Neovim lo coge al reabrirlo. La elección se guarda en `~/.local/state/theme/` (fuera del repo).
 

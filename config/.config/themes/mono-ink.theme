@@ -1,0 +1,30 @@
+# Mono Ink — escala de grises con un solo acento rojo
+# Minimalista: tinta, grafito y gris, con rojo para lo importante.
+
+THEME_DESC="Minimalista: grises de tinta con un único acento rojo"
+THEME_ICON="🖤"
+THEME_FF_HEADER="LESS IS MORE"
+THEME_FF_SUB="// signal over noise"
+
+text="#e8e8e8"; subtext1="#c8c8c8"; subtext0="#a8a8a8"
+overlay2="#8a8a8a"; overlay1="#707070"; overlay0="#575757"
+surface2="#3a3a3a"; surface1="#2c2c2c"; surface0="#202020"
+base="#111111"; mantle="#0c0c0c"; crust="#080808"
+
+rosewater="#e0e0e0"; flamingo="#d0d0d0"; pink="#ff4d5e"; mauve="#bdbdbd"
+red="#ff4d5e"; maroon="#d96a74"; peach="#d9d9d9"; yellow="#f0f0f0"
+green="#c0c0c0"; teal="#b0b0b0"; sky="#cfcfcf"; sapphire="#a0a0a0"
+blue="#bbbbbb"; lavender="#dddddd"
+
+primary="#ff4d5e"  # rojo
+secondary="#f5f5f5"  # blanco
+accent="#9e9e9e"  # gris
+extra="#cfcfcf"  # plata
+
+selection="#3d3d3d"
+cursor="#ff4d5e"
+
+c0="#202020"; c1="#ff4d5e"; c2="#c0c0c0"; c3="#e0e0e0"
+c4="#9e9e9e"; c5="#bdbdbd"; c6="#b0b0b0"; c7="#c8c8c8"
+c8="#575757"; c9="#ff7a87"; c10="#dadada"; c11="#f5f5f5"
+c12="#bcbcbc"; c13="#d6d6d6"; c14="#cfcfcf"; c15="#ffffff"
