@@ -16,6 +16,9 @@ scripts/.local/bin/tmux-recon   eol=lf
 scripts/.local/bin/tmux-sessionizer eol=lf
 scripts/.local/bin/webmap       eol=lf
 
+bin/.local/bin/* text eol=lf
+*.theme text eol=lf
+
 # Zsh
 *.zsh text eol=lf
 *.zshrc text eol=lf

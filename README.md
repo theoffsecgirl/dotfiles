@@ -52,6 +52,7 @@ make install  # stow runcom/config/bin + brew bundle
 make macos    # bootstrap a fresh macOS machine (Homebrew + make install)
 make test     # run the bats test suite
 make update   # brew update/upgrade + re-stow
+make link     # re-apply stow symlinks only (after a git pull)
 make clean    # remove the symlinks created by stow
 make edit     # open the repo in $EDITOR
 ```
@@ -63,6 +64,7 @@ dotfiles-ref   # interactive cheatsheet for this dotfiles setup
 tips           # interactive cheatsheet for shell aliases/functions
 tmux-popup     # floating tmux popup terminal
 tmux-sessionizer  # fuzzy project/session switcher
+theme          # switch the terminal theme (see "Themes")
 
 mkproject name dir1,dir2,dir3  # create a project folder with subfolders
 ezsh           # open the dotfiles zsh config directory in $EDITOR
@@ -73,6 +75,29 @@ gotodir name   # cd into the first directory matching a name fragment
 quickvenv      # create + activate a local .venv
 updateall      # update_system (OS packages) + pip + nvim plugins
 ```
+
+## Themes
+
+The terminal has a theme switcher. One command recolors **Ghostty, the Starship prompt, fzf, tmux, fastfetch and Neovim** together:
+
+```bash
+theme                    # fzf picker with a live palette preview
+theme trick-or-treat     # apply a theme directly
+theme list               # list all (★ = current)
+theme preview maple-forest
+theme random
+theme reset              # back to neon-fuchsia
+```
+
+| Theme | Vibe |
+|---|---|
+| `neon-fuchsia` | Cyber neon: fuchsia, pink and cyan (the original) |
+| `pumpkin-spice` 🍂 | Cozy autumn: pumpkin, honey and sage on coffee brown |
+| `trick-or-treat` 🎃 | Classic Halloween: pumpkin, candy corn, slime green, witch purple |
+| `maple-forest` 🍁 | Autumn forest: rust, maple red, gold and moss |
+| `witching-hour` 🦇 | Halloween night: orange moon and violet on midnight blue |
+
+The current terminal changes instantly; other Ghostty tabs pick it up with `Cmd+Shift+,`, Neovim on next launch. The choice lives in `~/.local/state/theme/` (outside the repo). To add a theme, copy any `config/.config/themes/*.theme` and edit the colors.
 
 ## Tests
 

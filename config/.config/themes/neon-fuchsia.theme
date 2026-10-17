@@ -1,0 +1,35 @@
+# Neon Fuchsia — theoffsecgirl (tema original)
+# Fondo morado casi negro, fucsia/rosa neón y cian de contraste "cyber".
+# Formato: ficheros sourceables por bash/zsh. Lo lee el comando `theme`.
+
+THEME_DESC="Cyber neón: fucsia, rosa y cian sobre morado casi negro"
+THEME_ICON=""
+THEME_FF_HEADER="SYSTEM ONLINE"
+THEME_FF_SUB="// access granted"
+
+# Bases (de más claro a más oscuro)
+text="#f5e1ff";     subtext1="#dcc6f2"; subtext0="#c0a8db"
+overlay2="#a48bc2"; overlay1="#8a6fae"; overlay0="#6f5491"
+surface2="#4a2f6b"; surface1="#3a2357"; surface0="#2a1842"
+base="#0b0613";     mantle="#08040e";   crust="#050209"
+
+# Acentos (nombres estilo Catppuccin, los usa Neovim)
+rosewater="#ffc2ee"; flamingo="#ff9ad8"; pink="#ff2bd6";     mauve="#ff7ae6"
+red="#ff2e63";       maroon="#ff6b9d";   peach="#ff8fb1";    yellow="#ffd166"
+green="#3dffb0";     teal="#7af4ff";     sky="#00e5ff";      sapphire="#4fd8ff"
+blue="#8a7bff";      lavender="#c9a7ff"
+
+# Roles de UI (prompt, tmux, fzf, fastfetch)
+primary="#ff2bd6"    # color principal
+secondary="#ff7ae6"  # segundo acento
+accent="#00e5ff"     # contraste
+extra="#8a7bff"      # ramas git, detalles
+
+selection="#4a1a6b"
+cursor="#ff2bd6"
+
+# Paleta ANSI de 16 colores (Ghostty)
+c0="#1a0f2e";  c1="#ff2e63";  c2="#3dffb0";  c3="#ffd166"
+c4="#8a7bff";  c5="#ff2bd6";  c6="#00e5ff";  c7="#d8c4f0"
+c8="#5a3d85";  c9="#ff6b9d";  c10="#8affcf"; c11="#ffe29a"
+c12="#b8abff"; c13="#ff7ae6"; c14="#7af4ff"; c15="#ffffff"

@@ -71,6 +71,10 @@ if command -v fzf >/dev/null 2>&1; then
     --color=marker:#00e5ff,fg+:#ffffff,prompt:#ff2bd6,hl+:#00e5ff,border:#5a3d85"
 fi
 
+# Tema de la terminal (`theme`): carga colores de fzf, icono y config de
+# starship/fastfetch del tema elegido. Debe ir antes de `starship init`.
+[[ -f "$HOME/.config/zsh/theme.zsh" ]] && source "$HOME/.config/zsh/theme.zsh"
+
 # Autosuggestions primero
 for _plugin in \
   "$BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh" \
@@ -129,7 +133,11 @@ unset _entry _TOOL_COMPLETIONS
 
 # Fastfetch al abrir una terminal nueva (solo shells interactivas, no en subshells/scripts)
 if [[ -o interactive ]] && command -v fastfetch >/dev/null 2>&1; then
-  fastfetch
+  if [[ -n "${THEME_FASTFETCH_CONFIG:-}" && -f "$THEME_FASTFETCH_CONFIG" ]]; then
+    fastfetch -c "$THEME_FASTFETCH_CONFIG"
+  else
+    fastfetch
+  fi
 fi
 
 # zsh-syntax-highlighting al final para evitar interferencias con widgets/completions

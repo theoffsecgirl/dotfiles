@@ -1,37 +1,33 @@
-# Starship — Neon Fuchsia · theoffsecgirl
+# Starship — theoffsecgirl
+# Los colores salen de la paleta del final. El comando `theme` genera una copia
+# con la paleta del tema elegido y la activa vía STARSHIP_CONFIG.
 "$schema" = "https://starship.rs/config-schema.json"
 
 add_newline = true
 palette = "neon_fuchsia"
 
 format = """
-[╭─](bold fuchsia)[ ](fuchsia)$username[@](cyan)$hostname $directory$git_branch$git_status$python$golang$nodejs$docker_context$cmd_duration
-[╰─](bold fuchsia)$character"""
+[╭─](bold primary)[ ](primary)${env_var.THEME_ICON}$username[@](accent)$hostname $directory$git_branch$git_status$python$golang$nodejs$docker_context$cmd_duration
+[╰─](bold primary)$character"""
 
-[palettes.neon_fuchsia]
-fuchsia = "#ff2bd6"
-pink    = "#ff7ae6"
-cyan    = "#00e5ff"
-violet  = "#8a7bff"
-muted   = "#a48bc2"
-red     = "#ff2e63"
-green   = "#3dffb0"
-yellow  = "#ffd166"
+[env_var.THEME_ICON]
+variable = "THEME_ICON"   # emoji del tema (🎃, 🍁…); si no existe, no se muestra
+format   = "$env_value "
 
 [username]
 show_always = true
-style_user  = "bold pink"
+style_user  = "bold secondary"
 style_root  = "bold red"
 format      = "[$user]($style)"
 
 [hostname]
 ssh_only = false
-style    = "bold cyan"
+style    = "bold accent"
 format   = "[$hostname]($style)"
 trim_at  = "-de-"
 
 [directory]
-style             = "bold fuchsia"
+style             = "bold primary"
 read_only         = " 󰌾"
 read_only_style   = "red"
 truncation_length = 3
@@ -40,7 +36,7 @@ format            = "[ ](muted)[$path]($style)[$read_only]($read_only_style) "
 
 [git_branch]
 symbol = " "
-style  = "bold violet"
+style  = "bold extra"
 format = "[on](muted) [$symbol$branch]($style) "
 
 [git_status]
@@ -49,12 +45,12 @@ format = "([\\[$all_status$ahead_behind\\]]($style) )"
 
 [python]
 symbol = " "
-style  = "cyan"
+style  = "accent"
 format = "[$symbol$version(\\($virtualenv\\))]($style) "
 
 [golang]
 symbol = " "
-style  = "cyan"
+style  = "accent"
 format = "[$symbol$version]($style) "
 
 [nodejs]
@@ -64,7 +60,7 @@ format = "[$symbol$version]($style) "
 
 [docker_context]
 symbol = " "
-style  = "cyan"
+style  = "accent"
 format = "[$symbol$context]($style) "
 
 [cmd_duration]
@@ -73,6 +69,17 @@ style    = "muted"
 format   = "[ $duration]($style) "
 
 [character]
-success_symbol = "[❯](bold fuchsia)[❯](bold pink)[❯](bold cyan)"
+success_symbol = "[❯](bold primary)[❯](bold secondary)[❯](bold accent)"
 error_symbol   = "[✗](bold red)"
-vimcmd_symbol  = "[❮](bold cyan)"
+vimcmd_symbol  = "[❮](bold accent)"
+
+# >>> palettes — todo lo que hay debajo lo reemplaza `theme` (no añadir nada después)
+[palettes.neon_fuchsia]
+primary   = "#ff2bd6"
+secondary = "#ff7ae6"
+accent    = "#00e5ff"
+extra     = "#8a7bff"
+muted     = "#a48bc2"
+red       = "#ff2e63"
+green     = "#3dffb0"
+yellow    = "#ffd166"

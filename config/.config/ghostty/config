@@ -16,8 +16,11 @@ cursor-style-blink = false
 # Selección
 copy-on-select = true
 
-# Tema: Neon Fuchsia (themes/neon-fuchsia)
+# Tema por defecto: Neon Fuchsia (themes/neon-fuchsia)
 theme = neon-fuchsia
+# Tema elegido con el comando `theme` (lo genera él; si no existe se ignora).
+# Va al final del fichero en Ghostty, así que sobrescribe los colores de arriba.
+config-file = ?current-theme.local
 
 # Toque cyber: fondo ligeramente translúcido con desenfoque
 background-opacity = 0.94

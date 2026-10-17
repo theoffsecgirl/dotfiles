@@ -1,0 +1,30 @@
+# Pumpkin Spice — otoño cozy
+# Fondo marrón café, naranja calabaza, miel y salvia. Para tardes de manta y té.
+
+THEME_DESC="Cozy de cafetería: calabaza, miel y salvia sobre marrón café"
+THEME_ICON="🍂"
+THEME_FF_HEADER="COZY MODE ON"
+THEME_FF_SUB="// pumpkin spice & shells"
+
+text="#f1e3cf";     subtext1="#d9c5ae"; subtext0="#bfa893"
+overlay2="#a08a78"; overlay1="#857060"; overlay0="#6b5648"
+surface2="#4a3830"; surface1="#3a2c25"; surface0="#2b201b"
+base="#1c1512";     mantle="#17110e";   crust="#110c0a"
+
+rosewater="#f6d5c1"; flamingo="#eeb8a0"; pink="#e8a0a8";     mauve="#c79bc0"
+red="#e0654a";       maroon="#c9705e";   peach="#ff9a4d";    yellow="#f4c27a"
+green="#a9b665";     teal="#8fb3a0";     sky="#8ec5c4";      sapphire="#7aa7b8"
+blue="#8da3c7";      lavender="#b8a6d9"
+
+primary="#ff9a4d"    # calabaza
+secondary="#f4c27a"  # miel
+accent="#8fb3a0"     # salvia
+extra="#c79bc0"      # ciruela
+
+selection="#4a3226"
+cursor="#ff9a4d"
+
+c0="#2b201b";  c1="#e0654a";  c2="#a9b665";  c3="#f4c27a"
+c4="#8da3c7";  c5="#c79bc0";  c6="#8fb3a0";  c7="#d9c5ae"
+c8="#5a463b";  c9="#f08a6f";  c10="#c3cf84"; c11="#ffd79a"
+c12="#abbde0"; c13="#dbb5d6"; c14="#aed0c0"; c15="#f9eee0"

@@ -45,13 +45,9 @@ font-family = "SF Mono"
 
 ## Theme
 
-Usa **Neon Fuchsia** (`themes/neon-fuchsia`): fondo morado casi negro, fucsia/rosa neón y cian de contraste.
-Para cambiar, edita la línea `theme =` en `config`:
-
-```
-theme = neon-fuchsia
-# O cualquiera de: ghostty +list-themes
-```
+Por defecto usa **Neon Fuchsia** (`themes/neon-fuchsia`). Para cambiar de tema usa el comando `theme`
+(`theme`, `theme list`, `theme trick-or-treat`…): genera `current-theme.local` junto a `config`
+(está en `.gitignore`) y Ghostty lo carga con `config-file = ?current-theme.local`.
 
 Recargar sin cerrar: `Cmd+Shift+,`
 

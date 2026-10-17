@@ -1,7 +1,7 @@
 DOTFILES := $(shell pwd)
 PACKAGES := runcom config bin
 
-.PHONY: install macos test update clean edit help
+.PHONY: install macos test update link clean edit help
 
 install: ## Enlaza runcom/config/bin con stow e instala dependencias (brew bundle)
 	stow -v -t $(HOME) $(PACKAGES)
@@ -16,6 +16,9 @@ test: ## Corre la suite de tests (bats)
 update: ## Actualiza Homebrew y re-aplica los symlinks de stow
 	brew update
 	brew upgrade
+	stow -v -R -t $(HOME) $(PACKAGES)
+
+link: ## Re-aplica solo los symlinks de stow (tras un git pull)
 	stow -v -R -t $(HOME) $(PACKAGES)
 
 clean: ## Elimina los symlinks creados por stow

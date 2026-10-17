@@ -82,6 +82,15 @@ dotfiles-ref() {
   _bb_add "tmux-popup"         "tmux"    'tmux-popup'
 
   # ─────────────────────────────────────────────────────────────
+  _bb_section "TEMAS"
+  _bb_add "theme"          "temas" 'theme'
+  _bb_add "theme-set"      "temas" 'theme trick-or-treat'
+  _bb_add "theme-list"     "temas" 'theme list'
+  _bb_add "theme-preview"  "temas" 'theme preview pumpkin-spice'
+  _bb_add "theme-random"   "temas" 'theme random'
+  _bb_add "theme-reset"    "temas" 'theme reset'
+
+  # ─────────────────────────────────────────────────────────────
   content="${content#\\n}"
 
   if command -v fzf >/dev/null 2>&1; then

@@ -1,0 +1,30 @@
+# Trick or Treat — Halloween clásico
+# Negro violáceo, naranja calabaza, amarillo candy corn, verde baba y morado bruja.
+
+THEME_DESC="Halloween clásico: calabaza, candy corn, verde baba y morado bruja"
+THEME_ICON="🎃"
+THEME_FF_HEADER="TRICK OR TREAT"
+THEME_FF_SUB="// boo. access granted"
+
+text="#f2ead9";     subtext1="#d4c8dc"; subtext0="#b7a7c2"
+overlay2="#9684a3"; overlay1="#7a6886"; overlay0="#5f4f6b"
+surface2="#3e3049"; surface1="#2f2438"; surface0="#221a28"
+base="#110c14";     mantle="#0c0810";   crust="#08050b"
+
+rosewater="#ffd9c2"; flamingo="#ffb38a"; pink="#ff8fa3";     mauve="#b57bff"
+red="#ff3b3b";       maroon="#d9485f";   peach="#ff7518";    yellow="#ffc94a"
+green="#9cff57";     teal="#6be3b5";     sky="#7fd4ff";      sapphire="#5fb8e8"
+blue="#8b8cff";      lavender="#c9a8ff"
+
+primary="#ff7518"    # calabaza
+secondary="#ffc94a"  # candy corn
+accent="#9cff57"     # baba verde
+extra="#b57bff"      # morado bruja
+
+selection="#3a2550"
+cursor="#ff7518"
+
+c0="#221a28";  c1="#ff3b3b";  c2="#9cff57";  c3="#ffc94a"
+c4="#8b8cff";  c5="#b57bff";  c6="#6be3b5";  c7="#d4c8dc"
+c8="#4f405b";  c9="#ff6b6b";  c10="#bfff8a"; c11="#ffdd85"
+c12="#b0b1ff"; c13="#d4adff"; c14="#9df0d0"; c15="#fff8ec"

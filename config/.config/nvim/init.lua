@@ -1,6 +1,6 @@
 -- ============================================================
 --  init.lua — Ari's Neovim config (lazy.nvim)
---  Neon Fuchsia (Catppuccin con paleta propia) · LSP · Telescope · Harpoon · etc.
+--  Catppuccin con la paleta del tema activo (`theme`) · LSP · Telescope · Harpoon · etc.
 -- ============================================================
 
 -- ── Bootstrap lazy.nvim ─────────────────────────────────────
@@ -46,6 +46,28 @@ opt.showmode       = false
 local hunting_home  = os.getenv("HUNTING_HOME") or vim.fn.expand("~/targets")
 local hunting_notes = hunting_home .. "/notes"
 
+-- ── Tema (comando `theme`) ──────────────────────────────────
+-- Lee ~/.local/state/theme/nvim.lua (generado por `theme`); si no existe,
+-- usa la paleta Neon Fuchsia de siempre.
+local theme_palette = {
+  rosewater = "#ffc2ee", flamingo = "#ff9ad8", pink     = "#ff2bd6",
+  mauve     = "#ff7ae6", red      = "#ff2e63", maroon   = "#ff6b9d",
+  peach     = "#ff8fb1", yellow   = "#ffd166", green    = "#3dffb0",
+  teal      = "#7af4ff", sky      = "#00e5ff", sapphire = "#4fd8ff",
+  blue      = "#8a7bff", lavender = "#c9a7ff",
+  text      = "#f5e1ff", subtext1 = "#dcc6f2", subtext0 = "#c0a8db",
+  overlay2  = "#a48bc2", overlay1 = "#8a6fae", overlay0 = "#6f5491",
+  surface2  = "#4a2f6b", surface1 = "#3a2357", surface0 = "#2a1842",
+  base      = "#0b0613", mantle   = "#08040e", crust    = "#050209",
+  _primary  = "#ff2bd6", _secondary = "#ff7ae6", _accent = "#00e5ff",
+  _visual   = "#4a1a6b",
+}
+do
+  local state = os.getenv("XDG_STATE_HOME") or vim.fn.expand("~/.local/state")
+  local ok, p = pcall(dofile, state .. "/theme/nvim.lua")
+  if ok and type(p) == "table" then theme_palette = p end
+end
+
 -- ── Plugins ─────────────────────────────────────────────────
 require("lazy").setup({
 
@@ -56,32 +78,22 @@ require("lazy").setup({
     priority = 1000,
     opts = {
       flavour = "mocha",
-      -- Paleta Neon Fuchsia (misma que Ghostty/tmux/fastfetch)
-      color_overrides = {
-        mocha = {
-          rosewater = "#ffc2ee", flamingo = "#ff9ad8", pink     = "#ff2bd6",
-          mauve     = "#ff7ae6", red      = "#ff2e63", maroon   = "#ff6b9d",
-          peach     = "#ff8fb1", yellow   = "#ffd166", green    = "#3dffb0",
-          teal      = "#7af4ff", sky      = "#00e5ff", sapphire = "#4fd8ff",
-          blue      = "#8a7bff", lavender = "#c9a7ff",
-          text      = "#f5e1ff", subtext1 = "#dcc6f2", subtext0 = "#c0a8db",
-          overlay2  = "#a48bc2", overlay1 = "#8a6fae", overlay0 = "#6f5491",
-          surface2  = "#4a2f6b", surface1 = "#3a2357", surface0 = "#2a1842",
-          base      = "#0b0613", mantle   = "#08040e", crust    = "#050209",
-        },
-      },
+      -- Paleta del tema elegido con `theme` (misma que Ghostty/tmux/fastfetch)
+      color_overrides = { mocha = theme_palette },
       custom_highlights = function(c)
+        -- Roles del tema (primary/secondary/accent), con fallback a Catppuccin
+        local p, s, a = theme_palette._primary or c.pink, theme_palette._secondary or c.mauve, theme_palette._accent or c.sky
         return {
-          CursorLineNr     = { fg = c.pink, style = { "bold" } },
-          Visual           = { bg = "#4a1a6b" },
-          FloatBorder      = { fg = c.pink },
+          CursorLineNr     = { fg = p, style = { "bold" } },
+          Visual           = { bg = theme_palette._visual },
+          FloatBorder      = { fg = p },
           WinSeparator     = { fg = c.surface2 },
-          DashboardHeader  = { fg = c.pink, style = { "bold" } },
-          DashboardIcon    = { fg = c.sky },
-          DashboardDesc    = { fg = c.mauve },
-          DashboardKey     = { fg = c.sky, style = { "bold" } },
+          DashboardHeader  = { fg = p, style = { "bold" } },
+          DashboardIcon    = { fg = a },
+          DashboardDesc    = { fg = s },
+          DashboardKey     = { fg = a, style = { "bold" } },
           DashboardFooter  = { fg = c.overlay2, style = { "italic" } },
-          DashboardCyber   = { fg = c.sky },
+          DashboardCyber   = { fg = a },
         }
       end,
       integrations = {

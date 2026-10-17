@@ -1,0 +1,30 @@
+# Witching Hour — noche de Halloween
+# Azul medianoche, luna naranja, luz de luna amarilla y violeta murciélago.
+
+THEME_DESC="Noche de brujas: luna naranja y violeta sobre azul medianoche"
+THEME_ICON="🦇"
+THEME_FF_HEADER="THE WITCHING HOUR"
+THEME_FF_SUB="// bats online"
+
+text="#e9e6f2";     subtext1="#c8cde0"; subtext0="#a9b0cb"
+overlay2="#8890b0"; overlay1="#6a7394"; overlay0="#4f5778"
+surface2="#343b57"; surface1="#272d45"; surface0="#1c2135"
+base="#0f1220";     mantle="#0b0d18";   crust="#070811"
+
+rosewater="#f5d0c5"; flamingo="#f0b3a2"; pink="#f59ab5";     mauve="#a78bfa"
+red="#f2545b";       maroon="#d7667a";   peach="#ff8c3a";    yellow="#ffd479"
+green="#8bd5a0";     teal="#6fd6c8";     sky="#7cc4f5";      sapphire="#5aa9e6"
+blue="#7d8cf0";      lavender="#b4befe"
+
+primary="#ff8c3a"    # luna naranja
+secondary="#ffd479"  # luz de luna
+accent="#a78bfa"     # violeta murciélago
+extra="#7cc4f5"      # niebla azul
+
+selection="#2f3654"
+cursor="#ff8c3a"
+
+c0="#1c2135";  c1="#f2545b";  c2="#8bd5a0";  c3="#ffd479"
+c4="#7d8cf0";  c5="#a78bfa";  c6="#6fd6c8";  c7="#c8cde0"
+c8="#474f6e";  c9="#ff7a80";  c10="#aee8bf"; c11="#ffe3a3"
+c12="#a3aef7"; c13="#c7b4fd"; c14="#98e8dd"; c15="#f7f5fb"

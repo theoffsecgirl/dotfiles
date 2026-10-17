@@ -1,0 +1,30 @@
+# Maple Forest — bosque en otoño
+# Corteza oscura, óxido, rojo arce, dorado y musgo.
+
+THEME_DESC="Bosque otoñal: óxido, rojo arce, dorado y musgo sobre corteza"
+THEME_ICON="🍁"
+THEME_FF_HEADER="FALLING LEAVES"
+THEME_FF_SUB="// raking the logs"
+
+text="#f0dfd0";     subtext1="#dcc2b0"; subtext0="#c4a594"
+overlay2="#a58676"; overlay1="#896a5e"; overlay0="#6e4f45"
+surface2="#4c312a"; surface1="#3b2621"; surface0="#2c1d19"
+base="#1b1210";     mantle="#150e0c";   crust="#0f0a08"
+
+rosewater="#f2cdbf"; flamingo="#e8a593"; pink="#e07a7a";     mauve="#b56576"
+red="#d9402b";       maroon="#a93b3b";   peach="#e8743b";    yellow="#e8b04a"
+green="#9cb86b";     teal="#6f9a8a";     sky="#86a8b0";      sapphire="#6e93a6"
+blue="#7e8fb3";      lavender="#a99bc4"
+
+primary="#e8743b"    # óxido
+secondary="#e8b04a"  # dorado
+accent="#9cb86b"     # musgo
+extra="#b56576"      # burdeos
+
+selection="#4a2a22"
+cursor="#e8743b"
+
+c0="#2c1d19";  c1="#d9402b";  c2="#9cb86b";  c3="#e8b04a"
+c4="#7e8fb3";  c5="#b56576";  c6="#6f9a8a";  c7="#dcc2b0"
+c8="#5c4038";  c9="#ef6b52";  c10="#b8d18a"; c11="#f5cc77"
+c12="#a3b1d1"; c13="#d08a99"; c14="#95bdae"; c15="#f8ece1"

@@ -52,6 +52,7 @@ make install  # stow runcom/config/bin + brew bundle
 make macos    # bootstrap de una Mac nueva (Homebrew + make install)
 make test     # corre la suite de tests con bats
 make update   # brew update/upgrade + re-aplica stow
+make link     # solo re-aplica los symlinks de stow (tras un git pull)
 make clean    # elimina los symlinks creados por stow
 make edit     # abre el repo en $EDITOR
 ```
@@ -63,6 +64,7 @@ dotfiles-ref   # cheatsheet interactivo de este setup de dotfiles
 tips           # cheatsheet interactivo de aliases/funciones de shell
 tmux-popup     # terminal flotante en tmux (popup)
 tmux-sessionizer  # selector rápido de proyectos/sesiones con fzf
+theme          # cambiar el tema de la terminal (ver "Temas")
 
 mkproject nombre dir1,dir2,dir3  # crear carpeta de proyecto con subcarpetas
 ezsh           # abrir el directorio zsh de los dotfiles en $EDITOR
@@ -73,6 +75,31 @@ gotodir nombre # cd al primer directorio que matchee un fragmento de nombre
 quickvenv      # crear y activar un .venv local
 updateall      # update_system (paquetes del SO) + pip + plugins de nvim
 ```
+
+## Temas
+
+La terminal tiene selector de temas. Un solo comando cambia a la vez **Ghostty, el prompt de Starship, fzf, tmux, fastfetch y Neovim**:
+
+```bash
+theme                    # selector con fzf y vista previa de cada paleta
+theme trick-or-treat     # aplicar un tema directamente
+theme list               # ver todos (★ = el actual)
+theme preview maple-forest
+theme random             # sorpresa
+theme reset              # volver a neon-fuchsia
+```
+
+| Tema | Vibe |
+|---|---|
+| `neon-fuchsia` | Cyber neón: fucsia, rosa y cian (el original) |
+| `pumpkin-spice` 🍂 | Otoño cozy: calabaza, miel y salvia sobre marrón café |
+| `trick-or-treat` 🎃 | Halloween clásico: calabaza, candy corn, verde baba y morado bruja |
+| `maple-forest` 🍁 | Bosque otoñal: óxido, rojo arce, dorado y musgo |
+| `witching-hour` 🦇 | Noche de brujas: luna naranja y violeta sobre azul medianoche |
+
+La terminal actual cambia al momento; en el resto de pestañas de Ghostty pulsa `Cmd+Shift+,` y Neovim lo coge al reabrirlo. La elección se guarda en `~/.local/state/theme/` (fuera del repo).
+
+**Crear un tema nuevo:** copia cualquier `config/.config/themes/*.theme`, cambia los colores y ya aparece en `theme list`.
 
 ## Tests
 
