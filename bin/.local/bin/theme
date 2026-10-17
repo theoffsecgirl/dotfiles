@@ -122,9 +122,54 @@ EOF
   } >"$STATE_DIR/starship.toml"
 }
 
+# Dibujo del tema para fastfetch: convierte la cuadrícula de letras de
+# ~/.config/fastfetch/logos/<tema>.txt en bloques ▀▄█ con los colores del tema.
+# Letras: P primary · S secondary · A accent · E extra · T text · R red · G green
+#         Y yellow · M overlay1 · D base · W blanco (c15) · "." vacío
+LOGO_W=0; LOGO_H=0
+gen_logo() {
+  local grid="$CONFIG_HOME/fastfetch/logos/${THEME_LOGO:-$THEME_NAME}.txt"
+  LOGO_W=0; LOGO_H=0
+  rm -f "$STATE_DIR/logo.ans"
+  [ -f "$grid" ] || return 0
+  local map="" k v
+  for k in P:primary S:secondary A:accent E:extra T:text R:red G:green Y:yellow M:overlay1 D:base W:c15; do
+    v="${k#*:}"; map="$map ${k%%:*}=$(hex_rgb "${!v}")"
+  done
+  awk -v map="$map" -v label="${THEME_LOGO_LABEL:-theoffsecgirl}" \
+      -v lp="$(hex_rgb "$primary")" -v la="$(hex_rgb "$accent")" '
+    BEGIN { n = split(map, kv, " "); for (i = 1; i <= n; i++) { split(kv[i], q, "="); rgb[q[1]] = q[2] } E = sprintf("%c", 27) }
+    { rows[NR] = $0; if (length($0) > w) w = length($0) }
+    END {
+      if (NR % 2) rows[++NR] = ""
+      for (y = 1; y <= NR; y += 2) {
+        line = ""
+        for (x = 1; x <= w; x++) {
+          t = substr(rows[y], x, 1); b = substr(rows[y+1], x, 1)
+          if (!(t in rgb)) t = "."; if (!(b in rgb)) b = "."
+          if (t == "." && b == ".")      line = line " "
+          else if (b == ".")             line = line E "[38;2;" rgb[t] "m▀"
+          else if (t == ".")             line = line E "[38;2;" rgb[b] "m▄"
+          else if (t == b)               line = line E "[38;2;" rgb[t] "m█"
+          else                           line = line E "[38;2;" rgb[t] ";48;2;" rgb[b] "m▀" E "[49m"
+        }
+        print line E "[0m"
+      }
+      ll = length(label) + 8
+      pad = int((w - ll) / 2); sp = ""; for (i = 0; i < pad; i++) sp = sp " "
+      print ""
+      printf "%s%s[38;2;%sm▓▒░ %s[1;38;2;%sm%s %s[0;38;2;%sm░▒▓%s[0m\n", sp, E, la, E, lp, label, E, la, E
+      if (ll > w) w = ll
+      printf "%d %d\n", w, (NR / 2) + 2 > sizefile
+    }' sizefile="$STATE_DIR/logo.size" "$grid" >"$STATE_DIR/logo.ans"
+  read -r LOGO_W LOGO_H <"$STATE_DIR/logo.size" || true
+  rm -f "$STATE_DIR/logo.size"
+}
+
 gen_fastfetch() {
   local src="$CONFIG_HOME/fastfetch/config.jsonc"
   [ -f "$src" ] || return 0
+  gen_logo
   local p s a
   local t
   p="38;2;$(hex_rgb "$primary")"; s="38;2;$(hex_rgb "$secondary")"; a="38;2;$(hex_rgb "$accent")"
@@ -138,6 +183,13 @@ gen_fastfetch() {
       -e "s|SYSTEM ONLINE|${THEME_FF_HEADER:-SYSTEM ONLINE}|" \
       -e "s|// access granted|${THEME_FF_SUB:-// access granted}|" \
       "$src" >"$STATE_DIR/fastfetch.jsonc"
+
+  # Si el tema tiene dibujo propio, el logo pasa a ser el fichero ANSI generado
+  if [ "$LOGO_W" -gt 0 ] 2>/dev/null; then
+    sed -i.bak -e "s|\"type\": \"file\",|\"type\": \"file-raw\", \"width\": $LOGO_W, \"height\": $LOGO_H,|" \
+        -e "s|\"source\": \"[^\"]*logo.txt\"|\"source\": \"$STATE_DIR/logo.ans\"|" \
+        "$STATE_DIR/fastfetch.jsonc" && rm -f "$STATE_DIR/fastfetch.jsonc.bak"
+  fi
 }
 
 gen_tmux() {

@@ -11,6 +11,7 @@ setup() {
   cp "$REPO_ROOT/config/.config/starship.toml" "$TMP_HOME/.config/starship.toml"
   cp "$REPO_ROOT/config/.config/ghostty/config" "$TMP_HOME/.config/ghostty/config"
   cp "$REPO_ROOT/config/.config/fastfetch/config.jsonc" "$TMP_HOME/.config/fastfetch/config.jsonc"
+  cp -r "$REPO_ROOT/config/.config/fastfetch/logos" "$TMP_HOME/.config/fastfetch/logos"
   export HOME="$TMP_HOME"
   unset XDG_CONFIG_HOME XDG_STATE_HOME TMUX
   STATE="$HOME/.local/state/theme"
@@ -75,4 +76,21 @@ teardown() {
 
 @test "theme tiene entrada en dotfiles-ref.zsh" {
   grep -q '"theme"' "$REPO_ROOT/config/.config/zsh/dotfiles-ref.zsh"
+}
+
+@test "cada tema tiene su dibujo de fastfetch" {
+  for t in $("$THEME_BIN" names); do
+    [ -f "$REPO_ROOT/config/.config/fastfetch/logos/$t.txt" ] || { echo "falta logos/$t.txt"; return 1; }
+  done
+}
+
+@test "los dibujos solo usan letras de color válidas" {
+  ! grep -n '[^.PSAETRGYMDW]' "$REPO_ROOT"/config/.config/fastfetch/logos/*.txt
+}
+
+@test "theme set genera el logo ANSI y lo usa fastfetch" {
+  "$THEME_BIN" set deep-sea
+  [ -s "$STATE/logo.ans" ]
+  grep -q '"type": "file-raw", "width": [0-9]*, "height": [0-9]*' "$STATE/fastfetch.jsonc"
+  grep -q "$STATE/logo.ans" "$STATE/fastfetch.jsonc"
 }
