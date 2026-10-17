@@ -109,6 +109,7 @@ theme reset              # back to neon-fuchsia
 | `desert-dune` 🐪 | Desert: sand, terracotta, oasis turquoise and mauve sky |
 | `mint-breeze` 🌿 | **Light**: mint white, forest green and petrol blue |
 | `cotton-candy` 🍬 | **Light**: bubblegum pink, cotton blue and lilac |
+| `soft-concrete` 🤍 | Minimal soft: stone, taupe, soft rust and blue-grey glass |
 
 ### Gallery
 
@@ -122,6 +123,7 @@ theme reset              # back to neon-fuchsia
 <tr><td align="center"><img src="docs/themes/mono-ink.png" width="420" alt="mono-ink"><br><code>mono-ink</code></td><td align="center"><img src="docs/themes/amber-crt.png" width="420" alt="amber-crt"><br><code>amber-crt</code></td></tr>
 <tr><td align="center"><img src="docs/themes/high-contrast.png" width="420" alt="high-contrast"><br><code>high-contrast</code></td><td align="center"><img src="docs/themes/paper-latte.png" width="420" alt="paper-latte"><br><code>paper-latte</code></td></tr>
 <tr><td align="center"><img src="docs/themes/mint-breeze.png" width="420" alt="mint-breeze"><br><code>mint-breeze</code></td><td align="center"><img src="docs/themes/cotton-candy.png" width="420" alt="cotton-candy"><br><code>cotton-candy</code></td></tr>
+<tr><td align="center"><img src="docs/themes/soft-concrete.png" width="420" alt="soft-concrete"><br><code>soft-concrete</code></td><td></td></tr>
 </table>
 
 The current terminal changes instantly; other Ghostty tabs pick it up with `Cmd+Shift+,`, Neovim on next launch. The choice lives in `~/.local/state/theme/` (outside the repo). To add a theme, copy any `config/.config/themes/*.theme` and edit the colors; its pixel-art goes in `config/.config/fastfetch/logos/<theme>.txt` (one letter per pixel = a theme color role); regenerate the gallery images with `python3 docs/themes/gen-previews.py`.

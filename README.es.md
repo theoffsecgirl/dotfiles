@@ -109,6 +109,7 @@ theme reset              # volver a neon-fuchsia
 | `desert-dune` 🐪 | Desierto: arena, terracota, turquesa de oasis y cielo malva |
 | `mint-breeze` 🌿 | **Claro**: blanco menta, verde bosque y azul petróleo |
 | `cotton-candy` 🍬 | **Claro**: rosa chicle, azul algodón y lila |
+| `soft-concrete` 🤍 | Minimal soft: piedra, topo, óxido suave y cristal gris azulado |
 
 ### Galería
 
@@ -122,6 +123,7 @@ theme reset              # volver a neon-fuchsia
 <tr><td align="center"><img src="docs/themes/mono-ink.png" width="420" alt="mono-ink"><br><code>mono-ink</code></td><td align="center"><img src="docs/themes/amber-crt.png" width="420" alt="amber-crt"><br><code>amber-crt</code></td></tr>
 <tr><td align="center"><img src="docs/themes/high-contrast.png" width="420" alt="high-contrast"><br><code>high-contrast</code></td><td align="center"><img src="docs/themes/paper-latte.png" width="420" alt="paper-latte"><br><code>paper-latte</code></td></tr>
 <tr><td align="center"><img src="docs/themes/mint-breeze.png" width="420" alt="mint-breeze"><br><code>mint-breeze</code></td><td align="center"><img src="docs/themes/cotton-candy.png" width="420" alt="cotton-candy"><br><code>cotton-candy</code></td></tr>
+<tr><td align="center"><img src="docs/themes/soft-concrete.png" width="420" alt="soft-concrete"><br><code>soft-concrete</code></td><td></td></tr>
 </table>
 
 La terminal actual cambia al momento; en el resto de pestañas de Ghostty pulsa `Cmd+Shift+,` y Neovim lo coge al reabrirlo. La elección se guarda en `~/.local/state/theme/` (fuera del repo).

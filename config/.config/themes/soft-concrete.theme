@@ -1,0 +1,31 @@
+# Soft Concrete — minimal soft, ciudad tras la ventana
+# Sacado de una foto de Manhattan en invierno: marcos casi negros, piedra crema,
+# topo, óxido de los árboles, cristal gris azulado y el amarillo apagado de los taxis.
+
+THEME_DESC="Minimal soft: piedra, topo, óxido suave y cristal gris azulado"
+THEME_ICON="🤍"
+THEME_FF_HEADER="SOFT FOCUS"
+THEME_FF_SUB="// slow mornings, quiet city"
+
+text="#e6e2db"; subtext1="#c4bfb7"; subtext0="#aca69d"
+overlay2="#958a7f"; overlay1="#776c62"; overlay0="#5a5047"
+surface2="#3c332c"; surface1="#2f2822"; surface0="#241e19"
+base="#17130f"; mantle="#120f0c"; crust="#0d0b09"
+
+rosewater="#e0cfc3"; flamingo="#d4b5a8"; pink="#c49a9a"; mauve="#a9949f"
+red="#c97a6a"; maroon="#a87068"; peach="#c99572"; yellow="#d4b06a"
+green="#a3ab8a"; teal="#8fa8a0"; sky="#a3b3ba"; sapphire="#8a9cab"
+blue="#8e9fb0"; lavender="#aaa3b5"
+
+primary="#c2967a"  # óxido suave (árboles)
+secondary="#d8cbb8"  # piedra
+accent="#9aa8ae"  # cristal
+extra="#d4b06a"  # taxi
+
+selection="#3a3129"
+cursor="#c2967a"
+
+c0="#241e19"; c1="#c97a6a"; c2="#a3ab8a"; c3="#d4b06a"
+c4="#8e9fb0"; c5="#a9949f"; c6="#8fa8a0"; c7="#c4bfb7"
+c8="#5a5047"; c9="#d9907f"; c10="#b8c0a0"; c11="#e3c58a"
+c12="#a8b6c4"; c13="#c0abb6"; c14="#a8bfb8"; c15="#f2efea"
