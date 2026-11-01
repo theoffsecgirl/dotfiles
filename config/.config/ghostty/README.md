@@ -46,7 +46,7 @@ font-family = "SF Mono"
 ## Theme
 
 Por defecto usa **Neon Fuchsia** (`themes/neon-fuchsia`). Para cambiar de tema usa el comando `theme`
-(`theme`, `theme list`, `theme trick-or-treat`…): genera `current-theme.local` junto a `config`
+(`theme`, `theme list`, `theme paper-latte`…): genera `current-theme.local` junto a `config`
 (está en `.gitignore`) y Ghostty lo carga con `config-file = ?current-theme.local`.
 
 Recargar sin cerrar: `Cmd+Shift+,`

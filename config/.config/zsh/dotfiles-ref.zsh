@@ -84,9 +84,9 @@ dotfiles-ref() {
   # ─────────────────────────────────────────────────────────────
   _bb_section "TEMAS"
   _bb_add "theme"          "temas" 'theme'
-  _bb_add "theme-set"      "temas" 'theme trick-or-treat'
+  _bb_add "theme-set"      "temas" 'theme paper-latte'
   _bb_add "theme-list"     "temas" 'theme list'
-  _bb_add "theme-preview"  "temas" 'theme preview pumpkin-spice'
+  _bb_add "theme-preview"  "temas" 'theme preview mono-ink'
   _bb_add "theme-random"   "temas" 'theme random'
   _bb_add "theme-reset"    "temas" 'theme reset'
 

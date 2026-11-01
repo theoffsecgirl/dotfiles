@@ -82,48 +82,27 @@ La terminal tiene selector de temas. Un solo comando cambia a la vez **Ghostty, 
 
 ```bash
 theme                    # selector con fzf y vista previa de cada paleta
-theme trick-or-treat     # aplicar un tema directamente
+theme paper-latte        # aplicar un tema directamente
 theme list               # ver todos (★ = el actual)
-theme preview maple-forest
+theme preview mono-ink
 theme random             # sorpresa
 theme reset              # volver a neon-fuchsia
 ```
 
 | Tema | Vibe |
 |---|---|
-| `neon-fuchsia` | Cyber neón: fucsia, rosa y cian (el original) |
-| `pumpkin-spice` 🍂 | Otoño cozy: calabaza, miel y salvia sobre marrón café |
-| `trick-or-treat` 🎃 | Halloween clásico: calabaza, candy corn, verde baba y morado bruja |
-| `maple-forest` 🍁 | Bosque otoñal: óxido, rojo arce, dorado y musgo |
-| `witching-hour` 🦇 | Noche de brujas: luna naranja y violeta sobre azul medianoche |
-| `matrix-terminal` 👾 | Hacker CRT: verde fósforo, lima y ámbar sobre negro |
-| `deep-sea` 🐙 | Fondo marino: turquesa bioluminiscente, medusa y coral |
-| `sakura-bloom` 🌸 | Pastel japonés: rosa cerezo, lila y verde hoja |
-| `arctic-frost` 🧊 | Ártico: azul hielo, aurora turquesa y violeta |
-| `synthwave-sunset` 🌆 | Retro 80s: sol naranja, rosa neón y amarillo sobre morado |
-| `paper-latte` ☕ | **Claro**: papel crema, terracota y mostaza (para el día) |
-| `mono-ink` 🖤 | Minimalista: grises de tinta con un único acento rojo |
-| `amber-crt` 📟 | Retro monocromo: fósforo ámbar sobre negro, estilo VT220 |
-| `high-contrast` ⚡ | Máxima legibilidad: negro puro, blanco y primarios intensos |
-| `lava-core` 🌋 | Volcánico: magma rojo, naranja incandescente y azufre |
-| `desert-dune` 🐪 | Desierto: arena, terracota, turquesa de oasis y cielo malva |
-| `mint-breeze` 🌿 | **Claro**: blanco menta, verde bosque y azul petróleo |
-| `cotton-candy` 🍬 | **Claro**: rosa chicle, azul algodón y lila |
-| `soft-concrete` 🤍 | Minimal soft: piedra, topo, óxido suave y cristal gris azulado |
+| `neon-fuchsia` | Cyber neón: fucsia, rosa y cian (el de la marca, por defecto) |
+| `mono-ink` | Minimalista: grises de tinta con un único acento rojo |
+| `soft-concrete` | Minimal soft: piedra, topo, óxido suave y gris azulado |
+| `high-contrast` | Máxima legibilidad: negro puro, blanco y primarios intensos |
+| `paper-latte` | **Claro**: papel crema, terracota y mostaza (para el día) |
 
 ### Galería
 
 <table>
-<tr><td align="center"><img src="docs/themes/neon-fuchsia.png" width="420" alt="neon-fuchsia"><br><code>neon-fuchsia</code></td><td align="center"><img src="docs/themes/pumpkin-spice.png" width="420" alt="pumpkin-spice"><br><code>pumpkin-spice</code></td></tr>
-<tr><td align="center"><img src="docs/themes/trick-or-treat.png" width="420" alt="trick-or-treat"><br><code>trick-or-treat</code></td><td align="center"><img src="docs/themes/maple-forest.png" width="420" alt="maple-forest"><br><code>maple-forest</code></td></tr>
-<tr><td align="center"><img src="docs/themes/witching-hour.png" width="420" alt="witching-hour"><br><code>witching-hour</code></td><td align="center"><img src="docs/themes/matrix-terminal.png" width="420" alt="matrix-terminal"><br><code>matrix-terminal</code></td></tr>
-<tr><td align="center"><img src="docs/themes/deep-sea.png" width="420" alt="deep-sea"><br><code>deep-sea</code></td><td align="center"><img src="docs/themes/sakura-bloom.png" width="420" alt="sakura-bloom"><br><code>sakura-bloom</code></td></tr>
-<tr><td align="center"><img src="docs/themes/arctic-frost.png" width="420" alt="arctic-frost"><br><code>arctic-frost</code></td><td align="center"><img src="docs/themes/synthwave-sunset.png" width="420" alt="synthwave-sunset"><br><code>synthwave-sunset</code></td></tr>
-<tr><td align="center"><img src="docs/themes/lava-core.png" width="420" alt="lava-core"><br><code>lava-core</code></td><td align="center"><img src="docs/themes/desert-dune.png" width="420" alt="desert-dune"><br><code>desert-dune</code></td></tr>
-<tr><td align="center"><img src="docs/themes/mono-ink.png" width="420" alt="mono-ink"><br><code>mono-ink</code></td><td align="center"><img src="docs/themes/amber-crt.png" width="420" alt="amber-crt"><br><code>amber-crt</code></td></tr>
-<tr><td align="center"><img src="docs/themes/high-contrast.png" width="420" alt="high-contrast"><br><code>high-contrast</code></td><td align="center"><img src="docs/themes/paper-latte.png" width="420" alt="paper-latte"><br><code>paper-latte</code></td></tr>
-<tr><td align="center"><img src="docs/themes/mint-breeze.png" width="420" alt="mint-breeze"><br><code>mint-breeze</code></td><td align="center"><img src="docs/themes/cotton-candy.png" width="420" alt="cotton-candy"><br><code>cotton-candy</code></td></tr>
-<tr><td align="center"><img src="docs/themes/soft-concrete.png" width="420" alt="soft-concrete"><br><code>soft-concrete</code></td><td></td></tr>
+<tr><td align="center"><img src="docs/themes/neon-fuchsia.png" width="420" alt="neon-fuchsia"><br><code>neon-fuchsia</code></td><td align="center"><img src="docs/themes/mono-ink.png" width="420" alt="mono-ink"><br><code>mono-ink</code></td></tr>
+<tr><td align="center"><img src="docs/themes/soft-concrete.png" width="420" alt="soft-concrete"><br><code>soft-concrete</code></td><td align="center"><img src="docs/themes/high-contrast.png" width="420" alt="high-contrast"><br><code>high-contrast</code></td></tr>
+<tr><td align="center"><img src="docs/themes/paper-latte.png" width="420" alt="paper-latte"><br><code>paper-latte</code></td><td></td></tr>
 </table>
 
 La terminal actual cambia al momento; en el resto de pestañas de Ghostty pulsa `Cmd+Shift+,` y Neovim lo coge al reabrirlo. La elección se guarda en `~/.local/state/theme/` (fuera del repo).

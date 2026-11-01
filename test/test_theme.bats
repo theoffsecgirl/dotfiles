@@ -45,18 +45,18 @@ teardown() {
 }
 
 @test "theme set genera los ficheros de todas las apps" {
-  run "$THEME_BIN" set trick-or-treat
+  run "$THEME_BIN" set paper-latte
   [ "$status" -eq 0 ]
   for f in current env.zsh ghostty starship.toml fastfetch.jsonc tmux.conf nvim.lua; do
     [ -s "$STATE/$f" ] || { echo "falta $f"; return 1; }
   done
-  [ "$(cat "$STATE/current")" = "trick-or-treat" ]
+  [ "$(cat "$STATE/current")" = "paper-latte" ]
   [ -f "$HOME/.config/ghostty/current-theme.local" ]
-  grep -q '^background = 110c14' "$HOME/.config/ghostty/current-theme.local"
+  grep -q '^background = f6efe4' "$HOME/.config/ghostty/current-theme.local"
 }
 
 @test "la config de starship generada usa la paleta del tema" {
-  "$THEME_BIN" set pumpkin-spice
+  "$THEME_BIN" set mono-ink
   grep -q '^palette = "theme"' "$STATE/starship.toml"
   grep -q '^\[palettes.theme\]' "$STATE/starship.toml"
   ! grep -q 'neon_fuchsia' "$STATE/starship.toml"
@@ -68,7 +68,7 @@ teardown() {
 }
 
 @test "theme reset vuelve a neon-fuchsia" {
-  "$THEME_BIN" set witching-hour
+  "$THEME_BIN" set high-contrast
   "$THEME_BIN" reset
   [ "$("$THEME_BIN" current)" = "neon-fuchsia" ]
 }
@@ -78,7 +78,7 @@ teardown() {
 }
 
 @test "fastfetch es minimal: sin logo ni frases" {
-  "$THEME_BIN" set deep-sea
+  "$THEME_BIN" set soft-concrete
   grep -q '"type": "none"' "$STATE/fastfetch.jsonc"
   ! grep -qi 'access granted\|SYSTEM ONLINE\|hack the planet' "$STATE/fastfetch.jsonc"
   [ ! -e "$REPO_ROOT/config/.config/fastfetch/logos" ]
