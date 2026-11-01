@@ -56,3 +56,11 @@ config/.config/gh/
 config/.config/atuin/
 config/.config/cagent/
 config/.config/wireshark/
+
+# Datos de apps que acaban dentro del repo si stow "pliega" ~/.local o ~/.config
+# (estado, cachés, binarios instalados por otros programas). Nunca versionar.
+bin/.local/share/
+bin/.local/state/
+bin/.local/bin/claude
+bin/.local/bin/caido-mcp-server
+config/.config/configstore/
