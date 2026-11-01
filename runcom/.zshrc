@@ -25,3 +25,8 @@ fi
 unset _FF
 alias graphw00f="python3 $HOME/tools/ext/graphw00f/main.py"
 alias graphql-cop="python3 $HOME/tools/ext/graphql-cop/graphql-cop.py"
+# The following lines have been added by Docker Desktop to enable Docker CLI completions.
+fpath=(/Users/theoffsecgirl/.docker/completions $fpath)
+autoload -Uz compinit
+(( ${+_comps[docker]} )) || compinit
+# End of Docker CLI completions
