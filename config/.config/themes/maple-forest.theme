@@ -2,9 +2,6 @@
 # Corteza oscura, óxido, rojo arce, dorado y musgo.
 
 THEME_DESC="Bosque otoñal: óxido, rojo arce, dorado y musgo sobre corteza"
-THEME_ICON="🍁"
-THEME_FF_HEADER="FALLING LEAVES"
-THEME_FF_SUB="// raking the logs"
 
 text="#f0dfd0";     subtext1="#dcc2b0"; subtext0="#c4a594"
 overlay2="#a58676"; overlay1="#896a5e"; overlay0="#6e4f45"

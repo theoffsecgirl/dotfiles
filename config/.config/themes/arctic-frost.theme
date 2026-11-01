@@ -2,9 +2,6 @@
 # Gris azulado frío, azul hielo, turquesa y violeta de aurora.
 
 THEME_DESC="Ártico: azul hielo, aurora turquesa y violeta sobre gris pizarra"
-THEME_ICON="🧊"
-THEME_FF_HEADER="BELOW ZERO"
-THEME_FF_SUB="// keep it cool"
 
 text="#e6edf5"; subtext1="#c5d0dc"; subtext0="#a3b1c2"
 overlay2="#8090a6"; overlay1="#64758c"; overlay0="#4a5a70"

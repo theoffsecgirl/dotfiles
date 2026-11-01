@@ -2,9 +2,6 @@
 # Todo en tonos ámbar sobre negro cálido, como un terminal VT220.
 
 THEME_DESC="Retro monocromo: fósforo ámbar sobre negro, estilo VT220"
-THEME_ICON="📟"
-THEME_FF_HEADER="READY."
-THEME_FF_SUB="// 9600 baud"
 
 text="#ffcc80"; subtext1="#f0b860"; subtext0="#d9a050"
 overlay2="#b88640"; overlay1="#946a32"; overlay0="#704f24"

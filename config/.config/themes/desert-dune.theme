@@ -2,9 +2,6 @@
 # Arena oscura, terracota, turquesa de oasis y cielo malva.
 
 THEME_DESC="Desierto: arena, terracota, turquesa de oasis y cielo malva"
-THEME_ICON="🐪"
-THEME_FF_HEADER="DESERT RUN"
-THEME_FF_SUB="// mirage detected"
 
 text="#f2e6d6"; subtext1="#dccbb4"; subtext0="#c2ae94"
 overlay2="#a69276"; overlay1="#89765c"; overlay0="#6d5c45"

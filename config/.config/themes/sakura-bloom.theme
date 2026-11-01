@@ -2,9 +2,6 @@
 # Ciruela suave, rosa cerezo, lila y verde hoja.
 
 THEME_DESC="Pastel japonés: rosa cerezo, lila y verde hoja sobre ciruela suave"
-THEME_ICON="🌸"
-THEME_FF_HEADER="HANAMI MODE"
-THEME_FF_SUB="// petals & packets"
 
 text="#f5e8f0"; subtext1="#d8c8dc"; subtext0="#bba9c0"
 overlay2="#9d8aa4"; overlay1="#82708a"; overlay0="#685770"

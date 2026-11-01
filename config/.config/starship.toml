@@ -7,12 +7,8 @@ add_newline = true
 palette = "neon_fuchsia"
 
 format = """
-[╭─](bold primary)[ ](primary)${env_var.THEME_ICON}$username[@](accent)$hostname $directory$git_branch$git_status$python$golang$nodejs$docker_context$cmd_duration
+[╭─](bold primary)$username[@](accent)$hostname $directory$git_branch$git_status$python$golang$nodejs$docker_context$cmd_duration
 [╰─](bold primary)$character"""
-
-[env_var.THEME_ICON]
-variable = "THEME_ICON"   # emoji del tema (🎃, 🍁…); si no existe, no se muestra
-format   = "$env_value "
 
 [username]
 show_always = true

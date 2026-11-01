@@ -2,9 +2,6 @@
 # Azul medianoche, luna naranja, luz de luna amarilla y violeta murciélago.
 
 THEME_DESC="Noche de brujas: luna naranja y violeta sobre azul medianoche"
-THEME_ICON="🦇"
-THEME_FF_HEADER="THE WITCHING HOUR"
-THEME_FF_SUB="// bats online"
 
 text="#e9e6f2";     subtext1="#c8cde0"; subtext0="#a9b0cb"
 overlay2="#8890b0"; overlay1="#6a7394"; overlay0="#4f5778"

@@ -2,9 +2,6 @@
 # Negro violáceo, naranja calabaza, amarillo candy corn, verde baba y morado bruja.
 
 THEME_DESC="Halloween clásico: calabaza, candy corn, verde baba y morado bruja"
-THEME_ICON="🎃"
-THEME_FF_HEADER="TRICK OR TREAT"
-THEME_FF_SUB="// boo. access granted"
 
 text="#f2ead9";     subtext1="#d4c8dc"; subtext0="#b7a7c2"
 overlay2="#9684a3"; overlay1="#7a6886"; overlay0="#5f4f6b"

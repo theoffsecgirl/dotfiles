@@ -2,9 +2,6 @@
 # Roca negra, magma rojo, naranja incandescente y amarillo azufre.
 
 THEME_DESC="Volcánico: magma rojo, naranja incandescente y azufre sobre roca negra"
-THEME_ICON="🌋"
-THEME_FF_HEADER="MAGMA RISING"
-THEME_FF_SUB="// core temp critical"
 
 text="#f5e0d8"; subtext1="#dcc0b6"; subtext0="#c09e92"
 overlay2="#a07c70"; overlay1="#806056"; overlay0="#62463e"

@@ -2,9 +2,6 @@
 # Negro puro, blanco puro y colores primarios muy saturados.
 
 THEME_DESC="Máxima legibilidad: negro puro, blanco y primarios intensos"
-THEME_ICON="⚡"
-THEME_FF_HEADER="FULL CONTRAST"
-THEME_FF_SUB="// no squinting"
 
 text="#ffffff"; subtext1="#f0f0f0"; subtext0="#dddddd"
 overlay2="#bbbbbb"; overlay1="#999999"; overlay0="#777777"

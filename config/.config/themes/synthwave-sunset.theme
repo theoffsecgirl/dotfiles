@@ -2,9 +2,6 @@
 # Morado noche, naranja de sol, rosa neón, amarillo y azul de rejilla.
 
 THEME_DESC="Retro 80s: sol naranja, rosa neón y amarillo sobre morado noche"
-THEME_ICON="🌆"
-THEME_FF_HEADER="OUTRUN MODE"
-THEME_FF_SUB="// drive into the sunset"
 
 text="#f7ecff"; subtext1="#dccdee"; subtext0="#bba8d6"
 overlay2="#9c86bd"; overlay1="#8069a3"; overlay0="#66508a"

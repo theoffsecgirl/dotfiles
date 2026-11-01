@@ -2,9 +2,6 @@
 # Azul abisal, turquesa luminoso, rosa medusa y coral.
 
 THEME_DESC="Fondo marino: turquesa bioluminiscente, medusa y coral sobre azul abisal"
-THEME_ICON="🐙"
-THEME_FF_HEADER="DEEP DIVE"
-THEME_FF_SUB="// pressure nominal"
 
 text="#d8eef2"; subtext1="#aed2dc"; subtext0="#86b5c4"
 overlay2="#6297aa"; overlay1="#467b90"; overlay0="#2f5f75"

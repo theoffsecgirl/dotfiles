@@ -78,7 +78,7 @@ updateall      # update_system (OS packages) + pip + nvim plugins
 
 ## Themes
 
-The terminal has a theme switcher. One command recolors **Ghostty, the Starship prompt, fzf, tmux, fastfetch and Neovim** together, and each theme brings its own fastfetch pixel-art (pumpkin, octopus, bat, space invader…):
+The terminal has a theme switcher. One command recolors **Ghostty, the Starship prompt, fzf, tmux, fastfetch and Neovim** together. Minimal look: no pixel-art, emojis or taglines; fastfetch shows just the info:
 
 ```bash
 theme                    # fzf picker with a live palette preview
@@ -126,7 +126,7 @@ theme reset              # back to neon-fuchsia
 <tr><td align="center"><img src="docs/themes/soft-concrete.png" width="420" alt="soft-concrete"><br><code>soft-concrete</code></td><td></td></tr>
 </table>
 
-The current terminal changes instantly; other Ghostty tabs pick it up with `Cmd+Shift+,`, Neovim on next launch. The choice lives in `~/.local/state/theme/` (outside the repo). To add a theme, copy any `config/.config/themes/*.theme` and edit the colors; its pixel-art goes in `config/.config/fastfetch/logos/<theme>.txt` (one letter per pixel = a theme color role); regenerate the gallery images with `python3 docs/themes/gen-previews.py`.
+The current terminal changes instantly; other Ghostty tabs pick it up with `Cmd+Shift+,`, Neovim on next launch. The choice lives in `~/.local/state/theme/` (outside the repo). To add a theme, copy any `config/.config/themes/*.theme` and edit the colors; regenerate the gallery images with `python3 docs/themes/gen-previews.py`.
 
 ## Tests
 

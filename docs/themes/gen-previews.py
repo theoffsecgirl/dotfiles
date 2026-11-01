@@ -15,9 +15,8 @@ ROOT = Path(__file__).resolve().parents[2]
 THEMES = ROOT / "config/.config/themes"
 OUT = ROOT / "docs/themes"
 
-W, H = 760, 215
-LOGOS = ROOT / "config/.config/fastfetch/logos"
-LX = 210  # ancho reservado al dibujo
+W, H = 620, 185
+LX = 28
 FONT = "'JetBrains Mono','JetBrainsMono Nerd Font','SF Mono',Menlo,Consolas,monospace"
 
 
@@ -50,11 +49,7 @@ def svg(name, v):
         out.append(f'<circle cx="{22 + i * 18}" cy="15" r="5.5" fill="{c}"/>')
     out.append(f'<text x="{W/2}" y="19.5" font-size="12" text-anchor="middle" fill="{m}">{html.escape(name)}</text>')
 
-    hdr = v.get("THEME_FF_HEADER", "SYSTEM ONLINE")
-    sub = v.get("THEME_FF_SUB", "// access granted")
     y = 56
-    out.append(line(y, [("▓▒░ ", a, False), (hdr, s, True), (" ░▒▓  ", a, False), (sub, p, False)]))
-    y += 30
     out.append(line(y, [("╭─ ", p, True), ("theoffsecgirl", s, True), ("@", a, False), ("macbook ", a, True),
                         ("~/hunting ", p, True), ("on ", m, False), (" main ", e, True), ("[!]", v["yellow"], True)]))
     y += 21
@@ -66,19 +61,6 @@ def svg(name, v):
     y += 19
     out.append(line(y, [("445/tcp ", t, False), ("filtered ", v["red"], True), ("microsoft-ds", dim, False), ("   # revisar luego", dim, False)]))
 
-    # dibujo del tema (mismo que fastfetch)
-    grid_file = LOGOS / f"{v.get('THEME_LOGO', name)}.txt"
-    if grid_file.exists():
-        role = dict(P="primary", S="secondary", A="accent", E="extra", T="text", R="red", G="green",
-                    Y="yellow", M="overlay1", D="base", W="c15")
-        g = grid_file.read_text().split()
-        px = min(150 / max(len(r) for r in g), 140 / len(g))
-        ox = 22 + (150 - px * max(len(r) for r in g)) / 2
-        oy = 40 + (140 - px * len(g)) / 2
-        for j, r in enumerate(g):
-            for i, ch in enumerate(r):
-                if ch in role:
-                    out.append(f'<rect x="{ox + i*px:.1f}" y="{oy + j*px:.1f}" width="{px+0.3:.1f}" height="{px+0.3:.1f}" fill="{v[role[ch]]}"/>')
     # paleta ANSI
     gap, x0, yb = 4, LX, H - 34
     sw = (W - x0 - 22 - 15 * gap) / 16

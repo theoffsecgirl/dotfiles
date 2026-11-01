@@ -78,7 +78,7 @@ updateall      # update_system (paquetes del SO) + pip + plugins de nvim
 
 ## Temas
 
-La terminal tiene selector de temas. Un solo comando cambia a la vez **Ghostty, el prompt de Starship, fzf, tmux, fastfetch y Neovim**, y cada tema trae su propio dibujo en fastfetch (calabaza, pulpo, murciélago, invasor espacial…):
+La terminal tiene selector de temas. Un solo comando cambia a la vez **Ghostty, el prompt de Starship, fzf, tmux, fastfetch y Neovim**. Estética minimal: sin dibujos, emojis ni frases; fastfetch solo muestra la información:
 
 ```bash
 theme                    # selector con fzf y vista previa de cada paleta
@@ -128,7 +128,7 @@ theme reset              # volver a neon-fuchsia
 
 La terminal actual cambia al momento; en el resto de pestañas de Ghostty pulsa `Cmd+Shift+,` y Neovim lo coge al reabrirlo. La elección se guarda en `~/.local/state/theme/` (fuera del repo).
 
-**Crear un tema nuevo:** copia cualquier `config/.config/themes/*.theme`, cambia los colores y ya aparece en `theme list`. Para uno claro, añade `THEME_MODE="light"` y `bright="<color de texto más oscuro>"` (mira `paper-latte`). Su dibujo va en `config/.config/fastfetch/logos/<tema>.txt`: una cuadrícula donde cada letra es un color del tema (`P` principal, `S` secundario, `A` acento, `E` extra, `T` texto, `R` rojo, `G` verde, `Y` amarillo, `M` gris, `D` fondo, `W` blanco, `.` vacío). Para su imagen de la galería: `python3 docs/themes/gen-previews.py`.
+**Crear un tema nuevo:** copia cualquier `config/.config/themes/*.theme`, cambia los colores y ya aparece en `theme list`. Para uno claro, añade `THEME_MODE="light"` y `bright="<color de texto más oscuro>"` (mira `paper-latte`). Para su imagen de la galería: `python3 docs/themes/gen-previews.py`.
 
 ## Tests
 

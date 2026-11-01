@@ -2,9 +2,6 @@
 # Papel crema, tinta marrón, terracota, mostaza y verde azulado.
 
 THEME_DESC="Claro y cálido: papel crema, terracota y mostaza (para el día)"
-THEME_ICON="☕"
-THEME_FF_HEADER="GOOD MORNING"
-THEME_FF_SUB="// coffee first, exploits later"
 
 # Tema claro: Ghostty usa barra clara, Neovim "latte" y el texto fuerte es oscuro
 THEME_MODE="light"

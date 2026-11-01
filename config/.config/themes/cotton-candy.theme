@@ -2,9 +2,6 @@
 # Blanco rosado, rosa chicle, azul algodón y lila.
 
 THEME_DESC="Claro pastel: rosa chicle, azul algodón y lila sobre blanco rosado"
-THEME_ICON="🍬"
-THEME_FF_HEADER="SWEET MODE"
-THEME_FF_SUB="// sugar rush"
 
 # Tema claro
 THEME_MODE="light"

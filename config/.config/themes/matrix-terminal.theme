@@ -2,9 +2,6 @@
 # Negro puro, verde fósforo, lima y un toque ámbar de monitor antiguo.
 
 THEME_DESC="Hacker CRT: verde fósforo, lima y ámbar sobre negro"
-THEME_ICON="👾"
-THEME_FF_HEADER="FOLLOW THE GREEN"
-THEME_FF_SUB="// root shell acquired"
 
 text="#c8f7cc"; subtext1="#a3dcaa"; subtext0="#7fbf88"
 overlay2="#5c9a66"; overlay1="#437a4c"; overlay0="#2f5a37"

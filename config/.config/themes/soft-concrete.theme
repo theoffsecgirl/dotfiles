@@ -3,9 +3,6 @@
 # topo, óxido de los árboles, cristal gris azulado y el amarillo apagado de los taxis.
 
 THEME_DESC="Minimal soft: piedra, topo, óxido suave y cristal gris azulado"
-THEME_ICON="🤍"
-THEME_FF_HEADER="SOFT FOCUS"
-THEME_FF_SUB="// slow mornings, quiet city"
 
 text="#e6e2db"; subtext1="#c4bfb7"; subtext0="#aca69d"
 overlay2="#958a7f"; overlay1="#776c62"; overlay0="#5a5047"

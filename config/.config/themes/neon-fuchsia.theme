@@ -3,9 +3,6 @@
 # Formato: ficheros sourceables por bash/zsh. Lo lee el comando `theme`.
 
 THEME_DESC="Cyber neón: fucsia, rosa y cian sobre morado casi negro"
-THEME_ICON=""
-THEME_FF_HEADER="SYSTEM ONLINE"
-THEME_FF_SUB="// access granted"
 
 # Bases (de más claro a más oscuro)
 text="#f5e1ff";     subtext1="#dcc6f2"; subtext0="#c0a8db"

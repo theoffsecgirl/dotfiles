@@ -2,9 +2,6 @@
 # Blanco menta, verde bosque, azul petróleo y coral suave.
 
 THEME_DESC="Claro y fresco: blanco menta, verde bosque y azul petróleo"
-THEME_ICON="🌿"
-THEME_FF_HEADER="FRESH START"
-THEME_FF_SUB="// clean slate"
 
 # Tema claro
 THEME_MODE="light"

@@ -2,9 +2,6 @@
 # Minimalista: tinta, grafito y gris, con rojo para lo importante.
 
 THEME_DESC="Minimalista: grises de tinta con un único acento rojo"
-THEME_ICON="🖤"
-THEME_FF_HEADER="LESS IS MORE"
-THEME_FF_SUB="// signal over noise"
 
 text="#e8e8e8"; subtext1="#c8c8c8"; subtext0="#a8a8a8"
 overlay2="#8a8a8a"; overlay1="#707070"; overlay0="#575757"
