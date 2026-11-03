@@ -4,6 +4,8 @@
 "$schema" = "https://starship.rs/config-schema.json"
 
 add_newline = true
+scan_timeout = 100
+command_timeout = 1000
 palette = "neon_fuchsia"
 
 format = """
