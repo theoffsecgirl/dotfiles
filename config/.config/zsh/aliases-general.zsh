@@ -153,6 +153,23 @@ if command -v docker >/dev/null 2>&1; then
 fi
 
 # -------------------------
+# Recon pasivo
+# -------------------------
+# waym: waymore en modo solo URLs (-mode U). Lo que va tras el host se pasa
+# tal cual a waymore. Solo se define si waymore está instalado (pipx).
+if command -v waymore >/dev/null 2>&1; then
+  waym() {
+    if [[ -z "$1" ]]; then
+      echo "Uso: waym <host> [otros parámetros opcionales que quieras pasar a waymore]"
+      return 1
+    fi
+    local host="$1"
+    shift
+    waymore -i "$host" -mode U "$@"
+  }
+fi
+
+# -------------------------
 # Edición rápida de configuración
 # -------------------------
 # ezsh abre el directorio zsh de los dotfiles. dalias/dfunctions apuntan al
@@ -369,6 +386,7 @@ tips() {
   _tips_func probe "Helper legacy para probar HTTP con httpx"
   _tips_func recon "Pipeline legacy rápido de recon"
   _tips_func inscope "Filtrar resultados por scope"
+  _tips_func waym "waymore solo URLs: waym <host> [opciones extra]"
 
   _tips_section "HTTP Y FUZZING"
   _tips_alias h "Ejecutar httpx básico"
