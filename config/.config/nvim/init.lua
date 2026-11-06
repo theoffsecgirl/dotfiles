@@ -301,7 +301,7 @@ require("lazy").setup({
     dependencies = { "nvim-tree/nvim-web-devicons" },
     opts = {
       options = {
-        theme                = "catppuccin",
+        theme                = "catppuccin-nvim",  -- nombre nuevo desde la reorganización de catppuccin (antes "catppuccin")
         component_separators = { left = "│", right = "│" },
         section_separators   = { left = "", right = "" },
         globalstatus         = true,
