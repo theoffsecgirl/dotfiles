@@ -87,6 +87,7 @@ unset _plugin
 
 # Prompt
 if command -v starship >/dev/null 2>&1; then
+  export STARSHIP_LOG=error
   eval "$(starship init zsh)"
 fi
 
